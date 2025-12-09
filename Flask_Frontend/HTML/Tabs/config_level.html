@@ -1,0 +1,128 @@
+<!--
+  Component: Leveling System Configuration Panel
+  Purpose:
+    - Provide a tabbed interface for configuring the leveling system.
+    - Subsections:
+        • Role Rewards: Configure level-based role rewards.
+        • Leaderboard: Manage leaderboard display and behavior.
+        • Settings: General XP and leveling configuration.
+
+  Structure Overview:
+    1) .leveling-wrapper
+       - Section header with icon, title, and description.
+       - Sub-tab button group for switching between configuration views.
+    2) Sub-Tab Content Containers
+       - #level-sub-rewards: Includes role reward configuration partial.
+       - #level-sub-leaderboard: Includes leaderboard configuration partial.
+       - #level-sub-settings: Includes global leveling settings partial.
+    3) Script: switchLevelSubTab(tab, btn)
+       - Handles tab switching:
+           • Hides all .level-sub-content containers.
+           • Removes "active" class from all .sub-tab-btn elements.
+           • Shows the requested tab by ID and activates the clicked button.
+
+  Integration Notes:
+    - This component assumes:
+        • TailwindCSS utility classes for styling.
+        • "active" class is styled in CSS for the selected tab button.
+        • Included partial templates:
+            - Tabs/SubTabsLevel/config_level_reward.html
+            - Tabs/SubTabsLevel/config_level_leaderboard.html
+            - Tabs/SubTabsLevel/config_level_setting.html
+    - JavaScript:
+        • No external libraries required (pure DOM API).
+        • Function is defined inline for simplicity and used via onclick handlers.
+-->
+
+<div class="leveling-wrapper">
+  <!-- Section Header: Title + Description -->
+  <h2 class="text-2xl font-bold mb-2 flex items-center gap-3">
+    <i class="fas fa-trophy text-yellow-400"></i>
+    Leveling System
+  </h2>
+  <p class="text-slate-500 mb-6">
+    Configure level-up rewards and leaderboard settings.
+  </p>
+
+  <!-- Sub-Tab Button Group
+       - Buttons:
+           • Role Rewards (default active)
+           • Leaderboard
+           • Settings
+       - Behavior:
+           • Uses switchLevelSubTab() to toggle matching content containers.
+  -->
+  <div
+    class="flex flex-wrap justify-center sm:justify-start gap-2 sm:gap-4 mb-6 bg-brand-dark/30 p-1.5 rounded-lg w-fit max-w-full"
+  >
+    <button
+      class="sub-tab-btn active"
+      onclick="switchLevelSubTab('rewards', this)"
+    >
+      <i class="fas fa-gift mr-2"></i>Role Rewards
+    </button>
+    <button
+      class="sub-tab-btn"
+      onclick="switchLevelSubTab('leaderboard', this)"
+    >
+      <i class="fas fa-list-ol mr-2"></i>Leaderboard
+    </button>
+    <button class="sub-tab-btn" onclick="switchLevelSubTab('settings', this)">
+      <i class="fas fa-sliders-h mr-2"></i>Settings
+    </button>
+  </div>
+
+  <!-- Sub-Tab Content: Role Rewards
+       - Default visible tab at page load.
+       - Partial provides UI for configuring level → role mappings.
+  -->
+  <div id="level-sub-rewards" class="level-sub-content">
+    {% include 'Tabs/SubTabsLevel/config_level_reward.html' %}
+  </div>
+
+  <!-- Sub-Tab Content: Leaderboard
+       - Initially hidden; shown when "Leaderboard" tab is active.
+  -->
+  <div id="level-sub-leaderboard" class="level-sub-content hidden">
+    {% include 'Tabs/SubTabsLevel/config_level_leaderboard.html' %}
+  </div>
+
+  <!-- Sub-Tab Content: Settings
+       - Initially hidden; shown when "Settings" tab is active.
+  -->
+  <div id="level-sub-settings" class="level-sub-content hidden">
+    {% include 'Tabs/SubTabsLevel/config_level_setting.html' %}
+  </div>
+</div>
+
+<script>
+  /**
+   * Switches between Leveling System sub-tabs.
+   *
+   * @param {string} tab - The target tab key (e.g. "rewards", "leaderboard", "settings").
+   * @param {HTMLButtonElement} btn - The button element that triggered the switch.
+   *
+   * Behavior:
+   *   - Hides all elements with class "level-sub-content".
+   *   - Removes "active" class from all elements with class "sub-tab-btn".
+   *   - Shows the content container whose ID matches "level-sub-" + tab.
+   *   - Adds "active" class to the clicked button.
+   */
+  function switchLevelSubTab(tab, btn) {
+    // Hide all sub-tab content containers
+    document
+      .querySelectorAll(".level-sub-content")
+      .forEach((el) => el.classList.add("hidden"));
+
+    // Reset active state on all sub-tab buttons
+    document
+      .querySelectorAll(".sub-tab-btn")
+      .forEach((el) => el.classList.remove("active"));
+
+    // Show the selected sub-tab content
+    document.getElementById("level-sub-" + tab).classList.remove("hidden");
+
+    // Mark the clicked button as active
+    btn.classList.add("active");
+  }
+</script>

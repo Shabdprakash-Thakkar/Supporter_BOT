@@ -1,0 +1,309 @@
+/* ==========================================================================
+   Supporter Bot - Feature Details & CTA Styles
+   - Hero section layout & animated background blobs
+   - Detailed feature cards with highlights
+   - Call-to-action (CTA) section
+   - Responsive behavior
+   - Dark / light mode visual adjustments
+   ========================================================================== */
+
+@import url("./base.css");
+
+/* ==========================================================================
+   Hero Section & Background Blobs
+   ========================================================================== */
+
+.hero-section {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 120px;
+  padding-bottom: 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.blob-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+}
+
+.blob-purple {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(
+    circle,
+    rgba(99, 102, 241, 0.4) 0%,
+    transparent 70%
+  );
+  top: -200px;
+  right: -100px;
+  animation: blob-move 12s ease-in-out infinite;
+}
+
+.blob-blue {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.3) 0%,
+    transparent 70%
+  );
+  bottom: -150px;
+  left: -100px;
+  animation: blob-move 15s ease-in-out infinite reverse;
+}
+
+.blob-pink {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(
+    circle,
+    rgba(236, 72, 153, 0.3) 0%,
+    transparent 70%
+  );
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: blob-move 10s ease-in-out infinite;
+  animation-delay: -3s;
+}
+
+.hero-title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   Feature Detailed Cards & Highlights
+   ========================================================================== */
+
+.feature-detailed-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px var(--shadow-color);
+}
+
+.feature-detailed-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.15);
+}
+
+.feature-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.feature-icon-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.feature-detailed-card:hover .feature-icon-large {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.feature-detailed-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.feature-detailed-subtitle {
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.feature-content {
+  padding: 0;
+}
+
+.feature-description {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #475569;
+  margin-bottom: 2rem;
+}
+
+.feature-highlights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.highlight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.highlight-item:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(99, 102, 241, 0.2);
+  transform: translateX(4px);
+}
+
+.highlight-item i {
+  font-size: 1.5rem;
+  margin-top: 0.25rem;
+  flex-shrink: 0;
+}
+
+.highlight-item h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+}
+
+.highlight-item p {
+  font-size: 0.875rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   Call-To-Action (CTA) Card
+   ========================================================================== */
+
+.cta-card {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  border-radius: 2rem;
+  padding: 4rem 3rem;
+  text-align: center;
+  color: white;
+  box-shadow: 0 25px 50px rgba(99, 102, 241, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding-top: 100px;
+    padding-bottom: 40px;
+  }
+
+  .feature-detailed-card {
+    padding: 1.5rem;
+  }
+
+  .feature-header {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .feature-icon-large {
+    width: 64px;
+    height: 64px;
+    font-size: 2rem;
+  }
+
+  .feature-detailed-title {
+    font-size: 1.5rem;
+  }
+
+  .feature-highlights {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-card {
+    padding: 3rem 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .feature-detailed-card {
+    padding: 1.25rem;
+  }
+
+  .feature-description {
+    font-size: 0.95rem;
+  }
+
+  .highlight-item {
+    padding: 1rem;
+  }
+}
+
+/* ==========================================================================
+   Theme-Specific Adjustments (Dark / Light)
+   ========================================================================== */
+
+.dark .feature-detailed-card {
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.dark .highlight-item {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.dark .highlight-item:hover {
+  background: rgba(30, 41, 59, 0.8);
+}
+
+body:not(.dark) .feature-detailed-card {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+body:not(.dark) .highlight-item {
+  background: rgba(248, 250, 252, 0.8);
+}
+
+body:not(.dark) .highlight-item:hover {
+  background: rgba(241, 245, 249, 1);
+}

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<!--
+  File: dashboard_landing.html
+  Description: Marketing-style landing page for the Supporter Bot web dashboard.
+  Purpose:
+    - Explain the value of the web dashboard and how it works.
+    - Funnel users into logging in with Discord to access the actual dashboard.
+    - Highlight dashboard capabilities (features, management, workflow).
+  Stack & Integration:
+    - Flask + Jinja2 templating
+    - Tailwind CSS (CDN) + custom CSS (dashboard_landing.css)
+    - Font Awesome for iconography
+  Data Requirements:
+    - No dynamic variables required beyond standard Flask/Jinja context.
+-->
+
+<html lang="en" class="dark">
+  <head>
+    <!-- ========== META & PAGE SETTINGS ========== -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Supporter Bot</title>
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="{{ url_for('static', filename='Assets/quality-32px.png') }}"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="{{ url_for('static', filename='Assets/quality-16px.png') }}"
+    />
+    <meta
+      name="description"
+      content="Manage your Discord server with ease using Supporter Bot's powerful web dashboard. Configure features, view analytics, and control everything from one place."
+    />
+
+    <!-- ========== CORE EXTERNAL LIBRARIES ========== -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- ========== TAILWIND CONFIGURATION ========== -->
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Outfit", "sans-serif"] },
+            colors: {
+              brand: { purple: "#6366f1", dark: "#0f172a", card: "#1e293b" },
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- ========== THEME INITIALIZATION (DARK MODE) ========== -->
+    <script>
+      /*
+        Theme bootstrap:
+        - Reads the persisted "theme" value from localStorage.
+        - Applies the "dark" class to <html> before initial paint to avoid flicker.
+      */
+      (function () {
+        const theme = localStorage.getItem("theme") || "dark";
+        if (theme === "dark") {
+          document.documentElement.classList.add("dark");
+        }
+      })();
+    </script>
+
+    <!-- ========== PAGE-SPECIFIC STYLES ========== -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='CSS/dashboard_landing.css') }}"
+    />
+  </head>
+
+  <body class="bg-brand-dark text-white transition-colors duration-300">
+    {% include 'partials/navbar.html' %}
+
+    <!-- ========== HERO / OVERVIEW SECTION ========== -->
+    <section class="hero-section">
+      <div class="blob-container">
+        <div class="blob blob-purple"></div>
+        <div class="blob blob-blue"></div>
+        <div class="blob blob-pink"></div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-6 text-center relative z-10">
+        <div
+          class="inline-block px-6 py-2 bg-indigo-500/10 border border-indigo-500/30 rounded-full mb-6 animate-fade-in-up"
+        >
+          <span
+            class="text-indigo-400 font-bold text-sm uppercase tracking-wider"
+            >🎛️ Web Dashboard</span
+          >
+        </div>
+
+        <h1 class="hero-title">
+          Manage Your Server<br />
+          <span class="gradient-text">From Anywhere</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          Access a powerful, intuitive web dashboard to configure all bot
+          features, view analytics, and manage your Discord server without
+          typing a single command.
+        </p>
+
+        <!-- Primary login / info call-to-actions -->
+        <div class="cta-buttons">
+          <a href="/dashboard/login" class="btn-primary">
+            <i class="fab fa-discord"></i>
+            Login with Discord
+            <i class="fas fa-arrow-right ml-2"></i>
+          </a>
+          <a href="#features" class="btn-secondary">
+            <i class="fas fa-info-circle"></i>
+            Learn More
+          </a>
+        </div>
+
+        <!-- Dashboard UI mock / visual preview -->
+        <div class="dashboard-preview">
+          <div class="preview-card">
+            <div class="preview-header">
+              <div class="preview-dots">
+                <span class="dot dot-red"></span>
+                <span class="dot dot-yellow"></span>
+                <span class="dot dot-green"></span>
+              </div>
+              <span class="preview-title">Supporter Dashboard</span>
+              <div class="preview-actions">
+                <i class="fas fa-sync-alt"></i>
+                <i class="fas fa-search"></i>
+                <i class="fas fa-bell"></i>
+              </div>
+            </div>
+            <div class="preview-content">
+              <div class="preview-sidebar">
+                <div class="sidebar-item active">
+                  <i class="fas fa-home"></i>
+                  <span>Overview</span>
+                </div>
+                <div class="sidebar-item">
+                  <i class="fas fa-trophy"></i>
+                  <span>Leveling</span>
+                </div>
+                <div class="sidebar-item">
+                  <i class="fas fa-globe"></i>
+                  <span>Time/Clock</span>
+                </div>
+                <div class="sidebar-item">
+                  <i class="fab fa-youtube"></i>
+                  <span>YouTube</span>
+                </div>
+                <div class="sidebar-item">
+                  <i class="fas fa-shield-alt"></i>
+                  <span>Restrictions</span>
+                </div>
+                <div class="sidebar-item">
+                  <i class="fas fa-clock"></i>
+                  <span>Reminders</span>
+                </div>
+                <div class="sidebar-item">
+                  <i class="fas fa-chart-bar"></i>
+                  <span>Analytics</span>
+                </div>
+              </div>
+              <div class="preview-main">
+                <div class="stats-grid">
+                  <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <div class="stat-value">...</div>
+                    <div class="stat-label">Members</div>
+                  </div>
+                  <div class="stat-card">
+                    <i class="fas fa-chart-line"></i>
+                    <div class="stat-value">...</div>
+                    <div class="stat-label">Growth</div>
+                  </div>
+                  <div class="stat-card">
+                    <i class="fas fa-comments"></i>
+                    <div class="stat-value">...</div>
+                    <div class="stat-label">Messages</div>
+                  </div>
+                </div>
+                <div class="chart-placeholder">
+                  <div class="chart-bar" style="height: 60%"></div>
+                  <div class="chart-bar" style="height: 80%"></div>
+                  <div class="chart-bar" style="height: 45%"></div>
+                  <div class="chart-bar" style="height: 90%"></div>
+                  <div class="chart-bar" style="height: 70%"></div>
+                  <div class="chart-bar" style="height: 95%"></div>
+                  <div class="chart-bar" style="height: 75%"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== DASHBOARD BENEFITS / FEATURES SECTION ========== -->
+    <section class="py-20 relative" id="features">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl font-bold mb-4">Why Use the Dashboard?</h2>
+          <p class="text-slate-400 text-lg max-w-2xl mx-auto">
+            Everything you need to manage your server, accessible from any
+            device with a modern interface.
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <div class="feature-card animate-fade-in-up">
+            <div
+              class="feature-icon bg-gradient-to-br from-blue-500 to-indigo-500"
+            >
+              <i class="fas fa-mouse-pointer"></i>
+            </div>
+            <h3 class="feature-title">No Commands Required</h3>
+            <p class="feature-desc">
+              Configure everything with intuitive point-and-click controls. No
+              need to memorize complex command syntax.
+            </p>
+          </div>
+
+          <div class="feature-card animate-fade-in-up animation-delay-200">
+            <div
+              class="feature-icon bg-gradient-to-br from-purple-500 to-pink-500"
+            >
+              <i class="fas fa-chart-bar"></i>
+            </div>
+            <h3 class="feature-title">Real-Time Analytics</h3>
+            <p class="feature-desc">
+              View server statistics, member growth, and engagement metrics
+              updated in real-time.
+            </p>
+          </div>
+
+          <div class="feature-card animate-fade-in-up animation-delay-400">
+            <div
+              class="feature-icon bg-gradient-to-br from-green-500 to-teal-500"
+            >
+              <i class="fas fa-mobile-alt"></i>
+            </div>
+            <h3 class="feature-title">Mobile Friendly</h3>
+            <p class="feature-desc">
+              Manage your server from anywhere - desktop, tablet, or mobile.
+              Fully responsive design.
+            </p>
+          </div>
+
+          <div class="feature-card animate-fade-in-up animation-delay-600">
+            <div
+              class="feature-icon bg-gradient-to-br from-orange-500 to-red-500"
+            >
+              <i class="fas fa-sliders-h"></i>
+            </div>
+            <h3 class="feature-title">Advanced Controls</h3>
+            <p class="feature-desc">
+              Fine-tune every feature with granular settings and customization
+              options.
+            </p>
+          </div>
+
+          <div class="feature-card animate-fade-in-up animation-delay-800">
+            <div
+              class="feature-icon bg-gradient-to-br from-yellow-500 to-orange-500"
+            >
+              <i class="fas fa-bolt"></i>
+            </div>
+            <h3 class="feature-title">Instant Updates</h3>
+            <p class="feature-desc">
+              Changes take effect immediately. No waiting, no delays - configure
+              and see results instantly.
+            </p>
+          </div>
+
+          <div class="feature-card animate-fade-in-up animation-delay-1000">
+            <div
+              class="feature-icon bg-gradient-to-br from-indigo-500 to-purple-500"
+            >
+              <i class="fas fa-lock"></i>
+            </div>
+            <h3 class="feature-title">Secure & Safe</h3>
+            <p class="feature-desc">
+              OAuth2 authentication with Discord. Your data is encrypted and
+              secure at all times.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== CAPABILITIES / MANAGEABLE AREAS SECTION ========== -->
+    <section class="py-20 bg-brand-card/30 relative">
+      <div class="max-w-7xl mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl font-bold mb-4">What You Can Manage</h2>
+          <p class="text-slate-400 text-lg">
+            Full control over all bot features from one centralized dashboard
+          </p>
+        </div>
+
+        <div class="capabilities-grid">
+          <div class="capability-item">
+            <i class="fas fa-trophy text-yellow-400"></i>
+            <div>
+              <h4>Leveling System</h4>
+              <p>Configure XP rates, level rewards, and leaderboard settings</p>
+            </div>
+          </div>
+
+          <div class="capability-item">
+            <i class="fab fa-youtube text-red-400"></i>
+            <div>
+              <h4>YouTube Notifications</h4>
+              <p>Add/remove channels, customize notification messages</p>
+            </div>
+          </div>
+
+          <div class="capability-item">
+            <i class="fas fa-shield-alt text-orange-400"></i>
+            <div>
+              <h4>Channel Restrictions</h4>
+              <p>Set up media-only or text-only channels with exemptions</p>
+            </div>
+          </div>
+
+          <div class="capability-item">
+            <i class="fas fa-clock text-green-400"></i>
+            <div>
+              <h4>Reminders & Time</h4>
+              <p>Create recurring reminders and set server timezone</p>
+            </div>
+          </div>
+
+          <div class="capability-item">
+            <i class="fas fa-users text-blue-400"></i>
+            <div>
+              <h4>Member Management</h4>
+              <p>View member stats, activity, and engagement metrics</p>
+            </div>
+          </div>
+
+          <div class="capability-item">
+            <i class="fas fa-cog text-purple-400"></i>
+            <div>
+              <h4>Server Settings</h4>
+              <p>Configure general bot settings and preferences</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== HOW IT WORKS / ONBOARDING STEPS SECTION ========== -->
+    <section class="py-20 relative">
+      <div class="max-w-5xl mx-auto px-6">
+        <div class="text-center mb-16">
+          <h2 class="text-4xl font-bold mb-4">How It Works</h2>
+          <p class="text-slate-400 text-lg">
+            Get started in just 3 simple steps
+          </p>
+        </div>
+
+        <div class="steps-container">
+          <div class="step-card">
+            <div class="step-number">1</div>
+            <div class="step-content">
+              <h3 class="step-title">Login with Discord</h3>
+              <p class="step-desc">
+                Click the "Login with Discord" button and authorize the
+                dashboard to access your server list.
+              </p>
+            </div>
+            <div class="step-icon">
+              <i class="fab fa-discord"></i>
+            </div>
+          </div>
+
+          <div class="step-arrow">
+            <i class="fas fa-arrow-down"></i>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">2</div>
+            <div class="step-content">
+              <h3 class="step-title">Select Your Server</h3>
+              <p class="step-desc">
+                Choose which server you want to manage. You'll see all servers
+                where you have admin permissions.
+              </p>
+            </div>
+            <div class="step-icon">
+              <i class="fas fa-server"></i>
+            </div>
+          </div>
+
+          <div class="step-arrow">
+            <i class="fas fa-arrow-down"></i>
+          </div>
+
+          <div class="step-card">
+            <div class="step-number">3</div>
+            <div class="step-content">
+              <h3 class="step-title">Configure & Manage</h3>
+              <p class="step-desc">
+                Access all features, view analytics, and customize settings with
+                an easy-to-use interface.
+              </p>
+            </div>
+            <div class="step-icon">
+              <i class="fas fa-sliders-h"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== FINAL CALL-TO-ACTION SECTION ========== -->
+    <section class="py-20 relative">
+      <div class="max-w-4xl mx-auto px-6">
+        <div class="final-cta-card">
+          <div
+            class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl"
+          ></div>
+          <div
+            class="absolute bottom-0 left-0 w-64 h-64 bg-black/10 rounded-full -ml-16 -mb-16 blur-3xl"
+          ></div>
+
+          <div class="text-center relative z-10">
+            <div class="inline-block mb-6">
+              <div
+                class="w-20 h-20 bg-white/10 rounded-2xl flex items-center justify-center text-4xl backdrop-blur-sm"
+              >
+                <i class="fab fa-discord"></i>
+              </div>
+            </div>
+
+            <h2 class="text-4xl md:text-5xl font-black mb-6">
+              Ready to Get Started?
+            </h2>
+            <p class="text-lg text-indigo-100 mb-10 max-w-xl mx-auto">
+              Login with Discord to access your personalized dashboard and start
+              managing your server like a pro.
+            </p>
+
+            <a href="/dashboard/login" class="btn-cta">
+              <i class="fab fa-discord"></i>
+              Login with Discord
+              <i class="fas fa-arrow-right ml-2"></i>
+            </a>
+
+            <p class="text-sm text-indigo-200/60 mt-6">
+              <i class="fas fa-lock mr-2"></i>
+              Secure OAuth2 authentication • No password required
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========== FOOTER ========== -->
+    <footer
+      class="text-center py-8 text-slate-500 text-sm border-t border-slate-800"
+    >
+      <div class="max-w-7xl mx-auto px-4">
+        <div class="flex flex-wrap justify-center gap-6 mb-4">
+          <a
+            href="/terms-of-service"
+            target="_blank"
+            class="hover:text-indigo-400 transition-colors"
+            >Terms of Service</a
+          >
+          <a
+            href="/privacy-policy"
+            target="_blank"
+            class="hover:text-indigo-400 transition-colors"
+            >Privacy Policy</a
+          >
+          <a
+            href="/contact"
+            target="_blank"
+            class="hover:text-indigo-400 transition-colors"
+            >Contact</a
+          >
+        </div>
+        <p>&copy; 2025 Supporter Bot. All rights reserved.</p>
+      </div>
+    </footer>
+
+    <!-- ========== PAGE-SPECIFIC SCRIPT ========== -->
+    <script src="{{ url_for('static', filename='JS/dashboard_landing.js') }}"></script>
+  </body>
+</html>

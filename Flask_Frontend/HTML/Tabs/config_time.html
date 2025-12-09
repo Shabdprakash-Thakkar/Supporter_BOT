@@ -1,0 +1,183 @@
+<!--
+  Component: Time Channels Management Panel
+  Description:
+    - Dashboard section for configuring dynamic timezone-based voice channels.
+    - Allows users to:
+        • View all existing time channels (clock cards loaded via JavaScript).
+        • Open a modal to create new clock configurations.
+  Structure:
+    - Header:
+        • Icon + title ("Time Channels") and short description.
+    - Toolbar:
+        • Left: informational note about 10-minute update interval.
+        • Right: "Add Clock" button opening the Add Clock modal.
+    - Clock Grid:
+        • #clockList grid into which existing clocks are rendered dynamically.
+    - Info Box:
+        • "How it works" explanation for users.
+  Integration Notes:
+    - JavaScript is expected to:
+        • Bind #addClockBtn to show the #timeModal.
+        • Populate #clockList with server-specific clock configurations.
+-->
+
+<div class="time-wrapper">
+  <h2 class="text-2xl font-bold mb-2 flex items-center gap-3">
+    <i class="fas fa-clock text-blue-400"></i>
+    Time Channels
+  </h2>
+  <p class="text-slate-500 mb-6">
+    Create voice channels that display live time in different timezones.
+  </p>
+
+  <div class="flex justify-between items-center mb-6">
+    <div class="text-sm text-slate-500">
+      <i class="fas fa-info-circle mr-1"></i>
+      Time channels update every 10 minutes
+    </div>
+    <button class="btn-add-clock" id="addClockBtn" type="button">
+      <i class="fas fa-plus"></i>
+      Add Clock
+    </button>
+  </div>
+
+  <!--
+    Clock List Grid
+    - Container: #clockList
+    - Purpose:
+        • Holds card-style entries for each configured time channel.
+        • Populated via JavaScript based on server configuration.
+  -->
+  <div
+    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+    id="clockList"
+  >
+    <!-- Clock cards are injected here via JavaScript at runtime -->
+  </div>
+
+  <!--
+    Informational Helper Section
+    - Explains behavior and use cases of time channels to the user.
+  -->
+  <div class="mt-8 p-6 bg-brand-dark/30 rounded-xl border border-slate-700/50">
+    <h3 class="font-bold mb-3 text-slate-300">
+      <i class="fas fa-lightbulb text-yellow-400 mr-2"></i>How it works
+    </h3>
+    <ul class="text-sm text-slate-500 space-y-2">
+      <li>
+        <i class="fas fa-check text-green-400 mr-2"></i>The bot creates locked
+        voice channels with the current time
+      </li>
+      <li>
+        <i class="fas fa-check text-green-400 mr-2"></i>Channel names update
+        every 10 minutes to show current time
+      </li>
+      <li>
+        <i class="fas fa-check text-green-400 mr-2"></i>Perfect for
+        international communities
+      </li>
+    </ul>
+  </div>
+</div>
+
+<!--
+  Modal: Add Clock Configuration
+  Description:
+    - Full-screen overlay for creating a new time/channel configuration.
+    - Provides:
+        • Searchable timezone selector.
+        • Time channel selection (required).
+        • Optional date channel selection.
+  Behavior Expectations:
+    - Visibility:
+        • Toggled by JavaScript by adding/removing "hidden" on #timeModal.
+    - Actions:
+        • closeTimeModal(): hides the modal without saving.
+        • saveClock(): validates and saves the new clock configuration.
+    - Data Sources:
+        • Timezone list is used by #timezoneSearch and #timezoneDropdown.
+        • Voice channels are loaded into #timeChannelSelect and #dateChannelSelect.
+-->
+
+<div
+  id="timeModal"
+  class="fixed inset-0 bg-black/70 hidden z-50 flex items-center justify-center backdrop-blur-md"
+>
+  <div
+    class="bg-brand-header border border-slate-700 rounded-xl w-full max-w-md p-6 shadow-2xl transform scale-100 transition-all"
+  >
+    <h3 class="text-xl font-bold mb-4 flex items-center">
+      <i class="fas fa-clock mr-2 text-blue-400"></i> Add New Clock
+    </h3>
+
+    <div class="space-y-4">
+      <!-- Timezone Selection: searchable input + dropdown + hidden value field -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Timezone</label>
+
+        <div class="timezone-select-wrapper">
+          <input
+            id="timezoneSearch"
+            class="timezone-search-input"
+            type="text"
+            placeholder="Type to search timezones (e.g. Asia)..."
+            autocomplete="off"
+          />
+          <div
+            id="timezoneDropdown"
+            class="timezone-dropdown hidden"
+            role="listbox"
+            aria-labelledby="timezoneSearch"
+          ></div>
+          <input type="hidden" id="timezoneValue" />
+        </div>
+      </div>
+
+      <!-- Channel Selection: time (required) and date (optional) voice channels -->
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium mb-1">Time Channel</label>
+          <select
+            id="timeChannelSelect"
+            class="w-full bg-brand-dark border border-slate-700 rounded p-2 text-white"
+          >
+            <!-- Voice channels for time display are injected here via JavaScript -->
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium mb-1"
+            >Date Channel (Opt)</label
+          >
+          <select
+            id="dateChannelSelect"
+            class="w-full bg-brand-dark border border-slate-700 rounded p-2 text-white"
+          >
+            <!-- Voice channels for date display are injected here via JavaScript -->
+          </select>
+        </div>
+      </div>
+      <p class="text-xs text-slate-500">
+        Select voice channels to rename automatically
+      </p>
+
+      <!-- Modal Actions: cancel and save clock configuration -->
+      <div
+        class="pt-4 flex justify-end gap-3 border-t border-slate-700/50 mt-4"
+      >
+        <button
+          onclick="closeTimeModal()"
+          class="px-4 py-2 text-slate-400 hover:text-white transition-colors"
+        >
+          Cancel
+        </button>
+        <button
+          id="btnSaveClock"
+          onclick="saveClock()"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg font-medium transition-colors"
+        >
+          <i class="fas fa-save mr-2"></i>Save Clock
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

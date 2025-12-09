@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<!--
+  File: privacy_policy.html
+  Description: Privacy Policy page for the Supporter Bot website.
+  Purpose:
+    - Presents the application's privacy practices and user data handling.
+    - Uses shared navbar and layout styling for visual consistency.
+  Stack & Integration:
+    - HTML5 + Tailwind CSS (CDN)
+    - Jinja2 templating (Flask includes for navbar and policy content)
+    - Custom CSS: index.css, navbar.css, privacy_policy.css
+  Data Requirements:
+    - Expects `current_year` to be provided by the Flask backend.
+-->
+
+<html lang="en" class="dark">
+  <head>
+    <!-- ========== META & PAGE SETTINGS ========== -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Privacy Policy - Supporter Bot</title>
+
+    <!-- ========== FAVICONS ========== -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="{{ url_for('static', filename='Assets/quality-32px.png') }}"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="{{ url_for('static', filename='Assets/quality-16px.png') }}"
+    />
+
+    <!-- ========== CORE EXTERNAL LIBRARIES ========== -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- ========== TAILWIND CONFIGURATION ========== -->
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Outfit", "sans-serif"] },
+            colors: {
+              brand: { purple: "#6366f1", dark: "#0f172a", card: "#1e293b" },
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- ========== GLOBAL & PAGE-SPECIFIC STYLES ========== -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='CSS/index.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='CSS/partials/navbar.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='CSS/partials/privacy_policy.css') }}"
+    />
+  </head>
+
+  <body class="bg-brand-dark text-slate-100 transition-colors duration-300">
+    <!-- ========== GLOBAL NAVBAR ========== -->
+    {% include 'partials/navbar.html' %}
+
+    <!-- ========== MAIN CONTENT: PRIVACY POLICY ========== -->
+    <main class="pt-24 pb-12">
+      {% include 'partials/privacy_policy.html' %}
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer class="footer mt-auto">
+      <div class="max-w-7xl mx-auto px-4">
+        <div
+          class="text-center text-slate-500 text-sm py-8 border-t border-slate-800"
+        >
+          &copy; {{ current_year }} Supporter Bot. All rights reserved.
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,78 @@
+
+<!--
+  Page: Analytics History
+  Purpose:
+    - Display a chronological list of weekly analytics snapshots for a specific Discord server (guild).
+    - Provide navigation back to the main server dashboard.
+    - Allow users to open individual snapshot reports from the timeline UI.
+
+  Data Inputs (Server-Side / Templating):
+    - guild_id:   Discord server ID whose analytics history is shown.
+    - guild_name: Human-readable name of the Discord server.
+
+  Frontend Integration:
+    - Styles: /CSS/Tabs/SubTabsAnalytics/config_analytics_history.css
+    - Icons:  Font Awesome 6.4.0
+    - JS Logic: /JS/Tabs/SubTabsAnalytics/config_analytics_history.js
+        • Fetches available analytics snapshots for the given guild.
+        • Renders the snapshot timeline into #timeline.
+        • Toggles between the loading state and the "no data" empty state.
+        • Provides navigation helpers (e.g., goToDashboard()).
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analytics History - {{ guild_name }}</title>
+
+    <link
+      rel="stylesheet"
+      href="/CSS/Tabs/SubTabsAnalytics/config_analytics_history.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+
+  <body>
+    <!-- Root: Page container for analytics history view -->
+    <div class="history-container">
+      <!-- Section: Header with navigation and guild context -->
+      <div class="history-header">
+        <a href="/dashboard/server/{{ guild_id }}" class="back-btn">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        <h1><i class="fas fa-chart-line"></i> Analytics History</h1>
+        <p class="guild-name">{{ guild_name }}</p>
+      </div>
+
+      <!-- Section: Timeline list (populated dynamically via JS) -->
+      <div class="timeline" id="timeline">
+        <div class="loading-spinner">
+          <i class="fas fa-spinner fa-spin"></i>
+          <p>Loading analytics history...</p>
+        </div>
+      </div>
+
+      <!-- Section: Empty state (shown when no snapshots are available) -->
+      <div class="empty-state" id="emptyState" style="display: none">
+        <i class="fas fa-chart-bar"></i>
+        <h3>No Analytics History Yet</h3>
+        <p>Weekly analytics snapshots will appear here once generated.</p>
+        <button class="btn-primary" onclick="goToDashboard()">
+          <i class="fas fa-tachometer-alt"></i> Go to Dashboard
+        </button>
+      </div>
+    </div>
+
+    <!-- Script configuration: expose guild metadata to the JS module -->
+    <script>
+      const guildId = "{{ guild_id }}";
+      const guildName = "{{ guild_name }}";
+    </script>
+    <script src="/JS/Tabs/SubTabsAnalytics/config_analytics_history.js"></script>
+  </body>
+</html>

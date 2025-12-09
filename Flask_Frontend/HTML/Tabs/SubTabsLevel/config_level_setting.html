@@ -1,0 +1,334 @@
+<!--
+  Component: Level Settings Panel
+  Location: Dashboard → Leveling → Settings Tab
+
+  Purpose:
+    - Configure global leveling behavior for the server.
+    - Manage level-up notifications, message templates, role reward behavior,
+      and XP reset options (manual and automatic).
+
+  Frontend Behavior:
+    - Channel and role options are populated dynamically via JavaScript.
+    - Save buttons (top & bottom) are bound by class `.save-level-btn`
+      and use `data-location` to distinguish source.
+    - XP auto-reset status and schedule are updated based on server-side data.
+
+  Key Elements / IDs:
+    - levelNotifyChannel        → Dropdown for level-up notification channel.
+    - levelMessageStyle         → Dropdown for message style (embed/text/minimal).
+    - levelCustomMessage        → Textarea for standard level-up message.
+    - levelCustomMessageRole    → Textarea for role-reward level-up message.
+    - stackRoleRewards          → Toggle for keeping earlier reward roles.
+    - announceRoleRewards       → Toggle for mentioning new role in messages.
+    - btnResetAll               → Manual reset XP + remove rewards.
+    - btnResetXpOnly            → Manual reset XP only (keep rewards).
+    - autoResetRemoveRolesDays  → Interval for auto reset (with role removal).
+    - autoResetRemoveRolesEnabled → Toggle for auto reset (with role removal).
+    - autoResetDays             → Interval for auto reset (XP only).
+    - autoResetEnabled          → Toggle for auto reset (XP only).
+    - autoResetStatus           → Container for active auto-reset status.
+    - autoResetMode             → Text describing active auto-reset mode.
+    - autoResetCreatedOn        → Created timestamp of auto-reset schedule.
+    - autoResetNextReset        → Next scheduled auto-reset time.
+-->
+
+<div class="level-settings-wrapper">
+  <!-- Header: Section title and primary save action -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h3 class="font-bold text-lg">Level Settings</h3>
+      <p class="text-sm text-slate-500">
+        Configure how leveling works on your server
+      </p>
+    </div>
+    <button class="btn-save-level save-level-btn" data-location="top">
+      <i class="fas fa-save"></i>
+      Save
+    </button>
+  </div>
+
+  <!-- Body: All leveling configuration sections -->
+  <div class="space-y-6">
+    <!-- Section: Notification target & message style -->
+    <div class="settings-card">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <label class="block mb-2">Level-up Notification Channel</label>
+          <select
+            id="levelNotifyChannel"
+            class="w-full bg-brand-dark/50 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-indigo-500"
+          >
+            <option value="">Disable notifications</option>
+            <!-- Channels will be loaded dynamically via JS -->
+          </select>
+        </div>
+        <div>
+          <label class="block mb-2">Level-up Message Style</label>
+          <select
+            id="levelMessageStyle"
+            class="w-full bg-brand-dark/50 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-indigo-500"
+          >
+            <option value="embed">Rich Embed</option>
+            <option value="simple">Simple Text</option>
+            <option value="minimal">Minimal (reaction only)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Custom level-up message templates -->
+    <div class="settings-card">
+      <label class="block mb-2">Custom Level-up Message (Normal)</label>
+      <textarea
+        id="levelCustomMessage"
+        class="w-full bg-brand-dark/50 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-indigo-500 resize-none h-24 mb-4"
+        placeholder="Congratulations {user}! You reached level {level}!"
+      >
+{user} just leveled up to **Level {level}**!</textarea
+      >
+
+      <label class="block mb-2"
+        >Custom Level-up Message (With Role Reward)</label
+      >
+      <textarea
+        id="levelCustomMessageRole"
+        class="w-full bg-brand-dark/50 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-indigo-500 resize-none h-24"
+        placeholder="Congratulations {user}! You reached level {level} and got {role}!"
+      >
+{user} just leveled up to **Level {level}** and earned the **{role}** role!</textarea
+      >
+
+      <!-- Token reference: dynamic placeholders allowed in templates -->
+      <div class="mt-3 flex flex-wrap gap-2">
+        <span
+          class="text-xs px-2 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded text-indigo-400 cursor-pointer hover:bg-indigo-500/20 transition-colors"
+          >{user}</span
+        >
+        <span
+          class="text-xs px-2 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded text-indigo-400 cursor-pointer hover:bg-indigo-500/20 transition-colors"
+          >{level}</span
+        >
+        <span
+          class="text-xs px-2 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded text-indigo-400 cursor-pointer hover:bg-indigo-500/20 transition-colors"
+          >{role}</span
+        >
+        <span
+          class="text-xs px-2 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded text-indigo-400 cursor-pointer hover:bg-indigo-500/20 transition-colors"
+          >{xp}</span
+        >
+        <span
+          class="text-xs px-2 py-1 bg-indigo-500/10 border border-indigo-500/20 rounded text-indigo-400 cursor-pointer hover:bg-indigo-500/20 transition-colors"
+          >{server}</span
+        >
+      </div>
+    </div>
+
+    <!-- Section: Additional toggle options for role reward behavior -->
+    <div class="settings-card">
+      <h4 class="font-bold mb-4">Additional Options</h4>
+      <div class="space-y-4">
+        <!-- Option: Stack role rewards across levels -->
+        <div class="flex items-center justify-between">
+          <div>
+            <label class="font-medium">Stack Role Rewards</label>
+            <p class="text-xs text-slate-500">
+              Keep previous role rewards when gaining new ones
+            </p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              id="stackRoleRewards"
+              class="sr-only peer"
+              checked
+            />
+            <div
+              class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"
+            ></div>
+          </label>
+        </div>
+
+        <!-- Option: Mention role rewards in level-up message -->
+        <div class="flex items-center justify-between">
+          <div>
+            <label class="font-medium">Announce Role Rewards</label>
+            <p class="text-xs text-slate-500">
+              Mention new role in level-up message
+            </p>
+          </div>
+          <label class="relative inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              id="announceRoleRewards"
+              class="sr-only peer"
+              checked
+            />
+            <div
+              class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"
+            ></div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: XP reset configuration (manual + automatic) -->
+    <div class="settings-card">
+      <h4 class="font-bold mb-2">XP Reset Options</h4>
+      <p class="text-xs text-slate-500 mb-4">
+        Configure how XP resets work on your server
+      </p>
+
+      <div class="space-y-4">
+        <!-- Manual Reset (XP + roles) -->
+        <div
+          class="flex items-center justify-between p-4 bg-brand-dark/30 rounded-lg border border-slate-700/50"
+        >
+          <div>
+            <label class="font-medium">Manual Reset (Remove Roles)</label>
+            <p class="text-xs text-slate-500">
+              Manually reset all XP and remove role rewards
+            </p>
+          </div>
+          <button
+            id="btnResetAll"
+            class="px-4 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 rounded-lg text-red-400 text-sm font-semibold transition-all"
+          >
+            <i class="fas fa-trash-alt mr-2"></i>Reset All
+          </button>
+        </div>
+
+        <!-- Manual Reset (XP only) -->
+        <div
+          class="flex items-center justify-between p-4 bg-brand-dark/30 rounded-lg border border-slate-700/50"
+        >
+          <div>
+            <label class="font-medium">Manual Reset (Keep Roles)</label>
+            <p class="text-xs text-slate-500">
+              Manually reset all XP but keep role rewards
+            </p>
+          </div>
+          <button
+            id="btnResetXpOnly"
+            class="px-4 py-2 bg-orange-600/20 hover:bg-orange-600/30 border border-orange-500/30 rounded-lg text-orange-400 text-sm font-semibold transition-all"
+          >
+            <i class="fas fa-redo mr-2"></i>Reset XP Only
+          </button>
+        </div>
+
+        <!-- Auto Reset (XP + roles) -->
+        <div
+          class="flex items-center justify-between p-4 bg-brand-dark/30 rounded-lg border border-slate-700/50"
+        >
+          <div class="flex-grow">
+            <label class="font-medium">Auto Reset (Remove Roles)</label>
+            <p class="text-xs text-slate-500">
+              Automatically reset XP and remove roles every X days
+            </p>
+          </div>
+          <div class="flex items-center gap-3">
+            <input
+              type="number"
+              id="autoResetRemoveRolesDays"
+              min="1"
+              max="365"
+              placeholder="Days"
+              class="w-20 bg-brand-dark/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-center focus:outline-none focus:border-indigo-500"
+            />
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                id="autoResetRemoveRolesEnabled"
+                class="sr-only peer"
+              />
+              <div
+                class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"
+              ></div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Auto Reset (XP only) -->
+        <div
+          class="flex items-center justify-between p-4 bg-brand-dark/30 rounded-lg border border-slate-700/50"
+        >
+          <div class="flex-grow">
+            <label class="font-medium">Auto Reset (Keep Roles)</label>
+            <p class="text-xs text-slate-500">
+              Automatically reset XP but keep roles every X days
+            </p>
+          </div>
+          <div class="flex items-center gap-3">
+            <input
+              type="number"
+              id="autoResetDays"
+              min="1"
+              max="365"
+              placeholder="Days"
+              class="w-20 bg-brand-dark/50 border border-slate-700 rounded-lg px-3 py-2 text-sm text-center focus:outline-none focus:border-indigo-500"
+            />
+            <label class="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                id="autoResetEnabled"
+                class="sr-only peer"
+              />
+              <div
+                class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"
+              ></div>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auto-Reset Status: summary of current schedule (shown when enabled) -->
+      <div
+        id="autoResetStatus"
+        class="hidden mt-4 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-lg"
+      >
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm font-semibold text-indigo-300">
+              <i class="fas fa-clock mr-2"></i>Auto-Reset Active
+            </p>
+            <p class="text-xs text-slate-400 mt-1">
+              <span id="autoResetMode"></span>
+            </p>
+          </div>
+          <div class="text-right">
+            <p class="text-xs text-slate-500">Created On</p>
+            <p class="text-sm font-semibold text-white" id="autoResetCreatedOn">
+              -
+            </p>
+            <p class="text-xs text-slate-500 mt-2">Next Reset</p>
+            <p
+              class="text-sm font-semibold text-indigo-400"
+              id="autoResetNextReset"
+            >
+              -
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Informational note: describes auto-reset behaviors and edge cases -->
+      <div class="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+        <p class="text-xs text-blue-400">
+          <i class="fas fa-info-circle mr-2"></i>
+          <strong>Auto-Reset Behavior:</strong> Auto-resets are
+          <strong>recurring</strong> - they will repeat every X days until you
+          disable them. If both auto-reset options are enabled with the same
+          interval, the system will alternate between resetting XP only and
+          removing roles on each cycle.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer: Secondary save button for convenience at bottom of panel -->
+    <div class="flex justify-end mt-6">
+      <button class="btn-save-level save-level-btn" data-location="bottom">
+        <i class="fas fa-save mr-2"></i>
+        Save All Settings
+      </button>
+    </div>
+  </div>
+</div>

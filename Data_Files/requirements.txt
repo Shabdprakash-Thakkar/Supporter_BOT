@@ -1,0 +1,32 @@
+
+#Discord Bot Dependencies
+discord.py>=2.3.0
+python-dotenv>=1.0.0
+pytz>=2023.3
+supabase
+PyNaCl>=1.5.0
+google-api-python-client>=2.108.0
+asyncpg>=0.29.0
+feedparser>=6.0.10
+aiohttp>=3.9.0
+python-dateutil>=2.8.2
+
+#Flask Frontend Dependencies
+Flask>=3.0.0
+Flask-Cors>=4.0.0
+Werkzeug>=3.0.0
+
+#Dashboard Authentication
+Flask-Login>=0.6.3
+requests>=2.31.0
+requests-oauthlib>=1.3.1
+
+#Synchronous PostgreSQL for Flask
+psycopg2-binary>=2.9.9
+
+#Production Server
+gunicorn>=21.2.0
+
+#Analytics & Data Visualization
+#numpy>=1.24.0
+#pandas>=2.0.0

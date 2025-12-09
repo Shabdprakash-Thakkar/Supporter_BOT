@@ -1,0 +1,127 @@
+<!--
+  File: terms_of_service_content.html (partial)
+  Description:
+    - Reusable content block for the Terms of Service page of Supporter Bot.
+    - Designed to be embedded inside a higher-level layout (e.g., terms_of_service.html)
+      or a legal wrapper template.
+
+  Purpose:
+    - Present the Terms of Service in a clear, readable, and structured format.
+    - Outline usage conditions, license, availability, responsibilities, termination,
+      and contact details for Supporter Bot.
+
+  Layout & Styling:
+    - Root wrapper: .legal-container
+    - Header: .legal-header with gradient main title and "last updated" line.
+    - Body: .legal-content.glass-card with sectioned legal text.
+    - Relies on external CSS (e.g., legal.css / terms.css) for:
+      - Glassmorphism card styling (glass-card)
+      - Gradient typography (gradient-text)
+      - Spacing utilities (p-8, etc.)
+
+  Integration Points:
+    - Typically used inside a Jinja/Flask or other templating engine layout.
+    - Contact link routes to /contact (or equivalent route defined in backend).
+-->
+
+<div class="legal-container">
+  <!-- ========== LEGAL HEADER (TITLE & LAST UPDATED) ========== -->
+  <div class="legal-header">
+    <h1 class="gradient-text">Terms of Service</h1>
+    <p class="last-updated">Last Updated: December 2025</p>
+  </div>
+
+  <!-- ========== LEGAL CONTENT WRAPPER ========== -->
+  <div class="legal-content glass-card p-8">
+    <!-- Section 1: Acceptance of Terms -->
+    <section>
+      <h2>1. Acceptance of Terms</h2>
+      <p>
+        By inviting <strong>SupporterBOT</strong> to your Discord server or
+        using its features (including Dashboard, Leveling, Analytics, Time
+        Channels, YouTube Alerts, or Channel Restrictions), you agree to be
+        bound by these Terms of Service.
+      </p>
+    </section>
+
+    <!-- Section 2: Usage License -->
+    <section>
+      <h2>2. Usage License</h2>
+      <p>
+        We grant you a limited, non-exclusive, non-transferable license to use
+        SupporterBOT for your Discord server management needs, subject to the
+        following restrictions:
+      </p>
+      <ul>
+        <li>
+          You may not use the bot for any illegal purposes or to violate
+          Discord's Terms of Service.
+        </li>
+        <li>
+          You may not attempt to reverse engineer, decompile, or exploit the
+          bot's code or API.
+        </li>
+        <li>
+          Spamming bot commands or intentionally causing lag/crashes is strictly
+          prohibited.
+        </li>
+        <li>
+          Analytics data must not be used to harass, target, or discriminate
+          against server members.
+        </li>
+        <li>
+          Time channels must display accurate information and not be used for
+          spam or misleading content.
+        </li>
+      </ul>
+    </section>
+
+    <!-- Section 3: Service Availability & Schedules -->
+    <section>
+      <h2>3. Service Availability</h2>
+      <p>
+        While we strive for 99.9% uptime, we do not guarantee uninterrupted
+        access to SupporterBOT. Features may be modified, updated, or removed at
+        any time without prior notice for maintenance or improvements.
+      </p>
+      <p>
+        <strong>Service Schedules:</strong> Analytics reports are generated
+        weekly and on-demand via slash commands. Time channels update every 10
+        minutes to reflect current time in configured timezones. YouTube
+        notifications are checked every 15 minutes.
+      </p>
+    </section>
+
+    <!-- Section 4: User Responsibilities -->
+    <section>
+      <h2>4. User Responsibilities</h2>
+      <p>
+        Server administrators are responsible for the configuration of the bot
+        within their servers. We are not liable for data loss or unintended
+        consequences resulting from improper configuration (e.g., deleted
+        channels via management tools).
+      </p>
+    </section>
+
+    <!-- Section 5: Termination & Enforcement -->
+    <section>
+      <h2>5. Termination</h2>
+      <p>
+        We reserve the right to ban any user or server from using SupporterBOT
+        if they are found to be in violation of these terms or Discord's
+        Community Guidelines.
+      </p>
+    </section>
+
+    <!-- Section 6: Contact & Support -->
+    <section>
+      <h2>6. Contact</h2>
+      <p>
+        For questions regarding these terms, please join our
+        <a href="/contact" class="text-indigo-400 hover:underline"
+          >Support Server</a
+        >.
+      </p>
+    </section>
+  </div>
+</div>
