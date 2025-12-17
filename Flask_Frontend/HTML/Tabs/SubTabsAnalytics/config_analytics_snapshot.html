@@ -1,0 +1,183 @@
+<!--
+  Page: Weekly Analytics Snapshot
+  Purpose:
+    - Render a single weekly analytics report for a given Discord server (guild).
+    - Visualize server health, engagement tiers, leveling stats, and top contributors.
+    - Display insights and recommendations generated for the selected snapshot.
+
+  Data Inputs (Server-Side / Templating):
+    - guild_id:     Discord server ID (used for navigation and API calls).
+    - guild_name:   Human-readable name of the Discord server.
+    - week_number:  ISO week number for the report period.
+    - year:         Year associated with the week_number.
+    - snapshot_id:  Unique identifier for the stored analytics snapshot.
+
+  Frontend Integration:
+    - Styles: /CSS/Tabs/SubTabsAnalytics/config_analytics_snapshot.css
+    - Icons:  Font Awesome 6.4.0
+    - JS Logic: /JS/Tabs/SubTabsAnalytics/config_analytics_snapshot.js
+        • Fetches snapshot details using guildId + snapshotId.
+        • Populates all metric fields, engagement tiers, contributors, and insights.
+        • Manages loading state visibility and error handling.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics Report - Week {{ week_number }}, {{ year }}</title>
+
+  <link rel="stylesheet" href="/CSS/Tabs/SubTabsAnalytics/config_analytics_snapshot.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+</head>
+
+<body>
+  <!-- Root container for the entire snapshot layout -->
+  <div class="snapshot-container">
+    <!-- Section: Header with navigation and guild context -->
+    <div class="snapshot-header">
+      <a href="/analytics/history/{{ guild_id }}" class="back-btn">
+        <i class="fas fa-arrow-left"></i> Back to History
+      </a>
+      <h1 id="reportTitle">Loading...</h1>
+      <p class="guild-name">{{ guild_name }}</p>
+    </div>
+
+    <!-- Section: Loading state (shown before data is loaded) -->
+    <div class="loading-state" id="loadingState">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Loading analytics report...</p>
+    </div>
+
+    <!-- Section: Main report content (hidden until data is ready) -->
+    <div class="report-content" id="reportContent" style="display: none">
+      <!-- Block: Overall server health score visualization -->
+      <div class="section-card health-section">
+        <h2><i class="fas fa-heartbeat"></i> Server Health</h2>
+        <div class="health-display">
+          <div class="health-circle" id="healthCircle">
+            <div class="health-value" id="healthValue">--</div>
+            <div class="health-label">Health Score</div>
+          </div>
+          <div class="health-status" id="healthStatus">Loading...</div>
+        </div>
+      </div>
+
+      <!-- Block: Key metrics for this snapshot (messages, members, XP, etc.) -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon">💬</div>
+          <div class="metric-content">
+            <div class="metric-label">Messages</div>
+            <div class="metric-value" id="messagesCount">--</div>
+            <div class="metric-trend" id="messageTrend"></div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon">👥</div>
+          <div class="metric-content">
+            <div class="metric-label">New Members</div>
+            <div class="metric-value" id="newMembersCount">--</div>
+            <div class="metric-trend" id="memberTrend"></div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon">📈</div>
+          <div class="metric-content">
+            <div class="metric-label">Active Members</div>
+            <div class="metric-value" id="activeMembers">--</div>
+            <div class="metric-subtitle" id="totalMembers">--</div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon">⭐</div>
+          <div class="metric-content">
+            <div class="metric-label">Total XP</div>
+            <div class="metric-value" id="totalXP">--</div>
+            <div class="metric-subtitle" id="avgLevel">--</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block: Engagement tiers (Elite, Active, Casual, Inactive) -->
+      <div class="section-card">
+        <h2><i class="fas fa-users"></i> Member Engagement</h2>
+        <div class="engagement-grid">
+          <div class="tier-card elite">
+            <div class="tier-icon">🏆</div>
+            <div class="tier-name">Elite</div>
+            <div class="tier-count" id="eliteCount">--</div>
+            <div class="tier-label">Top 5%</div>
+          </div>
+          <div class="tier-card active">
+            <div class="tier-icon">⚡</div>
+            <div class="tier-name">Active</div>
+            <div class="tier-count" id="activeCount">--</div>
+            <div class="tier-label">20%</div>
+          </div>
+          <div class="tier-card casual">
+            <div class="tier-icon">👤</div>
+            <div class="tier-name">Casual</div>
+            <div class="tier-count" id="casualCount">--</div>
+            <div class="tier-label">50%</div>
+          </div>
+          <div class="tier-card inactive">
+            <div class="tier-icon">💤</div>
+            <div class="tier-name">Inactive</div>
+            <div class="tier-count" id="inactiveCount">--</div>
+            <div class="tier-label">25%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block: Leveling statistics for the snapshot -->
+      <div class="section-card">
+        <h2><i class="fas fa-trophy"></i> Leveling Insights</h2>
+        <div class="leveling-stats">
+          <div class="stat-box">
+            <div class="stat-label">Total XP Earned</div>
+            <div class="stat-value" id="levelingTotalXP">--</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Average Level</div>
+            <div class="stat-value" id="levelingAvgLevel">--</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">Highest Level</div>
+            <div class="stat-value" id="levelingMaxLevel">--</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Block: Top contributors for the selected week -->
+      <div class="section-card">
+        <h2><i class="fas fa-medal"></i> Top Contributors</h2>
+        <div class="contributors-list" id="contributorsList">
+          <p class="loading-text">Loading contributors...</p>
+        </div>
+      </div>
+
+      <!-- Block: Human-readable insights and recommendations -->
+      <div class="section-card insights-card">
+        <h2><i class="fas fa-lightbulb"></i> Insights & Recommendations</h2>
+        <div class="insights-list" id="insightsList">
+          <p class="loading-text">Loading insights...</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Script configuration: expose snapshot identifiers to the JS module -->
+  <script>
+    const guildId = "{{ guild_id }}";
+    const snapshotId = "{{ snapshot_id }}";
+  </script>
+  <script src="/JS/Tabs/SubTabsAnalytics/config_analytics_snapshot.js"></script>
+</body>
+
+</html>

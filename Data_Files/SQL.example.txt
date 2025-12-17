@@ -1,0 +1,811 @@
+-- =============================================================================
+--  SUPPORTER BOT — COMPLETE DATABASE SCHEMA (CLEAN VERSION)
+--  Run this entire script in Supabase SQL Editor to create all tables.
+--  Last Updated: 2025-12-05
+-- =============================================================================
+
+
+-- =============================================================================
+-- SECTION 0: UTILITY FUNCTIONS
+-- =============================================================================
+
+-- Function to auto-update 'updated_at' timestamp on row changes
+CREATE OR REPLACE FUNCTION public.touch_updated_at()
+RETURNS TRIGGER
+LANGUAGE plpgsql AS $$
+BEGIN
+    NEW.updated_at := NOW();
+    RETURN NEW;
+END;
+$$;
+
+COMMENT ON FUNCTION public.touch_updated_at() IS 'Automatically updates the updated_at column to current timestamp';
+
+
+-- =============================================================================
+-- SECTION 1: BOT STATISTICS & DASHBOARD TABLES
+-- =============================================================================
+
+-- 1.1 Bot Statistics (server count, user count, commands used)
+CREATE TABLE IF NOT EXISTS public.bot_stats (
+    bot_id          TEXT PRIMARY KEY NOT NULL,
+    server_count    INTEGER NOT NULL DEFAULT 0,
+    user_count      INTEGER NOT NULL DEFAULT 0,
+    commands_used   INTEGER NOT NULL DEFAULT 0,
+    last_updated    TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE public.bot_stats IS 'Stores real-time bot statistics for the web frontend';
+
+-- 1.2 Dashboard Users (Discord OAuth2 login records)
+CREATE TABLE IF NOT EXISTS public.dashboard_users (
+    user_id           TEXT PRIMARY KEY NOT NULL,
+    username          TEXT NOT NULL,
+    discriminator     TEXT,
+    avatar            TEXT,
+    email             TEXT,
+    access_token      TEXT NOT NULL,
+    refresh_token     TEXT,
+    token_expires_at  TIMESTAMPTZ,
+    first_login       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    last_login        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    total_logins      INTEGER NOT NULL DEFAULT 1
+);
+
+COMMENT ON TABLE public.dashboard_users IS 'Stores Discord users who have logged into the web dashboard';
+
+-- 1.3 Dashboard User Servers (which servers a user can manage)
+CREATE TABLE IF NOT EXISTS public.dashboard_user_servers (
+    user_id           TEXT NOT NULL,
+    guild_id          TEXT NOT NULL,
+    guild_name        TEXT NOT NULL,
+    guild_icon        TEXT,
+    user_permissions  BIGINT NOT NULL,
+    is_owner          BOOLEAN NOT NULL DEFAULT FALSE,
+    last_accessed     TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    
+    CONSTRAINT dashboard_user_servers_pk PRIMARY KEY (user_id, guild_id)
+);
+
+COMMENT ON TABLE public.dashboard_user_servers IS 'Tracks which servers a user can access via the dashboard';
+
+-- 1.4 Dashboard Activity Log (audit trail for dashboard changes)
+CREATE TABLE IF NOT EXISTS public.dashboard_activity_log (
+    id                  BIGSERIAL PRIMARY KEY,
+    user_id             TEXT NOT NULL,
+    guild_id            TEXT NOT NULL,
+    action_type         TEXT NOT NULL,
+    action_description  TEXT,
+    ip_address          TEXT,
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE public.dashboard_activity_log IS 'Logs all configuration changes made through the dashboard';
+
+CREATE INDEX IF NOT EXISTS idx_activity_log_guild ON public.dashboard_activity_log(guild_id);
+CREATE INDEX IF NOT EXISTS idx_activity_log_user ON public.dashboard_activity_log(user_id);
+CREATE INDEX IF NOT EXISTS idx_activity_log_created ON public.dashboard_activity_log(created_at DESC);
+
+
+-- =============================================================================
+-- SECTION 2: GUILD SETTINGS (Central Configuration)
+-- =============================================================================
+
+-- 2.1 Guild Settings (XP configuration per server)
+CREATE TABLE IF NOT EXISTS public.guild_settings (
+    guild_id                    TEXT NOT NULL,
+    xp_per_message              INTEGER DEFAULT 5,
+    xp_per_image                INTEGER DEFAULT 10,
+    xp_per_minute_in_voice      INTEGER DEFAULT 15,
+    voice_xp_limit              INTEGER DEFAULT 1500,
+    xp_cooldown                 INTEGER DEFAULT 60,
+    
+    -- Analytics Configuration
+    analytics_timezone          TEXT DEFAULT 'UTC',
+    weekly_reset_timezone       TEXT DEFAULT 'UTC',
+    weekly_report_enabled       BOOLEAN DEFAULT TRUE,
+    weekly_report_day           INTEGER DEFAULT 0 CHECK (weekly_report_day >= 0 AND weekly_report_day <= 6),
+    weekly_report_hour          INTEGER DEFAULT 9 CHECK (weekly_report_hour >= 0 AND weekly_report_hour <= 23),
+    
+    updated_at                  TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT guild_settings_pkey PRIMARY KEY (guild_id)
+);
+
+COMMENT ON TABLE public.guild_settings IS 'Centralized configurable XP settings for each guild';
+
+-- Trigger: Auto-update updated_at on guild_settings
+DROP TRIGGER IF EXISTS trg_guild_settings_touch_updated_at ON public.guild_settings;
+CREATE TRIGGER trg_guild_settings_touch_updated_at
+    BEFORE UPDATE ON public.guild_settings
+    FOR EACH ROW EXECUTE FUNCTION public.touch_updated_at();
+
+-- 2.2 Banned Guilds (servers banned from using the bot)
+CREATE TABLE IF NOT EXISTS public.banned_guilds (
+    guild_id      TEXT PRIMARY KEY NOT NULL,
+    guild_name    TEXT,
+    member_count  INTEGER DEFAULT 0,
+    banned_at     TIMESTAMPTZ DEFAULT NOW(),
+    banned_by     TEXT
+);
+
+
+-- Add columns if they don't exist (for existing databases)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='banned_guilds' AND column_name='guild_name') THEN
+        ALTER TABLE public.banned_guilds ADD COLUMN guild_name TEXT;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='banned_guilds' AND column_name='member_count') THEN
+        ALTER TABLE public.banned_guilds ADD COLUMN member_count INTEGER DEFAULT 0;
+    END IF;
+END $$;
+
+COMMENT ON TABLE public.banned_guilds IS 'Stores guild IDs that are banned from using the bot with last known info';
+
+-- Add analytics columns to guild_settings if they don't exist (for existing databases)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='guild_settings' AND column_name='analytics_timezone') THEN
+        ALTER TABLE public.guild_settings ADD COLUMN analytics_timezone TEXT DEFAULT 'UTC';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='guild_settings' AND column_name='weekly_reset_timezone') THEN
+        ALTER TABLE public.guild_settings ADD COLUMN weekly_reset_timezone TEXT DEFAULT 'UTC';
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='guild_settings' AND column_name='weekly_report_enabled') THEN
+        ALTER TABLE public.guild_settings ADD COLUMN weekly_report_enabled BOOLEAN DEFAULT TRUE;
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='guild_settings' AND column_name='weekly_report_day') THEN
+        ALTER TABLE public.guild_settings ADD COLUMN weekly_report_day INTEGER DEFAULT 0;
+        ALTER TABLE public.guild_settings ADD CONSTRAINT check_weekly_report_day CHECK (weekly_report_day >= 0 AND weekly_report_day <= 6);
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='guild_settings' AND column_name='weekly_report_hour') THEN
+        ALTER TABLE public.guild_settings ADD COLUMN weekly_report_hour INTEGER DEFAULT 9;
+        ALTER TABLE public.guild_settings ADD CONSTRAINT check_weekly_report_hour CHECK (weekly_report_hour >= 0 AND weekly_report_hour <= 23);
+    END IF;
+END $$;
+
+-- 2.3 Guild Stats (weekly server statistics)
+CREATE TABLE IF NOT EXISTS public.guild_stats (
+    guild_id                TEXT PRIMARY KEY NOT NULL,
+    messages_this_week      INTEGER NOT NULL DEFAULT 0,
+    new_members_this_week   INTEGER NOT NULL DEFAULT 0,
+    last_reset              TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at              TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+COMMENT ON TABLE public.guild_stats IS 'Tracks weekly server statistics (messages, new members) with UTC-based weekly reset';
+COMMENT ON COLUMN public.guild_stats.messages_this_week IS 'Count of messages sent this week (resets every Monday 00:00 UTC)';
+COMMENT ON COLUMN public.guild_stats.new_members_this_week IS 'Count of new members joined this week (resets every Monday 00:00 UTC)';
+COMMENT ON COLUMN public.guild_stats.last_reset IS 'Timestamp of the last weekly reset (Monday 00:00 UTC)';
+
+-- Trigger: Auto-update updated_at on guild_stats
+DROP TRIGGER IF EXISTS trg_guild_stats_touch_updated_at ON public.guild_stats;
+CREATE TRIGGER trg_guild_stats_touch_updated_at
+    BEFORE UPDATE ON public.guild_stats
+    FOR EACH ROW EXECUTE FUNCTION public.touch_updated_at();
+
+
+-- =============================================================================
+-- SECTION 3: LEVELING SYSTEM TABLES
+-- =============================================================================
+
+-- 3.1 Users (XP and level data per user per guild)
+CREATE TABLE IF NOT EXISTS public.users (
+    guild_id        TEXT NOT NULL,
+    user_id         TEXT NOT NULL,
+    guild_name      TEXT,
+    username        TEXT,
+    xp              INTEGER NOT NULL DEFAULT 0,
+    weekly_xp       INTEGER NOT NULL DEFAULT 0,
+    level           INTEGER NOT NULL DEFAULT 0,
+    voice_xp_earned INTEGER NOT NULL DEFAULT 0,
+    
+    CONSTRAINT users_pk PRIMARY KEY (guild_id, user_id)
+);
+
+COMMENT ON TABLE public.users IS 'Stores user XP, level, and voice XP data per guild';
+
+CREATE INDEX IF NOT EXISTS idx_users_xp ON public.users(guild_id, xp DESC);
+CREATE INDEX IF NOT EXISTS idx_users_level ON public.users(guild_id, level DESC);
+
+-- Add weekly_xp column if it doesn't exist (for existing databases)
+DO $$ 
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='weekly_xp') THEN
+        ALTER TABLE public.users ADD COLUMN weekly_xp INTEGER NOT NULL DEFAULT 0;
+    END IF;
+END $$;
+
+-- 3.2 Level Roles (role rewards for reaching specific levels)
+CREATE TABLE IF NOT EXISTS public.level_roles (
+    guild_id    TEXT NOT NULL,
+    guild_name  TEXT,
+    level       INTEGER NOT NULL,
+    role_id     TEXT NOT NULL,
+    role_name   TEXT,
+    
+    CONSTRAINT level_roles_pk PRIMARY KEY (guild_id, level)
+);
+
+COMMENT ON TABLE public.level_roles IS 'Stores role rewards for reaching specific levels';
+
+-- 3.3 Level Notify Channel (where to send level-up messages)
+CREATE TABLE IF NOT EXISTS public.level_notify_channel (
+    guild_id      TEXT PRIMARY KEY NOT NULL,
+    guild_name    TEXT,
+    channel_id    TEXT NOT NULL,
+    channel_name  TEXT
+);
+
+COMMENT ON TABLE public.level_notify_channel IS 'Stores the channel for level-up notification messages';
+
+-- 3.4 Last Notified Level (prevents duplicate level-up notifications)
+CREATE TABLE IF NOT EXISTS public.last_notified_level (
+    guild_id    TEXT NOT NULL,
+    user_id     TEXT NOT NULL,
+    guild_name  TEXT,
+    username    TEXT,
+    level       INTEGER NOT NULL DEFAULT 0,
+    
+    CONSTRAINT last_notified_level_pk PRIMARY KEY (guild_id, user_id)
+);
+
+COMMENT ON TABLE public.last_notified_level IS 'Tracks the last level a user was notified about to prevent duplicates';
+
+-- 3.5 Auto Reset (automatic XP reset schedule)
+CREATE TABLE IF NOT EXISTS public.auto_reset (
+    guild_id      TEXT PRIMARY KEY NOT NULL,
+    guild_name    TEXT,
+    days          INTEGER NOT NULL,
+    last_reset    TIMESTAMPTZ NOT NULL,
+    remove_roles  BOOLEAN NOT NULL DEFAULT TRUE
+);
+
+COMMENT ON TABLE public.auto_reset IS 'Stores automatic XP reset schedule configuration with recurring resets';
+COMMENT ON COLUMN public.auto_reset.remove_roles IS 'Whether to remove role rewards during auto-reset (TRUE) or keep them (FALSE)';
+
+-- 3.6 Level System Configuration (additional settings)
+CREATE TABLE IF NOT EXISTS public.level_system_config (
+    guild_id              TEXT PRIMARY KEY NOT NULL,
+    message_style         TEXT NOT NULL DEFAULT 'embed',
+    custom_message        TEXT DEFAULT '{user} just leveled up to **Level {level}**!',
+    custom_message_role_reward TEXT DEFAULT '{user} just leveled up to **Level {level}** and earned the **{role}** role!',
+    stack_role_rewards    BOOLEAN NOT NULL DEFAULT TRUE,
+    announce_role_rewards BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    
+    CONSTRAINT valid_message_style CHECK (message_style IN ('embed', 'simple', 'minimal'))
+);
+
+COMMENT ON TABLE public.level_system_config IS 'Stores additional level system configuration per guild';
+COMMENT ON COLUMN public.level_system_config.message_style IS 'Style of level-up message: embed, simple, or minimal';
+COMMENT ON COLUMN public.level_system_config.custom_message IS 'Custom level-up message template with placeholders';
+COMMENT ON COLUMN public.level_system_config.stack_role_rewards IS 'Whether to keep previous role rewards when gaining new ones';
+COMMENT ON COLUMN public.level_system_config.announce_role_rewards IS 'Whether to mention new role in level-up message';
+
+-- Trigger: Auto-update updated_at on level_system_config
+DROP TRIGGER IF EXISTS trg_level_system_config_touch_updated_at ON public.level_system_config;
+CREATE TRIGGER trg_level_system_config_touch_updated_at
+    BEFORE UPDATE ON public.level_system_config
+    FOR EACH ROW EXECUTE FUNCTION public.touch_updated_at();
+
+-- =============================================================================
+-- SECTION 4: CHANNEL RESTRICTIONS (Unified Table with Granular Content Filtering)
+-- =============================================================================
+
+-- 4.1 Channel Restrictions V2 (all per-channel message restrictions with granular filtering)
+CREATE TABLE IF NOT EXISTS public.channel_restrictions_v2 (
+    id                      BIGSERIAL PRIMARY KEY,
+    guild_id                TEXT NOT NULL,
+    channel_id              TEXT NOT NULL,
+    channel_name            TEXT NOT NULL,
+    
+    -- Restriction type: legacy presets or custom granular mode
+    restriction_type        TEXT NOT NULL 
+        CHECK (restriction_type IN ('block_invites', 'block_all_links', 'media_only', 'text_only', 'custom')) 
+        DEFAULT 'block_invites',
+    
+    -- Granular content filtering (bitwise flags)
+    -- Content Type Flags: 1=text, 2=discord_invites, 4=media_links (image/audio/video URLs), 
+    --                     8=all_links (any links), 16=media_files (image/audio/video attachments),
+    --                     32=file_attachments, 64=embeds, 128=social_media_links
+    allowed_content_types   INTEGER DEFAULT 0,
+    blocked_content_types   INTEGER DEFAULT 0,
+    
+    -- Redirect channel (only applicable for 'media_only' and 'text_only')
+    redirect_channel_id     TEXT,
+    redirect_channel_name   TEXT,
+    
+    -- Immune roles (roles that bypass restrictions)
+    immune_roles            TEXT[] DEFAULT '{}',
+    
+    -- Metadata
+    configured_by           TEXT,
+    configured_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at              TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    
+    -- Constraints
+    CONSTRAINT unique_guild_channel_v2 UNIQUE (guild_id, channel_id),
+    CONSTRAINT valid_redirect_channel CHECK (
+        (restriction_type IN ('media_only', 'text_only') AND redirect_channel_id IS NOT NULL) OR
+        (restriction_type IN ('block_invites', 'block_all_links', 'custom') AND redirect_channel_id IS NULL)
+    ),
+    CONSTRAINT check_no_content_type_conflict CHECK (
+        (allowed_content_types & blocked_content_types) = 0
+    )
+);
+
+COMMENT ON TABLE public.channel_restrictions_v2 IS 'V2: Modern channel restrictions with conflict prevention and granular content filtering';
+COMMENT ON COLUMN public.channel_restrictions_v2.restriction_type IS 'Type of restriction: block_invites, block_all_links, media_only, text_only, or custom (for granular mode)';
+COMMENT ON COLUMN public.channel_restrictions_v2.redirect_channel_id IS 'Where to redirect messages (only for media_only and text_only)';
+COMMENT ON COLUMN public.channel_restrictions_v2.allowed_content_types IS 'Bitwise flags for allowed content types: 1=text, 2=discord_invites, 4=media_links (image/audio/video URLs), 8=all_links (any links), 16=media_files (image/audio/video attachments), 32=file_attachments, 64=embeds, 128=social_media_links';
+COMMENT ON COLUMN public.channel_restrictions_v2.blocked_content_types IS 'Bitwise flags for blocked content types: 1=text, 2=discord_invites, 4=media_links (image/audio/video URLs), 8=all_links (any links), 16=media_files (image/audio/video attachments), 32=file_attachments, 64=embeds, 128=social_media_links';
+COMMENT ON COLUMN public.channel_restrictions_v2.immune_roles IS 'Array of Role IDs that are exempt from restrictions in this channel';
+
+-- Create indexes for performance
+CREATE INDEX IF NOT EXISTS idx_channel_restrictions_v2_guild ON public.channel_restrictions_v2(guild_id);
+CREATE INDEX IF NOT EXISTS idx_channel_restrictions_v2_channel ON public.channel_restrictions_v2(channel_id);
+CREATE INDEX IF NOT EXISTS idx_channel_restrictions_v2_type ON public.channel_restrictions_v2(restriction_type);
+CREATE INDEX IF NOT EXISTS idx_channel_restrictions_v2_guild_channel ON public.channel_restrictions_v2(guild_id, channel_id);
+CREATE INDEX IF NOT EXISTS idx_channel_restrictions_v2_allowed ON public.channel_restrictions_v2(guild_id, channel_id, allowed_content_types);
+CREATE INDEX IF NOT EXISTS idx_channel_restrictions_v2_blocked ON public.channel_restrictions_v2(guild_id, channel_id, blocked_content_types);
+CREATE INDEX IF NOT EXISTS idx_channel_restrictions_v2_composite ON public.channel_restrictions_v2(guild_id, channel_id, allowed_content_types, blocked_content_types);
+
+-- Trigger: Auto-update updated_at on channel_restrictions_v2
+DROP TRIGGER IF EXISTS trg_channel_restrictions_v2_updated_at ON public.channel_restrictions_v2;
+CREATE TRIGGER trg_channel_restrictions_v2_updated_at
+    BEFORE UPDATE ON public.channel_restrictions_v2
+    FOR EACH ROW
+    EXECUTE FUNCTION public.touch_updated_at();
+
+-- Enable Row Level Security
+ALTER TABLE public.channel_restrictions_v2 ENABLE ROW LEVEL SECURITY;
+
+-- Helper Functions for Bitwise Operations
+CREATE OR REPLACE FUNCTION is_content_type_allowed(
+    allowed_flags INTEGER,
+    content_type_flag INTEGER
+) RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN (allowed_flags & content_type_flag) > 0;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+COMMENT ON FUNCTION is_content_type_allowed(INTEGER, INTEGER) IS 'Check if a specific content type flag is set in the allowed_flags bitmask';
+
+CREATE OR REPLACE FUNCTION is_content_type_blocked(
+    blocked_flags INTEGER,
+    content_type_flag INTEGER
+) RETURNS BOOLEAN AS $$
+BEGIN
+    RETURN (blocked_flags & content_type_flag) > 0;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+COMMENT ON FUNCTION is_content_type_blocked(INTEGER, INTEGER) IS 'Check if a specific content type flag is set in the blocked_flags bitmask';
+
+CREATE OR REPLACE FUNCTION get_content_type_names(flags INTEGER) 
+RETURNS TEXT[] AS $$
+DECLARE
+    result TEXT[] := ARRAY[]::TEXT[];
+BEGIN
+    IF (flags & 1) > 0 THEN result := array_append(result, 'text'); END IF;
+    IF (flags & 2) > 0 THEN result := array_append(result, 'discord_invites'); END IF;
+    IF (flags & 4) > 0 THEN result := array_append(result, 'image_links'); END IF;
+    IF (flags & 8) > 0 THEN result := array_append(result, 'regular_links'); END IF;
+    IF (flags & 16) > 0 THEN result := array_append(result, 'image_attachments'); END IF;
+    IF (flags & 32) > 0 THEN result := array_append(result, 'file_attachments'); END IF;
+    IF (flags & 64) > 0 THEN result := array_append(result, 'embeds'); END IF;
+    RETURN result;
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;
+
+COMMENT ON FUNCTION get_content_type_names(INTEGER) IS 'Convert bitwise content type flags to human-readable array of type names';
+
+-- Create view for easier querying
+CREATE OR REPLACE VIEW channel_restrictions_v2_readable AS
+SELECT 
+    id,
+    guild_id,
+    channel_id,
+    channel_name,
+    restriction_type,
+    allowed_content_types,
+    blocked_content_types,
+    get_content_type_names(allowed_content_types) AS allowed_types,
+    get_content_type_names(blocked_content_types) AS blocked_types,
+    redirect_channel_id,
+    redirect_channel_name,
+    immune_roles,
+    configured_by,
+    configured_at,
+    updated_at
+FROM public.channel_restrictions_v2;
+
+COMMENT ON VIEW channel_restrictions_v2_readable IS 'Human-readable view of channel restrictions with content type names decoded from bitwise flags';
+
+-- 4.2 Bypass Roles (roles that can bypass channel restrictions)
+CREATE TABLE IF NOT EXISTS public.bypass_roles (
+    guild_id    TEXT NOT NULL,
+    guild_name  TEXT,
+    role_id     TEXT NOT NULL,
+    role_name   TEXT,
+    
+    CONSTRAINT bypass_roles_pk PRIMARY KEY (guild_id, role_id)
+);
+
+COMMENT ON TABLE public.bypass_roles IS 'Stores roles that can bypass channel message restrictions';
+
+
+-- =============================================================================
+-- SECTION 5: TIME CHANNEL CONFIGURATION
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.server_time_configs (
+    id                  SERIAL PRIMARY KEY,
+    guild_id            TEXT NOT NULL,
+    timezone            TEXT NOT NULL,
+    time_channel_id     TEXT,
+    date_channel_id     TEXT,
+    needs_update        BOOLEAN DEFAULT TRUE,
+    created_at          TIMESTAMPTZ DEFAULT NOW(),
+    
+    -- Prevent duplicate setups for the exact same channel IDs to avoid API errors
+    CONSTRAINT unique_time_channel UNIQUE (time_channel_id),
+    CONSTRAINT unique_date_channel UNIQUE (date_channel_id)
+);
+
+COMMENT ON TABLE public.server_time_configs IS 'Stores voice channel IDs for date/time display feature with timezone support';
+
+
+-- =============================================================================
+-- SECTION 6: YOUTUBE NOTIFICATIONS
+-- =============================================================================
+
+-- 6.1 YouTube Notification Config (which YT channels to monitor)
+CREATE TABLE IF NOT EXISTS public.youtube_notification_config (
+    guild_id             TEXT NOT NULL,
+    discord_channel_id   TEXT NOT NULL,
+    yt_channel_id        TEXT NOT NULL,
+    target_channel_id    TEXT NOT NULL,
+    mention_role_id      TEXT,
+    custom_message       TEXT DEFAULT '📺 {@role} **{channel_name}** just uploaded a new video!
+
+**{video_title}**
+{video_url}',
+    is_enabled           BOOLEAN NOT NULL DEFAULT TRUE,
+    guild_name           TEXT,
+    yt_channel_name      TEXT,
+    target_channel_name  TEXT,
+    mention_role_name    TEXT,
+    created_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at           TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    
+    CONSTRAINT youtube_notification_config_pk PRIMARY KEY (guild_id, yt_channel_id)
+);
+
+COMMENT ON TABLE public.youtube_notification_config IS 'Stores YouTube channel notification configurations';
+
+-- Trigger: Auto-update updated_at on youtube_notification_config
+DROP TRIGGER IF EXISTS trg_youtube_config_touch_updated_at ON public.youtube_notification_config;
+CREATE TRIGGER trg_youtube_config_touch_updated_at
+    BEFORE UPDATE ON public.youtube_notification_config
+    FOR EACH ROW EXECUTE FUNCTION public.touch_updated_at();
+
+-- 6.2 YouTube Notification Logs (track which videos have been notified)
+CREATE TABLE IF NOT EXISTS public.youtube_notification_logs (
+    id             BIGSERIAL PRIMARY KEY,
+    guild_id       TEXT NOT NULL,
+    yt_channel_id  TEXT NOT NULL,
+    video_id       TEXT NOT NULL,
+    video_status   TEXT NOT NULL DEFAULT 'none',
+    notified_at    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    
+    CONSTRAINT youtube_logs_unique_video UNIQUE (guild_id, yt_channel_id, video_id)
+);
+
+COMMENT ON TABLE public.youtube_notification_logs IS 'Tracks which YouTube videos have been notified to prevent duplicates';
+
+CREATE INDEX IF NOT EXISTS idx_youtube_logs_guild ON public.youtube_notification_logs(guild_id);
+CREATE INDEX IF NOT EXISTS idx_youtube_logs_channel ON public.youtube_notification_logs(yt_channel_id);
+
+
+-- =============================================================================
+-- SECTION 7: CONTACT FORM (Website)
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.contact_messages (
+    id           BIGSERIAL PRIMARY KEY,
+    username     TEXT NOT NULL,
+    email        TEXT NOT NULL,
+    subject      TEXT NOT NULL,
+    message      TEXT NOT NULL,
+    ip_address   TEXT,
+    user_agent   TEXT,
+    created_at   TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    is_read      BOOLEAN NOT NULL DEFAULT FALSE,
+    admin_notes  TEXT,
+    
+    CONSTRAINT valid_email CHECK (email ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$')
+);
+
+COMMENT ON TABLE public.contact_messages IS 'Stores contact form submissions from the website';
+
+CREATE INDEX IF NOT EXISTS idx_contact_messages_created ON public.contact_messages(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_contact_messages_email ON public.contact_messages(email);
+CREATE INDEX IF NOT EXISTS idx_contact_messages_is_read ON public.contact_messages(is_read);
+
+-- Row Level Security for contact_messages
+ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
+
+-- Policy: Allow public inserts (for contact form submissions)
+DROP POLICY IF EXISTS "Allow public inserts" ON public.contact_messages;
+CREATE POLICY "Allow public inserts" ON public.contact_messages
+    FOR INSERT
+    WITH CHECK (TRUE);
+
+-- Policy: Allow reading messages (for admin dashboard)
+DROP POLICY IF EXISTS "Allow admin read" ON public.contact_messages;
+CREATE POLICY "Allow admin read" ON public.contact_messages
+    FOR SELECT
+    USING (TRUE);
+
+
+-- =============================================================================
+-- SECTION 8: REMINDERS SYSTEM
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.reminders (
+    id                  SERIAL PRIMARY KEY,
+    reminder_id         TEXT UNIQUE NOT NULL,
+    guild_id            TEXT NOT NULL,
+    channel_id          TEXT NOT NULL,
+    role_id             TEXT,
+    message             TEXT NOT NULL,
+    start_time          TIMESTAMPTZ NOT NULL,
+    next_run            TIMESTAMPTZ NOT NULL,
+    last_run            TIMESTAMPTZ,
+    interval            TEXT NOT NULL DEFAULT 'once',
+    pattern             TEXT,
+    timezone            TEXT NOT NULL DEFAULT 'Asia/Kolkata',
+    status              TEXT NOT NULL DEFAULT 'active',
+    created_by          TEXT NOT NULL,
+    created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    run_count           INTEGER NOT NULL DEFAULT 0,
+    
+    CONSTRAINT valid_status CHECK (status IN ('active', 'paused', 'completed', 'deleted')),
+    CONSTRAINT valid_interval CHECK (interval ~* '^(once|\d+[dhm])$')
+);
+
+COMMENT ON TABLE public.reminders IS 'Stores all scheduled reminders with timezone and interval support';
+COMMENT ON COLUMN public.reminders.reminder_id IS 'Unique identifier like R-1023';
+COMMENT ON COLUMN public.reminders.interval IS 'Repeat interval: once, 1d, 2d, 6h, 30m, etc.';
+COMMENT ON COLUMN public.reminders.pattern IS 'Custom binary pattern like 1-1-0 for advanced scheduling';
+COMMENT ON COLUMN public.reminders.status IS 'active, paused, completed, or deleted';
+
+-- Create indexes for performance
+CREATE INDEX IF NOT EXISTS idx_reminders_guild ON public.reminders(guild_id);
+CREATE INDEX IF NOT EXISTS idx_reminders_next_run ON public.reminders(next_run) WHERE status = 'active';
+CREATE INDEX IF NOT EXISTS idx_reminders_status ON public.reminders(status);
+CREATE INDEX IF NOT EXISTS idx_reminders_composite ON public.reminders(guild_id, status, next_run);
+
+-- Trigger: Auto-update updated_at
+DROP TRIGGER IF EXISTS trg_reminders_touch_updated_at ON public.reminders;
+CREATE TRIGGER trg_reminders_touch_updated_at
+    BEFORE UPDATE ON public.reminders
+    FOR EACH ROW EXECUTE FUNCTION public.touch_updated_at();
+
+-- Enable Row Level Security
+ALTER TABLE public.reminders ENABLE ROW LEVEL SECURITY;
+
+
+-- =============================================================================
+-- SECTION 9: ANALYTICS SYSTEM
+-- =============================================================================
+
+-- 9.1 Analytics Snapshots (weekly analytics data storage)
+CREATE TABLE IF NOT EXISTS public.analytics_snapshots (
+    id                      BIGSERIAL PRIMARY KEY,
+    guild_id                TEXT NOT NULL,
+    snapshot_date           DATE NOT NULL,
+    week_number             INTEGER NOT NULL,
+    year                    INTEGER NOT NULL,
+    
+    -- Server Health Metrics
+    health_score            INTEGER NOT NULL CHECK (health_score >= 0 AND health_score <= 100),
+    total_members           INTEGER NOT NULL DEFAULT 0,
+    active_members          INTEGER NOT NULL DEFAULT 0,
+    messages_count          INTEGER NOT NULL DEFAULT 0,
+    new_members_count       INTEGER NOT NULL DEFAULT 0,
+    
+    -- Engagement Tiers (counts)
+    elite_count             INTEGER DEFAULT 0,
+    active_count            INTEGER DEFAULT 0,
+    casual_count            INTEGER DEFAULT 0,
+    inactive_count          INTEGER DEFAULT 0,
+    
+    -- Leveling Insights
+    total_xp_earned         BIGINT DEFAULT 0,
+    avg_level               DECIMAL(5,2) DEFAULT 0,
+    max_level               INTEGER DEFAULT 0,
+    level_distribution      JSONB DEFAULT '{}'::JSONB,
+    
+    -- Activity Patterns
+    activity_heatmap        JSONB DEFAULT '{}'::JSONB,
+    peak_hour               INTEGER CHECK (peak_hour >= 0 AND peak_hour <= 23),
+    peak_day                TEXT,
+    
+    -- Growth Trends
+    message_trend           TEXT CHECK (message_trend IN ('up', 'down', 'stable')),
+    member_trend            TEXT CHECK (member_trend IN ('up', 'down', 'stable')),
+    
+    -- Top Contributors (JSON array)
+    top_contributors        JSONB DEFAULT '[]'::JSONB,
+    
+    -- Insights (JSON array of strings)
+    insights                JSONB DEFAULT '[]'::JSONB,
+    
+    -- Metadata
+    generated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    timezone                TEXT NOT NULL DEFAULT 'UTC',
+    
+    CONSTRAINT unique_snapshot UNIQUE (guild_id, snapshot_date)
+);
+
+COMMENT ON TABLE public.analytics_snapshots IS 'Stores weekly analytics snapshots for historical reporting';
+COMMENT ON COLUMN public.analytics_snapshots.health_score IS 'Server health score 0-100 based on activity, engagement, and growth';
+COMMENT ON COLUMN public.analytics_snapshots.level_distribution IS 'JSON object mapping levels to user counts: {"1": 50, "2": 45, ...}';
+COMMENT ON COLUMN public.analytics_snapshots.activity_heatmap IS 'JSON 24x7 activity matrix for hour-of-day and day-of-week patterns';
+COMMENT ON COLUMN public.analytics_snapshots.top_contributors IS 'JSON array of top users: [{"user_id": "...", "xp": 1000, "username": "..."}, ...]';
+COMMENT ON COLUMN public.analytics_snapshots.insights IS 'JSON array of AI-generated insights: ["Activity drops 40% on weekends", ...]';
+
+CREATE INDEX IF NOT EXISTS idx_snapshots_guild ON public.analytics_snapshots(guild_id);
+CREATE INDEX IF NOT EXISTS idx_snapshots_date ON public.analytics_snapshots(snapshot_date DESC);
+CREATE INDEX IF NOT EXISTS idx_snapshots_week ON public.analytics_snapshots(year, week_number);
+CREATE INDEX IF NOT EXISTS idx_snapshots_guild_date ON public.analytics_snapshots(guild_id, snapshot_date DESC);
+
+-- 9.2 Analytics Reports (tracks report generation and delivery)
+CREATE TABLE IF NOT EXISTS public.analytics_reports (
+    id                  BIGSERIAL PRIMARY KEY,
+    guild_id            TEXT NOT NULL,
+    snapshot_id         BIGINT REFERENCES public.analytics_snapshots(id) ON DELETE CASCADE,
+    report_type         TEXT NOT NULL CHECK (report_type IN ('weekly', 'monthly', 'custom')),
+    
+    -- Date Range
+    start_date          DATE NOT NULL,
+    end_date            DATE NOT NULL,
+    
+    -- Delivery Status
+    sent_to_owner       BOOLEAN DEFAULT FALSE,
+    owner_notified_at   TIMESTAMPTZ,
+    delivery_method     TEXT DEFAULT 'discord_dm' CHECK (delivery_method IN ('discord_dm', 'dashboard_only')),
+    
+    -- Metadata
+    generated_by        TEXT,
+    generated_at        TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    timezone            TEXT NOT NULL DEFAULT 'UTC'
+);
+
+COMMENT ON TABLE public.analytics_reports IS 'Tracks analytics report generation and delivery status';
+COMMENT ON COLUMN public.analytics_reports.snapshot_id IS 'Reference to the analytics snapshot this report is based on';
+COMMENT ON COLUMN public.analytics_reports.generated_by IS 'User ID who generated the report, or "system" for automated reports';
+COMMENT ON COLUMN public.analytics_reports.delivery_method IS 'How the report was delivered: discord_dm or dashboard_only';
+
+CREATE INDEX IF NOT EXISTS idx_reports_guild ON public.analytics_reports(guild_id);
+CREATE INDEX IF NOT EXISTS idx_reports_date ON public.analytics_reports(generated_at DESC);
+CREATE INDEX IF NOT EXISTS idx_reports_snapshot ON public.analytics_reports(snapshot_id);
+CREATE INDEX IF NOT EXISTS idx_reports_guild_date ON public.analytics_reports(guild_id, generated_at DESC);
+
+-- 9.3 Update guild_settings table with analytics configuration
+DO $$ 
+BEGIN
+    -- Add analytics timezone column
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name='guild_settings' AND column_name='analytics_timezone') THEN
+        ALTER TABLE public.guild_settings ADD COLUMN analytics_timezone TEXT DEFAULT 'UTC';
+    END IF;
+    
+    -- Add weekly reset timezone column
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name='guild_settings' AND column_name='weekly_reset_timezone') THEN
+        ALTER TABLE public.guild_settings ADD COLUMN weekly_reset_timezone TEXT DEFAULT 'UTC';
+    END IF;
+    
+    -- Add weekly report enabled flag
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name='guild_settings' AND column_name='weekly_report_enabled') THEN
+        ALTER TABLE public.guild_settings ADD COLUMN weekly_report_enabled BOOLEAN DEFAULT TRUE;
+    END IF;
+    
+    -- Add weekly report day (0=Monday, 6=Sunday)
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name='guild_settings' AND column_name='weekly_report_day') THEN
+        ALTER TABLE public.guild_settings ADD COLUMN weekly_report_day INTEGER DEFAULT 0 
+            CHECK (weekly_report_day >= 0 AND weekly_report_day <= 6);
+    END IF;
+    
+    -- Add weekly report hour (0-23)
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns 
+                   WHERE table_name='guild_settings' AND column_name='weekly_report_hour') THEN
+        ALTER TABLE public.guild_settings ADD COLUMN weekly_report_hour INTEGER DEFAULT 9 
+            CHECK (weekly_report_hour >= 0 AND weekly_report_hour <= 23);
+    END IF;
+END $$;
+
+COMMENT ON COLUMN public.guild_settings.analytics_timezone IS 'Timezone for analytics reports (e.g., America/New_York, Asia/Kolkata)';
+COMMENT ON COLUMN public.guild_settings.weekly_reset_timezone IS 'Timezone for weekly stats reset - stats reset Monday 00:00 in this timezone';
+COMMENT ON COLUMN public.guild_settings.weekly_report_enabled IS 'Whether to send automated weekly analytics reports via Discord DM';
+COMMENT ON COLUMN public.guild_settings.weekly_report_day IS 'Day of week for reports: 0=Monday, 1=Tuesday, ..., 6=Sunday';
+COMMENT ON COLUMN public.guild_settings.weekly_report_hour IS 'Hour of day for reports (0-23) in server timezone';
+
+
+-- =============================================================================
+-- SECTION 10: VERIFICATION QUERIES
+-- =============================================================================
+
+-- Show all tables created
+SELECT 
+    table_name,
+    (SELECT COUNT(*) FROM information_schema.columns WHERE table_name = t.table_name AND table_schema = 'public') AS column_count
+FROM information_schema.tables t
+WHERE table_schema = 'public' 
+    AND table_type = 'BASE TABLE'
+ORDER BY table_name;
+
+-- =============================================================================
+-- SECTION 11: MAINTENANCE COMMANDS
+-- =============================================================================
+
+-- ⚠️ DANGER ZONE: Use these commands with extreme caution!
+-- These commands will permanently delete data and cannot be undone.
+
+-- -----------------------------------------------------------------------------
+-- COMMAND 1: DELETE ALL TABLES (Complete Database Reset)
+-- -----------------------------------------------------------------------------
+-- This will drop all tables, views, functions, and triggers.
+-- Use this when you want to completely reset the database schema.
+-- After running this, you'll need to re-run the entire schema above.
+
+/*
+-- Uncomment and run the following block to DROP ALL TABLES IN PUBLIC SCHEMA:
+
+DROP TABLE IF EXISTS public.contact_messages CASCADE;
+DROP TABLE IF EXISTS public.reminders CASCADE;
+DROP TABLE IF EXISTS public.youtube_notification_logs CASCADE;
+DROP TABLE IF EXISTS public.youtube_notification_config CASCADE;
+DROP TABLE IF EXISTS public.server_time_configs CASCADE;
+DROP TABLE IF EXISTS public.bypass_roles CASCADE;
+DROP TABLE IF EXISTS public.channel_restrictions_v2 CASCADE;
+DROP TABLE IF EXISTS public.level_system_config CASCADE;
+DROP TABLE IF EXISTS public.auto_reset CASCADE;
+DROP TABLE IF EXISTS public.last_notified_level CASCADE;
+DROP TABLE IF EXISTS public.level_notify_channel CASCADE;
+DROP TABLE IF EXISTS public.level_roles CASCADE;
+DROP TABLE IF EXISTS public.users CASCADE;
+DROP TABLE IF EXISTS public.banned_guilds CASCADE;
+DROP TABLE IF EXISTS public.guild_stats CASCADE;
+DROP TABLE IF EXISTS public.guild_settings CASCADE;
+DROP TABLE IF EXISTS public.dashboard_activity_log CASCADE;
+DROP TABLE IF EXISTS public.dashboard_user_servers CASCADE;
+DROP TABLE IF EXISTS public.dashboard_users CASCADE;
+DROP TABLE IF EXISTS public.bot_stats CASCADE;
+
+
+DO
+$$
+DECLARE
+  r RECORD;
+BEGIN
+  -- Drop views
+  FOR r IN (SELECT viewname FROM pg_views WHERE schemaname = 'public') LOOP
+    EXECUTE 'DROP VIEW IF EXISTS public.' || quote_ident(r.viewname) || ' CASCADE';
+  END LOOP;
+  -- Drop functions
+  FOR r IN (SELECT proname, oid FROM pg_proc JOIN pg_namespace ON pg_proc.pronamespace = pg_namespace.oid WHERE pg_namespace.nspname = 'public') LOOP
+    EXECUTE 'DROP FUNCTION IF EXISTS public.' || quote_ident(r.proname) || ' CASCADE';
+  END LOOP;
+END
+$$;
+*/

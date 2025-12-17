@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<!--
+  File: terms_of_service.html
+  Description: Terms of Service page for the Supporter Bot website.
+  Purpose: Renders the TOS content using shared layout components and styles.
+  Tech Stack:
+    - HTML5 with Tailwind CSS (via CDN)
+    - Jinja2 templating (Flask includes for navbar and TOS content)
+    - Custom CSS (index.css, navbar.css, terms_of_service.css)
+  Notes:
+    - Dark mode is enabled by default via `class="dark"` on the <html> element.
+    - This template expects `current_year` to be passed from the Flask backend.
+-->
+
+<html lang="en" class="dark">
+
+<head>
+  <!-- ========== META & DOCUMENT SETTINGS ========== -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service - Supporter Bot</title>
+
+  <!-- ========== FAVICONS ========== -->
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='Assets/quality-32px.png') }}" />
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='Assets/quality-16px.png') }}" />
+
+  <!-- ========== EXTERNAL LIBRARIES (CDN) ========== -->
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Font Awesome Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+
+  <!-- Google Fonts: Outfit -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+
+  <!-- ========== TAILWIND CONFIGURATION ========== -->
+  <!--
+      Extends Tailwind with:
+        - Custom font family: Outfit
+        - Brand color palette for dark background and cards
+    -->
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: { sans: ["Outfit", "sans-serif"] },
+          colors: {
+            brand: { purple: "#6366f1", dark: "#0f172a", card: "#1e293b" },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- ========== LOCAL STYLESHEETS ========== -->
+  <!-- Global base styles -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='app_hcj.css') }}" />
+
+  <!-- Shared navbar styles -->
+
+
+  <!-- Page-specific Terms of Service styles -->
+
+</head>
+
+<body id="page-tos" class="bg-brand-dark text-slate-100 transition-colors duration-300">
+  <!-- ========== GLOBAL NAVBAR ========== -->
+  {% include 'partials/navbar.html' %}
+
+  <!-- ========== MAIN CONTENT: TERMS OF SERVICE ========== -->
+  <main class="pt-24 pb-12">
+    {% include 'partials/terms_of_service.html' %}
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="footer mt-auto">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="text-center text-slate-500 text-sm py-8 border-t border-slate-800">
+        &copy; {{ current_year }} Supporter Bot. All rights reserved.
+      </div>
+    </div>
+  </footer>
+  <script src="{{ url_for('static', filename='app_hcj.js') }}"></script>
+</body>
+
+</html>

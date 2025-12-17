@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<!--
+  File: commands.html
+  Description: Public-facing slash command reference page for Supporter Bot.
+  Purpose:
+    - Present a complete, categorized list of all available commands.
+    - Allow users to search commands and copy them directly to clipboard.
+    - Serve as a documentation hub for in-Discord functionality.
+  Stack & Integration:
+    - Flask + Jinja2 templating
+    - Tailwind CSS (CDN) + custom CSS (command.css)
+    - Font Awesome for icons
+    - JetBrains Mono for monospaced command styling
+  Data Requirements:
+    - Relies on Flask for:
+      - url_for('static', ...) for CSS and JS assets.
+      - Standard routes for /terms-of-service, /privacy-policy, /contact.
+    - Frontend behavior (search, copy-to-clipboard, toast notifications)
+      is implemented in JS/command.js.
+-->
+
+<html lang="en" class="dark">
+
+<head>
+  <!-- ========== META & PAGE SETTINGS ========== -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Commands - Supporter Bot</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='Assets/quality-32px.png') }}" />
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='Assets/quality-16px.png') }}" />
+  <meta name="description"
+    content="Complete command reference for Supporter Bot - Browse all available commands organized by category with easy copy functionality." />
+
+  <!-- ========== CORE EXTERNAL LIBRARIES ========== -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
+
+  <!-- ========== TAILWIND CONFIGURATION ========== -->
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ["Outfit", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"],
+          },
+          colors: {
+            brand: { purple: "#6366f1", dark: "#0f172a", card: "#1e293b" },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- ========== THEME INITIALIZATION (DARK MODE) ========== -->
+  <script>
+    (function () {
+      const theme = localStorage.getItem("theme") || "dark";
+      if (theme === "dark") {
+        document.documentElement.classList.add("dark");
+      }
+    })();
+  </script>
+
+  <!-- ========== CONSOLIDATED STYLESHEET ========== -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='app_hcj.css') }}" />
+</head>
+
+<body id="page-commands" class="bg-brand-dark text-white transition-colors duration-300">
+  <!-- ========== GLOBAL NAVBAR ========== -->
+  {% include 'partials/navbar.html' %}
+
+  <!-- ========== HERO / INTRO SECTION ========== -->
+  <section class="hero-section">
+    <div class="blob-container">
+      <div class="blob blob-purple"></div>
+      <div class="blob blob-blue"></div>
+    </div>
+
+    <div class="max-w-7xl mx_auto px-6 text-center relative z-10">
+      <div
+        class="inline-block px-6 py-2 bg-indigo-500/10 border border-indigo-500/30 rounded-full mb-6 animate-fade-in-up">
+        <span class="text-indigo-400 font-bold text-sm uppercase tracking-wider">📚 Command Reference</span>
+      </div>
+
+      <h1 class="hero-title gradient-text">Complete Command List</h1>
+
+      <p class="hero-subtitle">
+        Browse all available commands organized by category. Click any command
+        to copy it to your clipboard.
+      </p>
+
+      <!-- Global command search with live suggestions -->
+      <div class="search-container">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="commandSearch" class="search-input" placeholder="Search commands..."
+          autocomplete="off" />
+        <div id="searchResults" class="search-results hidden"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== MAIN COMMAND CATALOG ========== -->
+  <section class="py-20 relative">
+    <div class="max-w-7xl mx-auto px-6">
+      <!-- ===== GENERAL COMMANDS ===== -->
+      <div class="command-category animate-fade-in-up">
+        <div class="category-header">
+          <div class="category-icon bg-gradient-to-br from-blue-500 to-indigo-500">
+            <i class="fas fa-info-circle"></i>
+          </div>
+          <div>
+            <h2 class="category-title">General Commands</h2>
+            <p class="category-description">
+              Basic bot information and server configuration
+            </p>
+          </div>
+        </div>
+
+        <div class="commands-grid">
+          <div class="command-card" data-command="/b1-ping">
+            <div class="command-header">
+              <code class="command-name">/b1-ping</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">Check bot latency and response time</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== LEVELING SYSTEM COMMANDS ===== -->
+      <div class="command-category animate-fade-in-up animation-delay-200">
+        <div class="category-header">
+          <div class="category-icon bg-gradient-to-br from-yellow-500 to-orange-500">
+            <i class="fas fa-trophy"></i>
+          </div>
+          <div>
+            <h2 class="category-title">Leveling System</h2>
+            <p class="category-description">
+              XP tracking, ranks, and leaderboards
+            </p>
+          </div>
+        </div>
+
+        <div class="commands-grid">
+          <div class="command-card" data-command="/l1-level">
+            <div class="command-header">
+              <code class="command-name">/l1-level</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">Check your current level, XP, and rank</p>
+            <div class="command-params">
+              <span class="param-optional">user (optional)</span> - Check
+              another user's level
+            </div>
+          </div>
+
+          <div class="command-card" data-command="/l2-leaderboard">
+            <div class="command-header">
+              <code class="command-name">/l2-leaderboard</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Display the top 10 users by XP in the server
+            </p>
+          </div>
+
+          <div class="command-card" data-command="/l3-setup-level-reward">
+            <div class="command-header">
+              <code class="command-name">/l3-setup-level-reward</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Configure automatic role rewards for reaching specific levels
+            </p>
+            <div class="command-params">
+              <span class="param-required">level</span> - Level threshold
+              <span class="param-required">role</span> - Role to assign
+            </div>
+          </div>
+
+          <div class="command-card" data-command="/l4-remove-level-reward">
+            <div class="command-header">
+              <code class="command-name">/l4-remove-level-reward</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">Remove a configured level reward</p>
+            <div class="command-params">
+              <span class="param-required">level</span> - Level to remove
+              reward from
+            </div>
+          </div>
+
+          <div class="command-card" data-command="/l5-notify-level-msg">
+            <div class="command-header">
+              <code class="command-name">/l5-notify-level-msg</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Set the channel for level-up notifications
+            </p>
+          </div>
+
+          <div class="command-card" data-command="/l6-xp-settings">
+            <div class="command-header">
+              <code class="command-name">/l6-xp-settings</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Configure XP rates for messages, images, and voice activity
+            </p>
+          </div>
+
+          <div class="command-card" data-command="/l7-level-config">
+            <div class="command-header">
+              <code class="command-name">/l7-level-config</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Configure system behavior (message style, role stacking, etc)
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== ANALYTICS COMMANDS ===== -->
+      <div class="command-category animate-fade-in-up animation-delay-300">
+        <div class="category-header">
+          <div class="category-icon bg-gradient-to-br from-cyan-500 to-blue-500">
+            <i class="fas fa-chart-bar"></i>
+          </div>
+          <div>
+            <h2 class="category-title">Analytics</h2>
+            <p class="category-description">
+              Server health metrics and engagement tracking
+            </p>
+          </div>
+        </div>
+
+        <div class="commands-grid">
+          <div class="command-card" data-command="/a1-dashboard">
+            <div class="command-header">
+              <code class="command-name">/a1-dashboard</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">View your server's analytics dashboard</p>
+          </div>
+
+          <div class="command-card" data-command="/a2-history">
+            <div class="command-header">
+              <code class="command-name">/a2-history</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">View past weekly analytics reports</p>
+          </div>
+
+          <div class="command-card" data-command="/a3-generate-snapshot">
+            <div class="command-header">
+              <code class="command-name">/a3-generate-snapshot</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Generate an on-demand analytics snapshot
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== YOUTUBE NOTIFICATION COMMANDS ===== -->
+      <div class="command-category animate-fade-in-up animation-delay-400">
+        <div class="category-header">
+          <div class="category-icon bg-gradient-to-br from-red-500 to-pink-500">
+            <i class="fab fa-youtube"></i>
+          </div>
+          <div>
+            <h2 class="category-title">YouTube Notifications</h2>
+            <p class="category-description">
+              Monitor YouTube channels for new uploads
+            </p>
+          </div>
+        </div>
+
+        <div class="commands-grid">
+          <div class="command-card" data-command="/y1-find-youtube-channel-id">
+            <div class="command-header">
+              <code class="command-name">/y1-find-youtube-channel-id</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Extract YouTube channel ID from a channel URL
+            </p>
+            <div class="command-params">
+              <span class="param-required">url</span> - YouTube channel URL
+            </div>
+          </div>
+
+          <div class="command-card" data-command="/y2-setup-youtube-notifications">
+            <div class="command-header">
+              <code class="command-name">/y2-setup-youtube-notifications</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Enable YouTube notifications for a channel
+            </p>
+            <div class="command-params">
+              <span class="param-required">channel_id</span> - YouTube channel
+              ID <span class="param-required">discord_channel</span> - Where
+              to post notifications
+              <span class="param-optional">message (optional)</span> - Custom
+              notification message
+            </div>
+          </div>
+
+          <div class="command-card" data-command="/y3-remove-youtube-notifications">
+            <div class="command-header">
+              <code class="command-name">/y3-remove-youtube-notifications</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Disable YouTube notifications for a channel
+            </p>
+            <div class="command-params">
+              <span class="param-required">channel_id</span> - YouTube channel
+              ID to remove
+            </div>
+          </div>
+
+          <div class="command-card" data-command="/y4-list-youtube-notifications">
+            <div class="command-header">
+              <code class="command-name">/y4-list-youtube-notifications</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              List all monitored YouTube channels for this server
+            </p>
+          </div>
+
+          <div class="command-card" data-command="/y5-test-rss-feed">
+            <div class="command-header">
+              <code class="command-name">/y5-test-rss-feed</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">Test RSS feed for a YouTube channel</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== TIME / CLOCK COMMANDS ===== -->
+      <div class="command-category animate-fade-in-up animation-delay-500">
+        <div class="category-header">
+          <div class="category-icon bg-gradient-to-br from-blue-500 to-indigo-500">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div>
+            <h2 class="category-title">Time & Clocks</h2>
+            <p class="category-description">
+              Dynamic timezone clocks and time channels
+            </p>
+          </div>
+        </div>
+
+        <div class="commands-grid">
+          <div class="command-card" data-command="/t1-setup-clock">
+            <div class="command-header">
+              <code class="command-name">/t1-setup-clock</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">Create a timezone clock channel</p>
+            <div class="command-params">
+              <span class="param-required">timezone</span> - IANA timezone
+              (e.g., America/New_York)
+              <span class="param-required">format</span> - Time or Date format
+            </div>
+          </div>
+
+          <div class="command-card" data-command="/t2-list-clocks">
+            <div class="command-header">
+              <code class="command-name">/t2-list-clocks</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">List all configured time channels</p>
+          </div>
+
+          <div class="command-card" data-command="/t3-remove-clock">
+            <div class="command-header">
+              <code class="command-name">/t3-remove-clock</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">Remove a time channel configuration</p>
+            <div class="command-params">
+              <span class="param-required">channel</span> - Channel to remove
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== CHANNEL RESTRICTION COMMANDS ===== -->
+      <div class="command-category animate-fade-in-up animation-delay-600">
+        <div class="category-header">
+          <div class="category-icon bg-gradient-to-br from-orange-500 to-red-500">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <div>
+            <h2 class="category-title">Channel Restrictions</h2>
+            <p class="category-description">
+              Control what content is allowed in channels
+            </p>
+          </div>
+        </div>
+
+        <div class="commands-grid">
+          <div class="command-card" data-command="/n1-setup-no-text">
+            <div class="command-header">
+              <code class="command-name">/n1-setup-no-text</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Configure a channel to only allow media (images, videos, files)
+            </p>
+          </div>
+
+          <div class="command-card" data-command="/n2-remove-restriction">
+            <div class="command-header">
+              <code class="command-name">/n2-remove-restriction</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">Remove all restrictions from a channel</p>
+          </div>
+
+          <div class="command-card" data-command="/n3-bypass-no-text">
+            <div class="command-header">
+              <code class="command-name">/n3-bypass-no-text</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Add a role that can bypass all channel restrictions
+            </p>
+          </div>
+
+          <div class="command-card" data-command="/n4-show-bypass-roles">
+            <div class="command-header">
+              <code class="command-name">/n4-show-bypass-roles</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Show all roles that can bypass restrictions
+            </p>
+          </div>
+
+          <div class="command-card" data-command="/n5-remove-bypass-role">
+            <div class="command-header">
+              <code class="command-name">/n5-remove-bypass-role</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">Remove a role from bypass list</p>
+          </div>
+
+          <div class="command-card" data-command="/n6-no-discord-link">
+            <div class="command-header">
+              <code class="command-name">/n6-no-discord-link</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Block Discord invite links in a channel
+            </p>
+          </div>
+
+          <div class="command-card" data-command="/n7-no-links">
+            <div class="command-header">
+              <code class="command-name">/n7-no-links</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">Block all links in a channel</p>
+          </div>
+
+          <div class="command-card" data-command="/n8-setup-text-only">
+            <div class="command-header">
+              <code class="command-name">/n8-setup-text-only</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Configure a channel to only allow plain text (no media)
+            </p>
+          </div>
+
+          <div class="command-card" data-command="/n9-immune-role">
+            <div class="command-header">
+              <code class="command-name">/n9-immune-role</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Add or remove an immune role for a specific channel restriction
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== REMINDERS & TIME COMMANDS ===== -->
+      <div class="command-category animate-fade-in-up animation-delay-800">
+        <div class="category-header">
+          <div class="category-icon bg-gradient-to-br from-green-500 to-teal-500">
+            <i class="fas fa-clock"></i>
+          </div>
+          <div>
+            <h2 class="category-title">Reminders & Time</h2>
+            <p class="category-description">
+              Schedule reminders and manage timezones
+            </p>
+          </div>
+        </div>
+
+        <div class="commands-grid">
+          <div class="command-card" data-command="/t1-set-timezone">
+            <div class="command-header">
+              <code class="command-name">/t1-set-timezone</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Set the server's timezone for time-based features
+            </p>
+            <div class="command-params">
+              <span class="param-required">timezone</span> - Timezone (e.g.,
+              America/New_York)
+            </div>
+          </div>
+
+          <div class="command-card" data-command="/t2-current-time">
+            <div class="command-header">
+              <code class="command-name">/t2-current-time</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Display the current time in the server's timezone
+            </p>
+          </div>
+
+          <div class="command-card" data-command="/r1-list">
+            <div class="command-header">
+              <code class="command-name">/r1-list</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              View all active reminders for this server
+            </p>
+          </div>
+
+          <div class="command-card" data-command="/r2-delete">
+            <div class="command-header">
+              <code class="command-name">/r2-delete</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              View all active reminders for this server
+            </p>
+          </div>
+
+          <div class="command-card" data-command="/r3-delete-reminder">
+            <div class="command-header">
+              <code class="command-name">/r3-delete-reminder</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">Delete a specific reminder</p>
+            <div class="command-params">
+              <span class="param-required">reminder_id</span> - ID of the
+              reminder to delete
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== OWNER / ADMIN COMMANDS ===== -->
+      <div class="command-category animate-fade-in-up animation-delay-1000">
+        <div class="category-header">
+          <div class="category-icon bg-gradient-to-br from-purple-500 to-pink-500">
+            <i class="fas fa-crown"></i>
+          </div>
+          <div>
+            <h2 class="category-title">Owner & Admin</h2>
+            <p class="category-description">
+              Bot management and administrative tools
+            </p>
+          </div>
+        </div>
+
+        <div class="commands-grid">
+          <div class="command-card" data-command="/o1-bot-info">
+            <div class="command-header">
+              <code class="command-name">/o1-bot-info</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Display bot statistics, uptime, and system information
+            </p>
+            <div class="command-badge">Owner Only</div>
+          </div>
+
+          <div class="command-card" data-command="/o2-set-presence">
+            <div class="command-header">
+              <code class="command-name">/o2-set-presence</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">Change the bot's status and activity</p>
+            <div class="command-params">
+              <span class="param-required">status</span> - online, idle, dnd,
+              invisible
+              <span class="param-optional">activity (optional)</span> - Custom
+              activity text
+            </div>
+            <div class="command-badge">Owner Only</div>
+          </div>
+
+          <div class="command-card" data-command="/o3-server-list">
+            <div class="command-header">
+              <code class="command-name">/o3-server-list</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              List all servers the bot is currently in
+            </p>
+            <div class="command-badge">Owner Only</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== QUICK REFERENCE SECTION ========== -->
+  <section class="py-20 bg-brand-card/30">
+    <div class="max-w-4xl mx-auto px-6">
+      <h2 class="text-3xl font-bold text-center mb-8">Quick Reference</h2>
+
+      <div class="quick-ref-grid">
+        <div class="quick-ref-card">
+          <i class="fas fa-question-circle text-3xl text-blue-400 mb-3"></i>
+          <h3 class="text-lg font-bold mb-2">Need Help?</h3>
+          <p class="text-sm text-slate-400 mb-4">
+            Use <code>/h1-help</code> in Discord for interactive help
+          </p>
+        </div>
+
+        <div class="quick-ref-card">
+          <i class="fas fa-globe text-3xl text-green-400 mb-3"></i>
+          <h3 class="text-lg font-bold mb-2">Web Dashboard</h3>
+          <p class="text-sm text-slate-400 mb-4">
+            Manage settings easily at
+            <a href="/dashboard" class="text-indigo-400 hover:text-indigo-300">/dashboard</a>
+          </p>
+        </div>
+
+        <div class="quick-ref-card">
+          <i class="fas fa-book text-3xl text-purple-400 mb-3"></i>
+          <h3 class="text-lg font-bold mb-2">Documentation</h3>
+          <p class="text-sm text-slate-400 mb-4">
+            Visit
+            <a href="/features" class="text-indigo-400 hover:text-indigo-300">/features</a>
+            for detailed guides
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== COPY-TOAST NOTIFICATION ========== -->
+  <div id="copyToast" class="copy-toast">
+    <i class="fas fa-check-circle"></i>
+    <span>Command copied to clipboard!</span>
+  </div>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="text-center py-8 text-slate-500 text-sm border-t border-slate-800">
+    <div class="max-w-7xl mx-auto px-4">
+      <div class="flex flex-wrap justify-center gap-6 mb-4">
+        <a href="/terms-of-service" target="_blank" class="hover:text-indigo-400 transition-colors">Terms of Service</a>
+        <a href="/privacy-policy" target="_blank" class="hover:text-indigo-400 transition-colors">Privacy Policy</a>
+        <a href="/contact" target="_blank" class="hover:text-indigo-400 transition-colors">Contact</a>
+      </div>
+      <p>&copy; 2025 Supporter Bot. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- ========== PAGE-SPECIFIC SCRIPT ========== -->
+  <script src="{{ url_for('static', filename='app_hcj.js') }}"></script>
+</body>
+
+</html>

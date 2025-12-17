@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<!--
+  File: dashboard_select_server.html
+  Description: Dashboard landing page for selecting or inviting servers.
+  Purpose:
+    - Show all servers where the bot is active and configurable.
+    - Show all eligible servers where the user has permissions but the bot is not yet invited.
+    - Provide search/filtering to quickly locate a server.
+  Stack & Integration:
+    - Flask + Jinja2 templating
+    - Tailwind CSS (CDN) + custom CSS (dashboard.css, navbar.css)
+    - Font Awesome for icons
+  Data Requirements:
+    - active_servers: List of guild objects where the bot is currently active.
+    - invite_servers: List of guild objects where the user has admin rights but bot is missing.
+    - bot_id: Discord application client ID.
+    - permissions: Bitwise permission integer for the OAuth invite URL.
+-->
+
+<html lang="en" class="dark">
+  <head>
+    <!-- ========== META & PAGE SETTINGS ========== -->
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Select Server</title>
+
+    <!-- ========== FAVICONS ========== -->
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="{{ url_for('static', filename='Assets/quality-32px.png') }}"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="{{ url_for('static', filename='Assets/quality-16px.png') }}"
+    />
+
+    <!-- ========== CORE EXTERNAL LIBRARIES ========== -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- ========== TAILWIND CONFIGURATION ========== -->
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            fontFamily: { sans: ["Outfit", "sans-serif"] },
+            colors: {
+              brand: { purple: "#6366f1", dark: "#0f172a", card: "#1e293b" },
+            },
+          },
+        },
+      };
+    </script>
+
+    <!-- ========== PAGE-SPECIFIC STYLESHEETS ========== -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='CSS/dashboard.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='CSS/partials/navbar.css') }}"
+    />
+  </head>
+
+  <body
+    class="bg-brand-dark text-white transition-colors duration-300 min-h-screen flex flex-col"
+  >
+    <!-- ========== GLOBAL NAVBAR ========== -->
+    {% include 'partials/navbar.html' %}
+
+    <!-- ========== MAIN DASHBOARD CONTENT ========== -->
+    <main class="flex-grow pt-32 pb-20 px-4">
+      <div class="max-w-7xl mx-auto">
+        <!-- Header + Search Bar -->
+        <div
+          class="flex flex-col md:flex-row justify-between items-end md:items-center mb-10 gap-4"
+        >
+          <div>
+            <h1
+              class="text-4xl font-black mb-2 bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent"
+            >
+              Select a Server
+            </h1>
+            <p class="text-slate-400">
+              Choose a server to configure or invite the bot.
+            </p>
+          </div>
+          <div class="relative w-full md:w-72">
+            <i
+              class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-500"
+            ></i>
+            <input
+              type="text"
+              id="serverSearch"
+              placeholder="Search servers..."
+              class="w-full pl-11 pr-4 py-3 bg-brand-card/50 backdrop-blur-sm border border-slate-700/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all shadow-lg text-white placeholder-slate-500"
+            />
+          </div>
+        </div>
+
+        <!-- Active Servers Section -->
+        <div class="mb-12">
+          <div class="flex items-center gap-3 mb-6">
+            <div
+              class="w-1.5 h-8 bg-gradient-to-b from-green-400 to-emerald-600 rounded-full"
+            ></div>
+            <h2 class="text-xl font-bold">Active Servers</h2>
+            <span
+              class="px-2 py-0.5 bg-green-500/10 text-green-400 text-xs font-bold rounded-full border border-green-500/20"
+              >{{ active_servers|length }}</span
+            >
+          </div>
+
+          {% if active_servers %}
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            id="activeServerList"
+          >
+            {% for server in active_servers %}
+            <div class="server-card group" data-name="{{ server.name }}">
+              <div class="relative mb-4">
+                {% if server.icon %}
+                <img
+                  src="https://cdn.discordapp.com/icons/{{ server.id }}/{{ server.icon }}.png"
+                  alt="{{ server.name }}"
+                  class="w-20 h-20 rounded-2xl shadow-lg mx-auto object-cover group-hover:scale-105 transition-transform duration-300 ring-2 ring-white/10"
+                />
+                {% else %}
+                <div
+                  class="w-20 h-20 rounded-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-2xl font-bold text-white shadow-lg mx-auto group-hover:scale-105 transition-transform duration-300 ring-2 ring-white/10"
+                >
+                  {{ server.name[:2] }}
+                </div>
+                {% endif %}
+                <div
+                  class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-gradient-to-r from-green-500 to-emerald-500 text-white text-[10px] font-bold px-3 py-0.5 rounded-full shadow-lg"
+                >
+                  ACTIVE
+                </div>
+              </div>
+              <h3
+                class="text-lg font-bold text-center mb-4 truncate w-full px-2"
+              >
+                {{ server.name }}
+              </h3>
+              <a
+                href="/dashboard/server/{{ server.id }}"
+                class="server-btn manage"
+              >
+                <i class="fas fa-cog mr-2"></i>Manage Settings
+              </a>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="empty-state">
+            <i class="fas fa-ghost text-5xl mb-4 opacity-30"></i>
+            <p class="text-lg">No active servers found.</p>
+            <p class="text-sm text-slate-500 mt-2">
+              Invite the bot to a server below!
+            </p>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Invite to Server Section -->
+        <div>
+          <div class="flex items-center gap-3 mb-6">
+            <div
+              class="w-1.5 h-8 bg-gradient-to-b from-indigo-400 to-purple-600 rounded-full"
+            ></div>
+            <h2 class="text-xl font-bold">Invite to Server</h2>
+            <span
+              class="px-2 py-0.5 bg-indigo-500/10 text-indigo-400 text-xs font-bold rounded-full border border-indigo-500/20"
+              >{{ invite_servers|length }}</span
+            >
+          </div>
+
+          {% if invite_servers %}
+          <div
+            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+            id="inviteServerList"
+          >
+            {% for server in invite_servers %}
+            <div
+              class="server-card opacity-70 hover:opacity-100"
+              data-name="{{ server.name }}"
+            >
+              <div class="relative mb-4">
+                {% if server.icon %}
+                <img
+                  src="https://cdn.discordapp.com/icons/{{ server.id }}/{{ server.icon }}.png"
+                  alt="{{ server.name }}"
+                  class="w-20 h-20 rounded-2xl shadow-md mx-auto grayscale group-hover:grayscale-0 transition-all duration-300 ring-2 ring-white/5"
+                />
+                {% else %}
+                <div
+                  class="w-20 h-20 rounded-2xl bg-slate-700 flex items-center justify-center text-2xl font-bold text-slate-400 shadow-md mx-auto ring-2 ring-white/5"
+                >
+                  {{ server.name[:2] }}
+                </div>
+                {% endif %}
+                <div
+                  class="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-slate-600 text-slate-300 text-[10px] font-bold px-3 py-0.5 rounded-full"
+                >
+                  MISSING
+                </div>
+              </div>
+              <h3
+                class="text-lg font-bold text-center mb-4 truncate w-full px-2 text-slate-400"
+              >
+                {{ server.name }}
+              </h3>
+              <a
+                href="https://discord.com/oauth2/authorize?client_id={{ bot_id }}&permissions={{ permissions }}&scope=bot%20applications.commands&guild_id={{ server.id }}"
+                target="_blank"
+                class="server-btn invite"
+              >
+                <i class="fas fa-plus mr-2"></i>Invite Bot
+              </a>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="empty-state">
+            <p>You don't have any other servers with Admin permissions.</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </main>
+
+    <!-- ========== FOOTER ========== -->
+    <footer
+      class="text-center py-8 text-slate-500 text-sm border-t border-slate-800 bg-brand-dark"
+    >
+      <div class="flex justify-center gap-6 mb-4">
+        <a
+          href="{{ url_for('terms') }}"
+          target="_blank"
+          class="hover:text-indigo-400 transition-colors"
+          >Terms of Service</a
+        >
+        <a
+          href="{{ url_for('privacy') }}"
+          target="_blank"
+          class="hover:text-indigo-400 transition-colors"
+          >Privacy Policy</a
+        >
+        <a
+          href="{{ url_for('contact') }}"
+          target="_blank"
+          class="hover:text-indigo-400 transition-colors"
+          >Contact</a
+        >
+      </div>
+      &copy; 2025 Supporter Bot. All rights reserved.
+    </footer>
+
+    <!-- ========== PAGE-SPECIFIC SCRIPT ========== -->
+    <script src="{{ url_for('static', filename='JS/dashboard.js') }}"></script>
+  </body>
+</html>

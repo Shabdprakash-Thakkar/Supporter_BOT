@@ -1,0 +1,170 @@
+/* ==========================================================================
+   Supporter Bot - Feature & Commands Showcase Styles
+   - Floating animation helpers
+   - Feature highlight boxes
+   - Command list / command category cards
+   - Animated statistic numbers
+   ========================================================================== */
+
+/* ==========================================================================
+   Base Imports
+   ========================================================================== */
+
+@import url("./base.css");
+
+/* ==========================================================================
+   Global Animation Utilities
+   ========================================================================== */
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   Feature Highlight Boxes
+   ========================================================================== */
+
+.feature-box {
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(99, 102, 241, 0.5),
+    transparent
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.feature-box:hover {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 30px 60px rgba(99, 102, 241, 0.2);
+}
+
+.feature-box:hover::before {
+  opacity: 1;
+}
+
+.feature-box .icon-wrap {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  font-size: 1.5rem;
+  transition: all 0.4s ease;
+}
+
+.feature-box:hover .icon-wrap {
+  transform: scale(1.15) rotate(-5deg);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.feature-box h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: white;
+}
+
+.feature-box p {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   Command Group Cards (Command Lists)
+   ========================================================================== */
+
+.cmd-card {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.cmd-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.cmd-card .cmd-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.cmd-card .cmd-list {
+  list-style: none;
+  padding: 1rem 1.25rem;
+}
+
+.cmd-card .cmd-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.cmd-card .cmd-list li:last-child {
+  border-bottom: none;
+}
+
+.cmd-card .cmd-list li span {
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  background: rgba(99, 102, 241, 0.15);
+  border-radius: 0.375rem;
+  color: #a5b4fc;
+}
+
+/* ==========================================================================
+   Animated Stat Numbers
+   ========================================================================== */
+
+@keyframes number-increment {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stat-animate {
+  animation: number-increment 0.6s ease-out forwards;
+}

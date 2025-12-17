@@ -1,0 +1,160 @@
+<!--
+  File: privacy_policy_content.html (partial)
+  Description:
+    - Reusable content block for the Privacy Policy page of Supporter Bot.
+    - Designed to be embedded inside a higher-level layout (e.g., privacy_policy.html)
+      or a legal wrapper template.
+
+  Purpose:
+    - Clearly describe what data Supporter Bot collects, how it is used,
+      where it is stored, and what rights users have.
+    - Provide transparency for Discord server owners and members regarding
+      privacy and data handling practices.
+
+  Layout & Styling:
+    - Root wrapper: .legal-container
+    - Header: .legal-header with gradient main title and "last updated" line.
+    - Body: .legal-content.glass-card with sectioned legal text and lists.
+    - Relies on external CSS (e.g., legal.css / privacy_policy.css) for:
+      - Glassmorphism card styling (glass-card)
+      - Gradient typography (gradient-text)
+      - Spacing utilities (p-8, etc.)
+
+  Integration Points:
+    - Intended for use within a templated layout (e.g., Flask/Jinja, Node, etc.).
+    - External links:
+        - YouTube Terms of Service
+        - Google Privacy Policy
+    - Can be combined with a site-wide footer and navigation for a full page.
+-->
+
+<div class="legal-container">
+  <!-- ========== LEGAL HEADER (TITLE & LAST UPDATED) ========== -->
+  <div class="legal-header">
+    <h1 class="gradient-text">Privacy Policy</h1>
+    <p class="last-updated">Last Updated: December 2025</p>
+  </div>
+
+  <!-- ========== LEGAL CONTENT WRAPPER ========== -->
+  <div class="legal-content glass-card p-8">
+    <!-- Section 1: Information We Collect -->
+    <section>
+      <h2>1. Information We Collect</h2>
+      <p>
+        To provide our services, SupporterBOT collects and stores the following
+        limited data:
+      </p>
+      <ul>
+        <li>
+          <strong>User ID & Username:</strong> To identify you across servers
+          and for the leveling system.
+        </li>
+        <li>
+          <strong>Server ID & Configuration:</strong> Custom settings, prefixes,
+          and channel configurations.
+        </li>
+        <li>
+          <strong>Leveling Data:</strong> XP, rank, and level progression within
+          servers.
+        </li>
+        <li>
+          <strong>YouTube Configuration:</strong> Channel IDs you wish to track
+          for notifications.
+        </li>
+        <li>
+          <strong>Analytics Data:</strong> Server statistics, engagement
+          metrics, and growth trends for generating health reports.
+        </li>
+        <li>
+          <strong>Timezone Preferences:</strong> Timezone settings for accurate
+          time display in clock channels and scheduled reports.
+        </li>
+      </ul>
+    </section>
+
+    <!-- Section 2: How We Use Your Data -->
+    <section>
+      <h2>2. How We Use Your Data</h2>
+      <p>Your data is used solely for the functionality of the bot:</p>
+      <ul>
+        <li>To display global and server-specific leaderboards.</li>
+        <li>
+          To send notifications when a tracked YouTube channel uploads new
+          content.
+        </li>
+        <li>
+          To enforce channel restrictions and reminders as configured by server
+          admins.
+        </li>
+        <li>
+          To generate server health reports and analytics dashboards showing
+          engagement trends.
+        </li>
+        <li>
+          To display accurate time in timezone-specific clock channels and
+          schedule weekly reports.
+        </li>
+      </ul>
+    </section>
+
+    <!-- Section 3: Data Storage & Security -->
+    <section>
+      <h2>3. Data Storage & Security</h2>
+      <p>
+        All data is stored securely in our databases. We do not sell or share
+        your personal data with third parties. Access to the database is
+        strictly limited to the bot's developers for maintenance purposes.
+      </p>
+      <p>
+        <strong>Data Retention:</strong> Analytics snapshots are stored for
+        historical comparison and trend analysis. Weekly reports are retained
+        for 90 days. You can request deletion of your server's analytics data at
+        any time.
+      </p>
+    </section>
+
+    <!-- Section 4: Third-Party Services & External Policies -->
+    <section>
+      <h2>4. Third-Party Services</h2>
+      <p>
+        SupporterBOT uses the YouTube Data API to fetch video information. By
+        using the YouTube notification feature, you also agree to be bound by
+        the
+        <a
+          href="https://www.youtube.com/t/terms"
+          target="_blank"
+          class="text-indigo-400 hover:underline"
+          >YouTube Terms of Service</a
+        >
+        and
+        <a
+          href="http://www.google.com/policies/privacy"
+          target="_blank"
+          class="text-indigo-400 hover:underline"
+          >Google Privacy Policy</a
+        >.
+      </p>
+    </section>
+
+    <!-- Section 5: User Rights & Data Deletion -->
+    <section>
+      <h2>5. Your Rights</h2>
+      <p>
+        You have the right to request the deletion of your data. You can do this
+        by:
+      </p>
+      <ul>
+        <li>
+          Removing the bot from your server (some configuration data may persist
+          for a short period).
+        </li>
+        <li>
+          Contacting us directly via our Support Server to request a full data
+          wipe associated with your User ID.
+        </li>
+      </ul>
+    </section>
+  </div>
+</div>
+
+    <script src="{{ url_for('static', filename='app_hcj.js') }}"></script>

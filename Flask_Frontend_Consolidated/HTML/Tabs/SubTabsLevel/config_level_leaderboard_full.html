@@ -1,0 +1,115 @@
+<!--
+  Page: Full Server Leaderboard View
+  Context: Leveling → Full Leaderboard (standalone window/page)
+
+  Purpose:
+    - Display the complete XP leaderboard for a specific Discord server.
+    - Allow searching members and refreshing leaderboard data on demand.
+    - Serve as a detailed, scrollable view beyond the compact dashboard widget.
+
+  Server-Side Data (Jinja Context):
+    - server.id   → Unique guild/server ID used for navigation links and API calls.
+    - server.name → Human-readable server name shown in the page title and header.
+
+  Frontend Integration (JavaScript Hooks):
+    - #leaderboardSearch            → Text input for client-side filtering of members.
+    - #refreshFullLeaderboardBtn   → Button to trigger a full leaderboard refresh.
+    - #fullLeaderboardBody         → <tbody> that is dynamically populated with rows.
+    - Script: /JS/Tabs/SubTabsLevel/config_level_leaderboard_full.js
+        • Responsible for fetching leaderboard data.
+        • Renders rows (rank, member, level, XP).
+        • Wires up search and refresh behaviors.
+
+  Styling & Layout:
+    - Tailwind CSS for utility-based layout and spacing.
+    - Google Fonts:
+        • Inter (primary UI font).
+        • Space Mono (available for numeric/monospace usage if needed).
+    - Font Awesome for iconography (navigation, search, refresh, etc.).
+    - Custom CSS:
+        • /CSS/index.css → Global site/dashboard styling.
+        • /CSS/Tabs/SubTabsLevel/config_level_leaderboard_full.css → Page-specific styles.
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Full Leaderboard - {{ server.name }}</title>
+
+  <!-- External base styles & icon libraries -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+    rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+
+  <!-- Project-specific styles for dashboard and full leaderboard view -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='app_hcj.css') }}" />
+
+
+  <style>
+    body {
+      background-color: #0f172a;
+      /* Fallback */
+      background: radial-gradient(circle at top center,
+          #1e293b 0%,
+          #0f172a 100%);
+      color: #e2e8f0;
+      font-family: "Inter", sans-serif;
+      min-height: 100vh;
+    }
+  </style>
+</head>
+
+<body id="page-leaderboard-full" class="antialiased">
+  <div class="leaderboard-container">
+    <!-- Navigation: back to the main server dashboard -->
+    <a href="/dashboard/server/{{ server.id }}" class="back-btn">
+      <i class="fas fa-arrow-left"></i> Back to Dashboard
+    </a>
+
+    <!-- Header: server name, subtitle, search, and refresh controls -->
+    <div class="leaderboard-header">
+      <div class="leaderboard-title">
+        <h1>{{ server.name }} Leaderboard</h1>
+        <p class="text-slate-400">All-time rankings for your community</p>
+      </div>
+
+      <div class="search-container flex gap-3">
+        <div class="relative">
+          <i class="fas fa-search search-icon"></i>
+          <input type="text" id="leaderboardSearch" class="search-input" placeholder="Search members..."
+            autocomplete="off" />
+        </div>
+        <button id="refreshFullLeaderboardBtn"
+          class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2">
+          <i class="fas fa-sync-alt"></i> Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- Full leaderboard table: populated via JavaScript -->
+    <div class="leaderboard-full-card">
+      <table class="full-table">
+        <thead>
+          <tr>
+            <th class="w-24 text-center">Rank</th>
+            <th>Member</th>
+            <th class="w-32">Level</th>
+            <th class="w-48">Total XP</th>
+          </tr>
+        </thead>
+        <tbody id="fullLeaderboardBody">
+          <!-- Populated by JS -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='app_hcj.js') }}"></script>
+</body>
+
+</html>

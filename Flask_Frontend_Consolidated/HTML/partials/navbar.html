@@ -1,0 +1,118 @@
+<!--
+  Component: Global Navigation Bar (Navbar)
+  Description:
+    - Primary site-wide navigation for Supporter Bot pages.
+    - Includes brand/logo, main navigation links, authentication controls,
+      and a responsive mobile menu.
+  Technologies:
+    - Tailwind CSS utility classes for layout, spacing, and styling.
+    - Font Awesome icons for visual indicators.
+    - Jinja2 templates for user authentication state (current_user).
+  Behavior:
+    - Fixed at the top with blurred background and subtle border.
+    - Desktop view:
+        - Left: brand logo + "Supporter" wordmark (link to home).
+        - Center: primary route links (Home, Features, Commands, Support, Dashboard).
+        - Right: login button or authenticated user dropdown.
+    - Mobile view:
+        - Collapsed navigation toggled via hamburger button.
+        - Stacked menu items with conditional Login/Logout entry.
+-->
+
+<nav
+  class="fixed top-0 w-full z-50 transition-all duration-300 border-b border-slate-800/50 backdrop-blur-xl bg-slate-900/80"
+  id="component-navbar">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex justify-between items-center h-20">
+      <!-- ========= BRAND / LOGO (LEFT) ========= -->
+      <a href="/" class="flex items-center gap-3 group">
+        <div
+          class="w-11 h-11 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-indigo-500/30 group-hover:scale-110 group-hover:rotate-3 transition-all duration-300">
+          <i class="fab fa-discord"></i>
+        </div>
+        <span
+          class="font-bold text-xl tracking-tight text-white group-hover:text-indigo-400 transition-colors">Supporter</span>
+      </a>
+
+      <!-- ========= PRIMARY NAV LINKS (DESKTOP) ========= -->
+      <div class="hidden md:flex items-center space-x-1">
+        <a href="/"
+          class="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-full transition-all">Home</a>
+        <a href="/features"
+          class="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-full transition-all">Features</a>
+        <a href="/commands"
+          class="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-full transition-all">Commands</a>
+        <a href="/contact"
+          class="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-full transition-all">Support</a>
+        <a href="/dashboard"
+          class="px-4 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-white/5 rounded-full transition-all">Dashboard</a>
+      </div>
+
+      <!-- ========= AUTHENTICATION / USER MENU (DESKTOP) ========= -->
+      <div class="hidden md:flex items-center gap-4">
+        {% if current_user.is_authenticated %}
+        <!-- Authenticated user dropdown (avatar + username + account actions) -->
+        <div class="relative group">
+          <button
+            class="flex items-center gap-3 pl-1 pr-4 py-1 rounded-full border border-slate-700 hover:border-indigo-500 transition-all bg-slate-800/50 backdrop-blur-sm">
+            <img src="{{ current_user.get_avatar_url() }}" class="w-8 h-8 rounded-full ring-2 ring-indigo-500/30" />
+            <span class="text-sm font-bold text-slate-200 max-w-[100px] truncate">{{ current_user.username }}</span>
+            <i class="fas fa-chevron-down text-xs text-slate-400"></i>
+          </button>
+          <!-- Hover dropdown with profile + logout actions -->
+          <div
+            class="absolute right-0 mt-2 w-56 bg-slate-900/95 backdrop-blur-xl rounded-xl shadow-2xl border border-slate-700/50 transform opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 translate-y-2 group-hover:translate-y-0 z-50">
+            <div class="p-4 border-b border-slate-800">
+              <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                Signed in as
+              </p>
+              <p class="text-sm font-bold text-white truncate">
+                {{ current_user.username }}
+              </p>
+            </div>
+            <div class="p-2">
+              <a href="/dashboard/profile"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-300 hover:bg-indigo-500/10 hover:text-indigo-400 transition-colors">
+                <i class="fas fa-server w-5"></i> My Servers
+              </a>
+              <a href="/dashboard/logout"
+                class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-red-400 hover:bg-red-500/10 transition-colors">
+                <i class="fas fa-sign-out-alt w-5"></i> Logout
+              </a>
+            </div>
+          </div>
+        </div>
+        {% else %}
+        <!-- Guest state: primary login CTA -->
+        <a href="/dashboard/login"
+          class="px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full font-bold hover:from-indigo-700 hover:to-purple-700 transition-all shadow-lg hover:shadow-indigo-500/50">
+          Login with Discord
+        </a>
+        {% endif %}
+      </div>
+
+      <!-- ========= MOBILE MENU TOGGLE (HAMBURGER) ========= -->
+      <button id="mobile-menu-btn" class="md:hidden text-slate-300 text-2xl hover:text-white transition-colors">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========= MOBILE NAVIGATION PANEL ========= -->
+  <div id="mobile-menu"
+    class="hidden md:hidden bg-slate-900/95 backdrop-blur-xl border-t border-slate-800 p-4 space-y-3">
+    <!-- Mobile: primary navigation links -->
+    <a href="/" class="block py-2 text-slate-300 font-medium hover:text-white transition-colors">Home</a>
+    <a href="/features" class="block py-2 text-slate-300 font-medium hover:text-white transition-colors">Features</a>
+    <a href="/commands" class="block py-2 text-slate-300 font-medium hover:text-white transition-colors">Commands</a>
+    <a href="/contact" class="block py-2 text-slate-300 font-medium hover:text-white transition-colors">Support</a>
+    <a href="/dashboard" class="block py-2 text-slate-300 font-medium hover:text-white transition-colors">Dashboard</a>
+
+    <!-- Mobile: auth-specific entry (Login / Logout) -->
+    {% if current_user.is_authenticated %}
+    <a href="/dashboard/logout" class="block py-2 text-red-400 font-bold">Logout</a>
+    {% else %}
+    <a href="/dashboard/login" class="block py-2 text-green-400 font-bold">Login</a>
+    {% endif %}
+  </div>
+</nav>

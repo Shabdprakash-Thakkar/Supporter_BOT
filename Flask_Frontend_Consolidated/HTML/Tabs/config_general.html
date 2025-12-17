@@ -1,0 +1,208 @@
+<!--
+  Component: General Settings Panel
+  Purpose:
+    - Configure global leveling and analytics behavior for a single Discord server.
+    - Exposes:
+        • XP gain rates for messages, images, and voice.
+        • Daily voice XP limits and cooldowns.
+        • Weekly analytics report scheduling and timezone settings.
+        • Weekly stats reset timezone for message/member counters.
+
+  Structure Overview:
+    1) Header
+       - Icon, section title, and short description of what the panel controls.
+    2) XP & Leveling Rate Controls
+       - XP per message, per image, per minute in voice.
+       - Daily voice XP cap.
+       - Global XP cooldown.
+    3) Analytics & Weekly Reports Configuration
+       - Toggle for weekly analytics reports.
+       - Timezone for scheduled analytics reports.
+       - Timezone for weekly stats reset.
+    4) Actions
+       - "Save Analytics Settings" for analytics-related configuration.
+       - "Save Changes" for general XP / leveling settings.
+
+  Integration Notes:
+    - Depends on server-provided settings context:
+        • settings.xp_per_message
+        • settings.xp_per_image
+        • settings.xp_per_minute_in_voice
+        • settings.voice_xp_limit
+        • settings.xp_cooldown
+    - JavaScript functions expected to exist:
+        • saveAnalyticsSettings()
+        • saveGeneralSettings()
+    - Styling:
+        • Uses TailwindCSS utility classes plus project-specific classes
+          such as .setting-card, .setting-input, .config-section, .btn-primary, .btn-save, etc.
+-->
+
+<div id="view-config-general" class="general-settings-wrapper">
+  <!-- Section Header: Title + Description -->
+  <h2 class="text-2xl font-bold mb-2 flex items-center gap-3">
+    <i class="fas fa-cog text-indigo-400"></i>
+    General Settings
+  </h2>
+  <p class="text-slate-500 mb-8">Configure XP rates and general bot behavior for your server.</p>
+
+  <!-- XP & Leveling Rate Controls
+       - Configure base XP rewards and cooldown behavior for the leveling system.
+       - Each setting-card represents a single numeric control.
+  -->
+  <div class="space-y-4">
+    <!-- Setting: XP per text message -->
+    <div class="setting-card">
+      <div class="icon-bg bg-green-500/10 text-green-400">
+        <i class="fas fa-comment"></i>
+      </div>
+      <div class="flex-grow">
+        <span class="setting-label">XP Per Message</span>
+        <p class="setting-desc">Points awarded for each message sent</p>
+      </div>
+      <input type="number" class="setting-input" value="{{ settings.xp_per_message }}" min="0" max="100"
+        id="xpPerMessage" />
+    </div>
+
+    <!-- Setting: XP per image upload -->
+    <div class="setting-card">
+      <div class="icon-bg bg-pink-500/10 text-pink-400">
+        <i class="fas fa-image"></i>
+      </div>
+      <div class="flex-grow">
+        <span class="setting-label">XP Per Image</span>
+        <p class="setting-desc">Bonus points for posting images</p>
+      </div>
+      <input type="number" class="setting-input" value="{{ settings.xp_per_image }}" min="0" max="100"
+        id="xpPerImage" />
+    </div>
+
+    <!-- Setting: XP per minute of voice activity -->
+    <div class="setting-card">
+      <div class="icon-bg bg-blue-500/10 text-blue-400">
+        <i class="fas fa-headphones"></i>
+      </div>
+      <div class="flex-grow">
+        <span class="setting-label">XP Per Minute in Voice</span>
+        <p class="setting-desc">Points earned for voice channel activity</p>
+      </div>
+      <input type="number" class="setting-input" value="{{ settings.xp_per_minute_in_voice }}" min="0" max="50"
+        id="xpPerVoice" />
+    </div>
+
+    <!-- Setting: Daily cap on voice XP -->
+    <div class="setting-card">
+      <div class="icon-bg bg-purple-500/10 text-purple-400">
+        <i class="fas fa-clock"></i>
+      </div>
+      <div class="flex-grow">
+        <span class="setting-label">Daily Voice XP Limit</span>
+        <p class="setting-desc">Maximum voice XP per day (0 = unlimited)</p>
+      </div>
+      <input type="number" class="setting-input" value="{{ settings.voice_xp_limit }}" min="0" max="10000"
+        id="voiceXpLimit" />
+    </div>
+
+    <!-- Setting: Global XP cooldown duration -->
+    <div class="setting-card">
+      <div class="icon-bg bg-orange-500/10 text-orange-400">
+        <i class="fas fa-stopwatch"></i>
+      </div>
+      <div class="flex-grow">
+        <span class="setting-label">XP Cooldown</span>
+        <p class="setting-desc">Time between XP gains (prevents spam)</p>
+      </div>
+      <select class="setting-input" id="xpCooldown">
+        <option value="5" {% if settings.xp_cooldown|int==5 %}selected{% endif %}>5 seconds</option>
+        <option value="10" {% if settings.xp_cooldown|int==10 %}selected{% endif %}>10 seconds</option>
+        <option value="20" {% if settings.xp_cooldown|int==20 %}selected{% endif %}>20 seconds</option>
+        <option value="30" {% if settings.xp_cooldown|int==30 %}selected{% endif %}>30 seconds</option>
+        <option value="60" {% if settings.xp_cooldown|int==60 %}selected{% endif %}>60 seconds</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Analytics & Weekly Stats Configuration
+       - Manages weekly analytics reports and weekly stats reset behavior.
+       - Includes toggles and timezone selectors to align with server preferences.
+  -->
+  <div class="config-section">
+    <!-- Subsection Header -->
+    <h3 class="section-title">
+      <i class="fas fa-chart-line"></i>
+      Analytics & Weekly Reports
+    </h3>
+    <p class="section-description">
+      Configure automated analytics reports and weekly stats reset timing
+    </p>
+
+    <!-- Control: Weekly analytics report enable/disable -->
+    <div class="setting-group">
+      <label class="setting-label">
+        <input type="checkbox" id="weeklyReportEnabled" checked>
+        <span>Enable Weekly Analytics Reports</span>
+      </label>
+      <p class="help-text">Receive automated analytics reports via Discord DM every week</p>
+    </div>
+
+    <!-- Control: Timezone used for sending weekly reports -->
+    <div class="setting-group">
+      <label class="setting-label">Report Timezone</label>
+      <select id="analyticsTimezone" class="form-select">
+        <option value="UTC">UTC</option>
+        <option value="America/New_York">Eastern Time (US &amp; Canada)</option>
+        <option value="America/Chicago">Central Time (US &amp; Canada)</option>
+        <option value="America/Denver">Mountain Time (US)</option>
+        <option value="America/Los_Angeles">Pacific Time (US &amp; Canada)</option>
+        <option value="Europe/London">London (GMT/BST)</option>
+        <option value="Europe/Paris">Paris (CET/CEST)</option>
+        <option value="Europe/Berlin">Berlin (CET/CEST)</option>
+        <option value="Asia/Dubai">Dubai (GST)</option>
+        <option value="Asia/Kolkata">India (IST)</option>
+        <option value="Asia/Singapore">Singapore (SGT)</option>
+        <option value="Asia/Tokyo">Tokyo (JST)</option>
+        <option value="Australia/Sydney">Sydney (AEDT/AEST)</option>
+      </select>
+      <p class="help-text">
+        Reports are sent every <strong>Monday at 9:00 AM</strong> in this timezone
+      </p>
+    </div>
+
+    <!-- Control: Timezone used for weekly stats reset -->
+    <div class="setting-group">
+      <label class="setting-label">Weekly Stats Reset Timezone</label>
+      <select id="resetTimezone" class="form-select">
+        <option value="UTC" selected>UTC (Default)</option>
+        <option value="America/New_York">Eastern Time (US &amp; Canada)</option>
+        <option value="America/Chicago">Central Time (US &amp; Canada)</option>
+        <option value="America/Denver">Mountain Time (US)</option>
+        <option value="America/Los_Angeles">Pacific Time (US &amp; Canada)</option>
+        <option value="Europe/London">London (GMT/BST)</option>
+        <option value="Europe/Paris">Paris (CET/CEST)</option>
+        <option value="Europe/Berlin">Berlin (CET/CEST)</option>
+        <option value="Asia/Dubai">Dubai (GST)</option>
+        <option value="Asia/Kolkata">India (IST)</option>
+        <option value="Asia/Singapore">Singapore (SGT)</option>
+        <option value="Asia/Tokyo">Tokyo (JST)</option>
+        <option value="Australia/Sydney">Sydney (AEDT/AEST)</option>
+      </select>
+      <p class="help-text">
+        Weekly message and member counters reset every
+        <strong>Monday at 12:00 AM (midnight)</strong> in this timezone.
+      </p>
+    </div>
+
+    <!-- Action: Persist analytics-related configuration -->
+    <button class="btn-primary" onclick="saveAnalyticsSettings()">
+      <i class="fas fa-save"></i> Save Analytics Settings
+    </button>
+  </div>
+
+  <!-- Global Save Action: Persist general XP / leveling settings -->
+  <div class="mt-8 flex justify-end">
+    <button class="btn-save" id="saveGeneralBtn" onclick="saveGeneralSettings()">
+      <i class="fas fa-save"></i>
+      Save Changes
+    </button>
+  </div>
+</div>

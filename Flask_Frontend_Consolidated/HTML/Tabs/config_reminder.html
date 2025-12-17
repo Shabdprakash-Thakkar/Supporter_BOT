@@ -1,0 +1,182 @@
+<!--
+  Component: Smart Reminders Panel
+  Purpose:
+    - Provides a dashboard interface for creating and managing scheduled reminders.
+    - Supports:
+        • One-time and recurring reminders.
+        • Timezone-aware scheduling.
+        • Optional role mentions.
+        • Date-only mode (midnight execution).
+  Structure Overview:
+    1) .reminder-wrapper
+       - Section header (icon, title, description).
+       - Toolbar with info text and "New Reminder" button.
+       - Dynamic reminder list container (#reminderList).
+    2) #reminderModal
+       - Overlay and modal container.
+       - Form fields for message, channel, role, timezone, start date/time, and repeat interval.
+       - Optional custom interval input group.
+       - Action buttons (Cancel / Save Reminder).
+  Integration Notes:
+    - JavaScript is expected to:
+        • Bind #addReminderBtn to open #reminderModal.
+        • Populate #reminderChannel, #reminderRole, #reminderTimezone from Discord API data.
+        • Render existing reminders into #reminderList.
+        • Implement toggleDateInputType(), toggleCustomIntervalInput(), saveReminder(), closeReminderModal().
+-->
+
+<!-- Smart Reminders Main Wrapper -->
+<div id="view-config-reminder" class="reminder-wrapper">
+  <h2 class="text-2xl font-bold mb-2 flex items-center gap-3">
+    <i class="fas fa-bell text-green-400"></i>
+    Smart Reminders
+  </h2>
+  <p class="text-slate-500 mb-6">
+    Create recurring or one-time reminders for your community.
+  </p>
+
+  <!-- Toolbar: Info Label + Primary Action -->
+  <div class="flex justify-between items-center mb-6">
+    <div class="text-sm text-slate-500">
+      <i class="fas fa-info-circle mr-1"></i>
+      Configure automated reminders for your server
+    </div>
+    <button class="btn-add-rem" id="addReminderBtn">
+      <i class="fas fa-plus"></i>
+      New Reminder
+    </button>
+  </div>
+
+  <!-- Reminder List Container
+       - Element: #reminderList
+       - Purpose:
+           • Host dynamically rendered reminder cards/items.
+           • Populated by client-side JavaScript after fetching existing reminders.
+  -->
+  <div class="space-y-4" id="reminderList"></div>
+</div>
+
+<!-- Reminder Modal: Add / Edit Reminder
+     - Visibility controlled via JS by toggling the "hidden" class on #reminderModal.
+     - Includes:
+         • Message content
+         • Target channel
+         • Optional role mention
+         • Timezone selection
+         • Start date & time (or date-only mode)
+         • Repeat interval (predefined or custom)
+-->
+<div id="reminderModal" class="modal hidden">
+  <!-- Modal Overlay (click to close) -->
+  <div class="modal-overlay" onclick="closeReminderModal()"></div>
+
+  <!-- Modal Content Container -->
+  <div class="modal-content">
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xl font-bold">Add New Reminder</h3>
+      <button onclick="closeReminderModal()" class="text-slate-400 hover:text-white transition-colors">
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+
+    <!-- Reminder Configuration Fields -->
+    <div class="space-y-4">
+      <!-- Reminder Message -->
+      <div>
+        <label class="block mb-2 font-medium">Reminder Message</label>
+        <textarea id="reminderMessage" rows="3" placeholder="Enter your reminder message..."
+          class="w-full bg-brand-dark/50 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-indigo-500"></textarea>
+      </div>
+
+      <!-- Target Channel -->
+      <div>
+        <label class="block mb-2 font-medium">Channel</label>
+        <select id="reminderChannel"
+          class="w-full bg-brand-dark/50 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-indigo-500">
+          <option value="" disabled selected>Loading channels...</option>
+        </select>
+      </div>
+
+      <!-- Optional Role Mention -->
+      <div>
+        <label class="block mb-2 font-medium">Mention Role (Optional)</label>
+        <select id="reminderRole"
+          class="w-full bg-brand-dark/50 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-indigo-500">
+          <option value="">No role mention</option>
+        </select>
+      </div>
+
+      <!-- Timezone Selection -->
+      <div>
+        <label class="block mb-2 font-medium">Timezone</label>
+        <select id="reminderTimezone"
+          class="w-full bg-brand-dark/50 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-indigo-500">
+          <option value="" disabled selected>Select timezone...</option>
+        </select>
+      </div>
+
+      <!-- Start Date & Time (with Date-Only toggle) -->
+      <div>
+        <label class="block mb-2 font-medium">Start Date & Time</label>
+        <div class="flex items-center gap-3 mb-2">
+          <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-400 select-none">
+            <input type="checkbox" id="reminderDateOnly"
+              class="form-checkbox bg-slate-800 border-slate-600 rounded text-indigo-500 shadow-sm focus:border-indigo-300 focus:ring focus:ring-offset-0 focus:ring-indigo-200 focus:ring-opacity-50"
+              onchange="toggleDateInputType()" />
+            <span>Date Only (Send at midnight)</span>
+          </label>
+        </div>
+        <input type="datetime-local" id="reminderDateTime"
+          class="w-full bg-brand-dark/50 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-indigo-500" />
+      </div>
+
+      <!-- Repeat Interval Configuration -->
+      <div>
+        <label class="block mb-2 font-medium">Repeat Interval</label>
+        <select id="reminderInterval" onchange="toggleCustomIntervalInput()"
+          class="w-full bg-brand-dark/50 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-indigo-500">
+          <option value="once">Once (No repeat)</option>
+          <option value="1d">Daily</option>
+          <option value="7d">Weekly</option>
+          <option value="30d">Monthly</option>
+          <option value="1h">Every Hour</option>
+          <option value="6h">Every 6 Hours</option>
+          <option value="12h">Every 12 Hours</option>
+          <option value="custom">Custom...</option>
+        </select>
+
+        <!-- Custom Interval Input Group
+             - Visible only when "custom" is selected in #reminderInterval.
+             - Interval Format:
+                 y = years, M = months, w = weeks, d = days, h = hours, m = minutes.
+             - Example: "2w 3d" -> every 2 weeks and 3 days.
+        -->
+        <div id="customIntervalGroup" class="hidden mt-3 animate-fade-in-down">
+          <label class="text-xs text-slate-400 mb-1 block">
+            Custom Interval
+            <span class="text-xs text-slate-500">(y=Year, M=Month, w=Week, d=Day, h=Hour, m=Min)</span>
+          </label>
+          <input type="text" id="reminderCustomInterval" placeholder="e.g. 1M 2w, 3d 12h, 45m"
+            class="w-full bg-brand-dark/50 border border-slate-700 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-indigo-500" />
+          <p class="text-[10px] text-slate-500 mt-1">
+            Example: <code class="bg-slate-800 px-1 rounded">2w 3d</code> sends
+            every 2 weeks and 3 days.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Actions: Cancel / Save -->
+    <div class="flex justify-end gap-3 mt-6">
+      <button onclick="closeReminderModal()"
+        class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors">
+        Cancel
+      </button>
+      <button id="btnSaveReminder" onclick="saveReminder()"
+        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-semibold transition-colors">
+        <i class="fas fa-save mr-2"></i>
+        Save Reminder
+      </button>
+    </div>
+  </div>
+</div>

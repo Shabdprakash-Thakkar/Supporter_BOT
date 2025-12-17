@@ -1,0 +1,211 @@
+<!--
+  Component: Analytics Dashboard Tab
+  Purpose:
+    - Present real-time and weekly analytics for a single Discord server.
+    - Visualize server health, engagement, XP distribution, and top contributors.
+    - Surface data-driven insights and recommendations based on the latest snapshot.
+
+  Structure Overview:
+    1) Header & Primary Actions
+       - Title, subtitle, and CTA buttons:
+           • Guide (usage instructions / help)
+           • View History (historical snapshots / reports)
+           • Generate Snapshot (fetch fresh analytics from backend)
+    2) Health Score Overview
+       - Circular health score gauge and short qualitative status label.
+    3) Key Metrics Grid
+       - Core weekly and lifetime indicators:
+           • Messages this week
+           • New members
+           • Active members vs total
+           • Weekly XP earned and average level
+           • Lifetime XP
+    4) Member Engagement Tiers
+       - Visual breakdown of members into engagement segments:
+           • Elite, Active, Casual, Inactive
+    5) Top Contributors
+       - List of highest impact members based on XP / activity.
+    6) Insights & Recommendations Panel
+       - Generated narrative insights and action items for server owners.
+
+  Integration Notes:
+    - JavaScript functions expected:
+        • openAnalyticsGuide()
+        • viewAnalyticsHistory()
+        • generateSnapshot()
+    - Dynamic elements (to be populated by JS / API responses via IDs):
+        • healthScoreCircle, healthScoreValue, healthStatus
+        • messagesThisWeek, messageTrend
+        • analyticsNewMembers, memberTrend
+        • activeMembers, activeMembersSubtitle, analyticsTotalMembers
+        • totalWeeklyXP, avgLevel, totalLifetimeXP
+        • eliteCount, eliteBar, activeCount, activeBar, casualCount, casualBar,
+          inactiveCount, inactiveBar
+        • contributorsList
+        • insightsList
+    - Styling:
+        • Uses project-specific layout classes such as:
+          .analytics-container, .analytics-header, .health-overview,
+          .metrics-grid, .section-card, .engagement-bars, .insights-panel, etc.
+-->
+
+<div id="view-config-analytics" class="analytics-container">
+  <!-- Section: Header & primary actions -->
+  <div class="analytics-header">
+    <h2>📊 Server Analytics</h2>
+    <p class="analytics-subtitle">
+      Real-time insights into your server's health and engagement
+    </p>
+    <div class="analytics-actions">
+      <button class="btn-secondary" onclick="openAnalyticsGuide()">
+        <i class="fas fa-info-circle"></i> Guide
+      </button>
+      <button class="btn-secondary" onclick="viewAnalyticsHistory()">
+        <i class="fas fa-history"></i> View History
+      </button>
+      <button class="btn-primary" onclick="generateSnapshot()">
+        <i class="fas fa-camera"></i> Generate Snapshot
+      </button>
+    </div>
+  </div>
+
+  <!-- Section: Overall server health score -->
+  <div class="health-overview">
+    <div class="health-card">
+      <div class="health-score-circle" id="healthScoreCircle">
+        <div class="health-score-value" id="healthScoreValue">--</div>
+        <div class="health-score-label">Health Score</div>
+      </div>
+      <div class="health-status" id="healthStatus">Loading...</div>
+    </div>
+  </div>
+
+  <!-- Section: Key metrics grid (weekly and lifetime stats) -->
+  <div class="metrics-grid">
+    <!-- Metric: Weekly messages -->
+    <div class="metric-card">
+      <div class="metric-icon">💬</div>
+      <div class="metric-content">
+        <div class="metric-label">Messages This Week</div>
+        <div class="metric-value" id="messagesThisWeek">--</div>
+        <div class="metric-trend" id="messageTrend"></div>
+      </div>
+    </div>
+
+    <!-- Metric: New members this week -->
+    <div class="metric-card">
+      <div class="metric-icon">👥</div>
+      <div class="metric-content">
+        <div class="metric-label">New Members</div>
+        <div class="metric-value" id="analyticsNewMembers">--</div>
+        <div class="metric-trend" id="memberTrend"></div>
+      </div>
+    </div>
+
+    <!-- Metric: Active members and total member context -->
+    <div class="metric-card">
+      <div class="metric-icon">📈</div>
+      <div class="metric-content">
+        <div class="metric-label">
+          Active Members
+          <i class="fas fa-info-circle text-xs text-slate-500 ml-1"
+            title="Members who have earned at least 1 XP (messaged/voice)"></i>
+        </div>
+        <div class="metric-value" id="activeMembers">--</div>
+        <div class="metric-subtitle" id="activeMembersSubtitle">
+          of <span id="analyticsTotalMembers">--</span> total
+        </div>
+      </div>
+    </div>
+
+    <!-- Metric: XP earned this week and average level -->
+    <div class="metric-card">
+      <div class="metric-icon">⭐</div>
+      <div class="metric-content">
+        <div class="metric-label">XP Earned (Week)</div>
+        <div class="metric-value" id="totalWeeklyXP">--</div>
+        <div class="metric-subtitle">
+          Avg Level: <span id="avgLevel">--</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metric: Lifetime XP accumulation -->
+    <div class="metric-card">
+      <div class="metric-icon">🏅</div>
+      <div class="metric-content">
+        <div class="metric-label">Total XP (Lifetime)</div>
+        <div class="metric-value" id="totalLifetimeXP">--</div>
+        <div class="metric-subtitle">Cumulative</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Member engagement tier breakdown -->
+  <div class="section-card">
+    <h3>👥 Member Engagement Tiers</h3>
+    <div class="engagement-bars">
+      <!-- Tier: Elite (top 5% of members) -->
+      <div class="engagement-tier">
+        <div class="tier-header">
+          <span class="tier-name">🏆 Elite (Top 5%)</span>
+          <span class="tier-count" id="eliteCount">--</span>
+        </div>
+        <div class="tier-bar">
+          <div class="tier-fill elite" id="eliteBar" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Tier: Active (next 20% of members) -->
+      <div class="engagement-tier">
+        <div class="tier-header">
+          <span class="tier-name">⚡ Active (20%)</span>
+          <span class="tier-count" id="activeCount">--</span>
+        </div>
+        <div class="tier-bar">
+          <div class="tier-fill active" id="activeBar" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Tier: Casual (middle 50% of members) -->
+      <div class="engagement-tier">
+        <div class="tier-header">
+          <span class="tier-name">👤 Casual (50%)</span>
+          <span class="tier-count" id="casualCount">--</span>
+        </div>
+        <div class="tier-bar">
+          <div class="tier-fill casual" id="casualBar" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Tier: Inactive (lowest 25% of members) -->
+      <div class="engagement-tier">
+        <div class="tier-header">
+          <span class="tier-name">💤 Inactive (25%)</span>
+          <span class="tier-count" id="inactiveCount">--</span>
+        </div>
+        <div class="tier-bar">
+          <div class="tier-fill inactive" id="inactiveBar" style="width: 0%"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: Top contributors by activity / XP -->
+  <div class="section-card">
+    <h3>🏅 Top Contributors</h3>
+    <div class="contributors-list" id="contributorsList">
+      <div class="loading-spinner">Loading contributors...</div>
+    </div>
+  </div>
+
+  <!-- Section: Insights and recommendations based on current snapshot -->
+  <div class="section-card insights-panel">
+    <h3>💡 Insights & Recommendations</h3>
+    <div class="insights-list" id="insightsList">
+      <p class="insight-placeholder">
+        Generate a snapshot to see insights and recommendations for your server.
+      </p>
+    </div>
+  </div>
+</div>

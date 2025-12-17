@@ -1,0 +1,7180 @@
+/* AUTO-GENERATED MERGED CSS FILE */
+
+/* ===== IMPORTS ===== */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap");
+
+/* ===== base.css ===== */
+/* ==========================================================================
+   Supporter Bot - Global Theme Tokens & Utility Effects
+   - Font imports & base color system (light / dark)
+   - Glassmorphism surfaces & gradient utilities
+   - Global animations & reusable animation helpers
+   - Hover / focus interaction patterns
+   - Visual enhancements: noise, mesh gradients, skeleton loading
+   ========================================================================== */
+
+/* ==========================================================================
+   Font Imports
+   ========================================================================== */
+
+
+/* ==========================================================================
+   Global Design Tokens (Light Theme Defaults)
+   ========================================================================== */
+
+:root {
+  /* Brand Colors */
+  --brand-purple: #6366f1;
+  --brand-purple-light: #818cf8;
+  --brand-purple-dark: #4f46e5;
+  --gradient-start: #6366f1;
+  --gradient-end: #a855f7;
+
+  /* Light Mode Colors */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --border-color: #e2e8f0;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+
+  /* Light Mode Glass Effects */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.1);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+  /* Deprecated tokens - retained for backward compatibility with older views */
+  --brand-dark: #0f172a;
+  --brand-card: #1e293b;
+  --brand-card-hover: #334155;
+}
+
+/* ==========================================================================
+   Dark Theme Overrides
+   ========================================================================== */
+
+.dark {
+  /* Dark Mode Colors */
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --bg-card: #1e293b;
+  --bg-card-hover: #334155;
+  --text-primary: #f8fafc;
+  --text-secondary: #cbd5e1;
+  --text-muted: #94a3b8;
+  --border-color: #334155;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+
+  /* Dark Mode Glass Effects */
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ==========================================================================
+   Global Resets & Base Typography
+   ========================================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Outfit", "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ==========================================================================
+   Scrollbars & Text Selection
+   ========================================================================== */
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--brand-purple), var(--gradient-end));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--brand-purple-light);
+}
+
+::selection {
+  background: var(--brand-purple);
+  color: white;
+}
+
+/* ==========================================================================
+   Glassmorphism Surfaces & Cards
+   ========================================================================== */
+
+.glass {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 16px var(--shadow-color);
+}
+
+.glass-card:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.15);
+}
+
+/* ==========================================================================
+   Gradients, Borders & Glow Utilities
+   ========================================================================== */
+
+.gradient-text {
+  background: linear-gradient(
+    135deg,
+    var(--brand-purple) 0%,
+    var(--gradient-end) 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 2px;
+  background: linear-gradient(135deg, var(--brand-purple), var(--gradient-end));
+  border-radius: inherit;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: xor;
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+}
+
+.glow-effect {
+  box-shadow: 0 0 40px rgba(99, 102, 241, 0.3);
+}
+
+.glow-effect-hover:hover {
+  box-shadow: 0 0 60px rgba(99, 102, 241, 0.5);
+}
+
+/* ==========================================================================
+   Keyframe Animations
+   ========================================================================== */
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-10px) rotate(1deg);
+  }
+  50% {
+    transform: translateY(-5px) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-15px) rotate(-1deg);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(99, 102, 241, 0.8);
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes blob-move {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  50% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  75% {
+    transform: translate(20px, 30px) scale(1.05);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(100px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bounce-gentle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes count-up {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ==========================================================================
+   Animation Utility Classes
+   ========================================================================== */
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease infinite;
+}
+.animate-blob {
+  animation: blob-move 8s ease-in-out infinite;
+}
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+.animate-fade-in-left {
+  animation: fade-in-left 0.6s ease-out forwards;
+}
+.animate-fade-in-right {
+  animation: fade-in-right 0.6s ease-out forwards;
+}
+.animate-slide-in-up {
+  animation: slide-in-up 0.8s ease-out forwards;
+}
+.animate-pop-in {
+  animation: pop-in 0.4s ease-out forwards;
+}
+.animate-shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+.animate-spin-slow {
+  animation: spin-slow 20s linear infinite;
+}
+.animate-bounce-gentle {
+  animation: bounce-gentle 2s ease-in-out infinite;
+}
+
+/* Animation delay helpers (for staggered reveals) */
+.animation-delay-200 {
+  animation-delay: 200ms;
+}
+.animation-delay-400 {
+  animation-delay: 400ms;
+}
+.animation-delay-600 {
+  animation-delay: 600ms;
+}
+.animation-delay-1000 {
+  animation-delay: 1000ms;
+}
+.animation-delay-2000 {
+  animation-delay: 2000ms;
+}
+.animation-delay-3000 {
+  animation-delay: 3000ms;
+}
+
+.stagger-1 {
+  animation-delay: 0.1s;
+}
+.stagger-2 {
+  animation-delay: 0.2s;
+}
+.stagger-3 {
+  animation-delay: 0.3s;
+}
+.stagger-4 {
+  animation-delay: 0.4s;
+}
+.stagger-5 {
+  animation-delay: 0.5s;
+}
+.stagger-6 {
+  animation-delay: 0.6s;
+}
+
+/* ==========================================================================
+   Interactive Button & Hover Utilities
+   ========================================================================== */
+
+.premium-btn {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    var(--brand-purple) 0%,
+    var(--gradient-end) 100%
+  );
+  transition: all 0.3s ease;
+}
+
+.premium-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.premium-btn:hover::before {
+  left: 100%;
+}
+
+.premium-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+}
+
+.nav-glass {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.card-3d {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+}
+
+.card-3d:hover {
+  transform: rotateX(5deg) rotateY(-5deg);
+}
+
+.text-shadow-glow {
+  text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+}
+
+.input-glass {
+  background: var(--glass-bg);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  color: var(--text-primary);
+}
+
+.input-glass:focus {
+  background: var(--bg-card);
+  border-color: var(--brand-purple);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+  outline: none;
+}
+
+/* Hover elevation / scaling / glow helpers */
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+}
+
+.hover-scale {
+  transition: transform 0.3s ease;
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+.hover-glow {
+  transition: box-shadow 0.3s ease;
+}
+
+.hover-glow:hover {
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.4);
+}
+
+/* ==========================================================================
+   Structural & Visual Helpers
+   ========================================================================== */
+
+.divider-gradient {
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--brand-purple),
+    transparent
+  );
+}
+
+.loading-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(30, 41, 59, 0.5) 25%,
+    rgba(51, 65, 85, 0.5) 50%,
+    rgba(30, 41, 59, 0.5) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.noise-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+  opacity: 0.02;
+  pointer-events: none;
+}
+
+.mesh-gradient {
+  background: radial-gradient(
+      ellipse at 0% 0%,
+      rgba(99, 102, 241, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 100% 0%,
+      rgba(168, 85, 247, 0.15) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 100% 100%,
+      rgba(99, 102, 241, 0.1) 0%,
+      transparent 50%
+    ),
+    radial-gradient(
+      ellipse at 0% 100%,
+      rgba(236, 72, 153, 0.1) 0%,
+      transparent 50%
+    );
+}
+
+/* ===== command.css ===== */
+/* ==========================================================================
+   Supporter Bot - Command Reference & Search UI Styles
+   - Hero header and background blobs
+   - Search box, autocomplete results, and quick filter
+   - Command categories, cards, and parameter badges
+   - Quick reference tiles and copy-to-clipboard toast
+   - Responsive layout and theme (dark/light) adjustments
+   ========================================================================== */
+
+
+/* ==========================================================================
+   Hero Section & Background Blobs
+   ========================================================================== */
+
+.hero-section {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 120px;
+  padding-bottom: 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.blob-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+}
+
+.blob-purple {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(
+    circle,
+    rgba(99, 102, 241, 0.4) 0%,
+    transparent 70%
+  );
+  top: -150px;
+  right: -100px;
+  animation: blob-move 12s ease-in-out infinite;
+}
+
+.blob-blue {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.3) 0%,
+    transparent 70%
+  );
+  bottom: -100px;
+  left: -100px;
+  animation: blob-move 15s ease-in-out infinite reverse;
+}
+
+.hero-title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   Command Search Box & Results Dropdown
+   ========================================================================== */
+
+.search-container {
+  max-width: 600px;
+  margin: 2rem auto 0;
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1.5rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  font-size: 1.25rem;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.search-input {
+  width: 100%;
+  padding: 1.25rem 1.5rem 1.25rem 4rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 2px solid var(--border-color);
+  border-radius: 1rem;
+  font-size: 1rem;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+  outline: none;
+}
+
+.search-input:focus {
+  border-color: var(--brand-purple);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+  background: var(--bg-card);
+}
+
+.search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-results {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+  box-shadow: 0 10px 40px var(--shadow-color);
+  z-index: 50;
+}
+
+.search-results.hidden {
+  display: none;
+}
+
+.search-result-item {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.search-result-item:last-child {
+  border-bottom: none;
+}
+
+.search-result-item:hover {
+  background: var(--bg-card-hover);
+}
+
+.search-result-command {
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 600;
+  color: var(--brand-purple);
+  margin-bottom: 0.25rem;
+}
+
+.search-result-desc {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   Command Categories (Sections & Headers)
+   ========================================================================== */
+
+.command-category {
+  margin-bottom: 4rem;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.command-category.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.category-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+.category-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+  letter-spacing: -0.01em;
+}
+
+.category-description {
+  font-size: 1rem;
+  color: #64748b;
+}
+
+/* ==========================================================================
+   Command Cards Grid & Content
+   ========================================================================== */
+
+.commands-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.command-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.command-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.15);
+  background: var(--bg-card);
+}
+
+.command-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  gap: 1rem;
+}
+
+.command-name {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--brand-purple);
+  background: rgba(99, 102, 241, 0.1);
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   Copy Button States (Command Copy Helper)
+   ========================================================================== */
+
+.copy-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 0.5rem;
+  color: var(--brand-purple);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.copy-btn:hover {
+  background: var(--brand-purple);
+  color: white;
+  transform: scale(1.1);
+}
+
+.copy-btn:active {
+  transform: scale(0.95);
+}
+
+.copy-btn.copied {
+  background: #10b981;
+  border-color: #10b981;
+  color: white;
+}
+
+/* ==========================================================================
+   Command Description, Parameters & Badges
+   ========================================================================== */
+
+.command-desc {
+  font-size: 0.95rem;
+  color: #475569;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.command-params {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.param-required,
+.param-optional {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+}
+
+.param-required {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+
+.param-optional {
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+}
+
+.command-badge {
+  display: inline-block;
+  margin-top: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  background: linear-gradient(135deg, #a855f7, #ec4899);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ==========================================================================
+   Quick Reference Grid (Common Commands)
+   ========================================================================== */
+
+.quick-ref-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.quick-ref-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.quick-ref-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.15);
+}
+
+.quick-ref-card code {
+  font-family: "JetBrains Mono", monospace;
+  background: rgba(99, 102, 241, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  color: var(--brand-purple);
+  font-size: 0.875rem;
+}
+
+/* ==========================================================================
+   Copy Confirmation Toast
+   ========================================================================== */
+
+.copy-toast {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-weight: 600;
+  box-shadow: 0 10px 40px rgba(16, 185, 129, 0.4);
+  transform: translateY(150%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+}
+
+.copy-toast.show {
+  transform: translateY(0);
+}
+
+.copy-toast i {
+  font-size: 1.25rem;
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding-top: 100px;
+    padding-bottom: 40px;
+  }
+
+  .category-header {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .category-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 1.75rem;
+  }
+
+  .category-title {
+    font-size: 1.75rem;
+  }
+
+  .commands-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .command-card {
+    padding: 1.25rem;
+  }
+
+  .copy-toast {
+    left: 1rem;
+    right: 1rem;
+    bottom: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .command-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .copy-btn {
+    width: 100%;
+    height: 40px;
+  }
+
+  .search-input {
+    padding: 1rem 1rem 1rem 3.5rem;
+  }
+
+  .search-icon {
+    left: 1rem;
+  }
+}
+
+/* ==========================================================================
+   Theme-Specific Overrides (Dark / Light)
+   ========================================================================== */
+
+.dark .command-card {
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.dark .quick-ref-card {
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.dark .category-title {
+  color: #f1f5f9;
+}
+
+.dark .category-description {
+  color: #cbd5e1;
+}
+
+body:not(.dark) .command-card {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+body:not(.dark) .quick-ref-card {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+body:not(.dark) .search-input {
+  background: rgba(255, 255, 255, 0.9);
+}
+
+body:not(.dark) .search-results {
+  background: white;
+}
+
+/* ===== contact.css ===== */
+/* ==========================================================================
+   Supporter Bot - Contact & Global UI Enhancements
+   - Glass navigation bar styling
+   - Entrance & blob animations
+   - Form focus, labels, and submit button effects
+   - Contact info cards and icons
+   ========================================================================== */
+
+
+/* ==========================================================================
+   Glass Navigation Bar
+   ========================================================================== */
+
+.glass-nav {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ==========================================================================
+   Entrance Animations (Fade In Left / Right)
+   ========================================================================== */
+
+.animate-fade-in-left {
+  animation: fade-in-left 0.8s ease-out forwards;
+}
+
+.animate-fade-in-right {
+  animation: fade-in-right 0.8s ease-out forwards;
+  animation-delay: 0.2s;
+  opacity: 0;
+}
+
+/* ==========================================================================
+   Blob Animation Utilities
+   ========================================================================== */
+
+@keyframes blob {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(20px, -30px) scale(1.1);
+  }
+  50% {
+    transform: translate(-15px, 15px) scale(0.95);
+  }
+  75% {
+    transform: translate(15px, 20px) scale(1.05);
+  }
+}
+
+.animate-blob {
+  animation: blob 8s ease-in-out infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+/* ==========================================================================
+   Form Fields & Labels (Focus States)
+   ========================================================================== */
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1),
+    0 0 20px rgba(99, 102, 241, 0.15);
+}
+
+.form-group label {
+  transition: color 0.2s ease;
+}
+
+.form-group:focus-within label {
+  color: #a5b4fc;
+}
+
+/* ==========================================================================
+   Submit Button Ripple Effect
+   ========================================================================== */
+
+button[type="submit"] {
+  position: relative;
+  overflow: hidden;
+}
+
+button[type="submit"]::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s ease, height 0.4s ease;
+}
+
+button[type="submit"]:active::after {
+  width: 300px;
+  height: 300px;
+}
+
+/* ==========================================================================
+   Contact Cards & Icons
+   ========================================================================== */
+
+.contact-card {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.contact-card:hover {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateX(8px);
+}
+
+.contact-icon {
+  width: 3rem;
+  height: 3rem;
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  color: #6366f1;
+}
+
+/* ===== dashboard.css ===== */
+/* ==========================================================================
+   Supporter Bot - Server Management & Discovery Styles
+   - Server cards & status badges
+   - Primary / secondary server actions
+   - Search input & section dividers
+   - Empty state presentation
+   - Responsive behavior
+   ========================================================================== */
+
+
+/* ==========================================================================
+   Server Card Layout & Hover Accent
+   ========================================================================== */
+
+.server-card {
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.server-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+}
+
+.server-card:hover::before {
+  transform: scaleX(1);
+}
+
+.server-card:hover {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-8px);
+  box-shadow: 0 25px 50px rgba(99, 102, 241, 0.15);
+}
+
+.server-icon {
+  width: 5rem;
+  height: 5rem;
+  border-radius: 1.25rem;
+  object-fit: cover;
+  margin: 0 auto 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.server-card:hover .server-icon {
+  transform: scale(1.08);
+  box-shadow: 0 15px 40px rgba(99, 102, 241, 0.2);
+}
+
+.server-name {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: white;
+}
+
+/* ==========================================================================
+   Server Status Badges
+   ========================================================================== */
+
+.server-status {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  display: inline-block;
+  margin-bottom: 1rem;
+}
+
+.server-status.active {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.server-status.missing {
+  background: rgba(148, 163, 184, 0.15);
+  color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.3);
+}
+
+/* ==========================================================================
+   Server Action Buttons (Manage / Invite)
+   ========================================================================== */
+
+.server-btn {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.server-btn.manage {
+  background: rgba(99, 102, 241, 0.1);
+  color: #a5b4fc;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.server-btn.manage:hover {
+  background: #6366f1;
+  color: white;
+  border-color: #6366f1;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+}
+
+.server-btn.invite {
+  background: rgba(255, 255, 255, 0.05);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.server-btn.invite:hover {
+  background: rgba(99, 102, 241, 0.1);
+  color: #a5b4fc;
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   Search Input (Server / Guild Filter)
+   ========================================================================== */
+
+.search-input {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.75rem;
+  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  color: white;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.search-input:focus {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: #6366f1;
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.2);
+  outline: none;
+}
+
+.search-input::placeholder {
+  color: #64748b;
+}
+
+/* ==========================================================================
+   Section Divider & Heading
+   ========================================================================== */
+
+.section-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.section-divider .indicator {
+  width: 4px;
+  height: 1.5rem;
+  border-radius: 9999px;
+}
+
+.section-divider h2 {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   Empty State (No Servers / Results)
+   ========================================================================== */
+
+.empty-state {
+  background: rgba(30, 41, 59, 0.3);
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #64748b;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.empty-state p {
+  font-size: 0.9rem;
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+
+@media (max-width: 640px) {
+  .server-card {
+    padding: 1.25rem;
+  }
+
+  .server-icon {
+    width: 4rem;
+    height: 4rem;
+  }
+}
+
+/* ===== dashboard_landing.css ===== */
+/* ==========================================================================
+   Supporter Bot - Landing / Overview Page Styles
+   - Hero section layout & animated blob background
+   - Primary / secondary CTA buttons
+   - Dashboard preview (window mockup, sidebar, stats, chart)
+   - Features, capabilities, and step-by-step cards
+   - Final call-to-action section
+   - Responsive behavior & theme (dark/light) adjustments
+   ========================================================================== */
+
+
+/* ==========================================================================
+   Hero Section & Animated Background Blobs
+   ========================================================================== */
+
+.hero-section {
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 120px;
+  padding-bottom: 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.blob-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.5;
+}
+
+.blob-purple {
+  width: 700px;
+  height: 700px;
+  background: radial-gradient(
+    circle,
+    rgba(99, 102, 241, 0.4) 0%,
+    transparent 70%
+  );
+  top: -250px;
+  right: -150px;
+  animation: blob-move 15s ease-in-out infinite;
+}
+
+.blob-blue {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.3) 0%,
+    transparent 70%
+  );
+  bottom: -200px;
+  left: -150px;
+  animation: blob-move 18s ease-in-out infinite reverse;
+}
+
+.blob-pink {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(
+    circle,
+    rgba(236, 72, 153, 0.3) 0%,
+    transparent 70%
+  );
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: blob-move 12s ease-in-out infinite;
+  animation-delay: -4s;
+}
+
+.hero-title {
+  font-size: clamp(2.5rem, 7vw, 5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  max-width: 750px;
+  margin: 0 auto 3rem;
+  line-height: 1.7;
+}
+
+/* ==========================================================================
+   Primary & Secondary CTA Buttons
+   ========================================================================== */
+
+.cta-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 4rem;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 2.5rem;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 1.125rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(99, 102, 241, 0.5);
+}
+
+.btn-primary:hover::before {
+  left: 100%;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 2.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-weight: 600;
+  font-size: 1.125rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(99, 102, 241, 0.5);
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   Dashboard Preview (Window, Sidebar, Stats, Chart)
+   ========================================================================== */
+
+.dashboard-preview {
+  max-width: 1200px;
+  margin: 0 auto;
+  perspective: 1500px;
+  animation: fade-in-up 1s ease 0.6s backwards;
+}
+
+.preview-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.5rem;
+  overflow: hidden;
+  box-shadow: 0 25px 80px rgba(0, 0, 0, 0.3);
+  transform: rotateX(5deg) rotateY(-2deg);
+  transition: transform 0.6s ease;
+}
+
+.preview-card:hover {
+  transform: rotateX(0deg) rotateY(0deg);
+}
+
+.preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: rgba(30, 41, 59, 0.8);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.preview-dots {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.dot-red {
+  background: #ef4444;
+}
+.dot-yellow {
+  background: #f59e0b;
+}
+.dot-green {
+  background: #10b981;
+}
+
+.preview-title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.preview-actions {
+  display: flex;
+  gap: 1rem;
+  color: var(--text-muted);
+}
+
+.preview-content {
+  display: flex;
+  min-height: 400px;
+}
+
+.preview-sidebar {
+  width: 200px;
+  background: rgba(15, 23, 42, 0.6);
+  border-right: 1px solid var(--border-color);
+  padding: 1.5rem 1rem;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.sidebar-item:hover {
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--brand-purple);
+}
+
+.sidebar-item.active {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.2),
+    rgba(139, 92, 246, 0.2)
+  );
+  color: var(--brand-purple);
+  font-weight: 600;
+}
+
+.preview-main {
+  flex: 1;
+  padding: 2rem;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.stat-card i {
+  font-size: 1.5rem;
+  color: var(--brand-purple);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.chart-placeholder {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  height: 150px;
+  padding: 1rem;
+  background: rgba(30, 41, 59, 0.3);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+}
+
+.chart-bar {
+  flex: 1;
+  background: linear-gradient(
+    180deg,
+    var(--brand-purple),
+    rgba(99, 102, 241, 0.5)
+  );
+  border-radius: 0.5rem;
+  animation: chart-grow 1s ease backwards;
+}
+
+@keyframes chart-grow {
+  from {
+    height: 0 !important;
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.chart-bar:nth-child(1) {
+  animation-delay: 0.1s;
+}
+.chart-bar:nth-child(2) {
+  animation-delay: 0.2s;
+}
+.chart-bar:nth-child(3) {
+  animation-delay: 0.3s;
+}
+.chart-bar:nth-child(4) {
+  animation-delay: 0.4s;
+}
+.chart-bar:nth-child(5) {
+  animation-delay: 0.5s;
+}
+.chart-bar:nth-child(6) {
+  animation-delay: 0.6s;
+}
+.chart-bar:nth-child(7) {
+  animation-delay: 0.7s;
+}
+
+/* ==========================================================================
+   Feature Cards (Key Highlights)
+   ========================================================================== */
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.feature-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-8px);
+  box-shadow: 0 25px 50px rgba(99, 102, 241, 0.15);
+}
+
+.feature-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: white;
+  margin: 0 auto 1.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.feature-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 1rem;
+}
+
+.feature-desc {
+  font-size: 1rem;
+  color: #475569;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   Capabilities Grid (Detailed Abilities)
+   ========================================================================== */
+
+.capabilities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+}
+
+.capability-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: 1.5rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.capability-item:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateX(8px);
+  background: var(--bg-card);
+}
+
+.capability-item i {
+  font-size: 1.75rem;
+  margin-top: 0.25rem;
+  flex-shrink: 0;
+}
+
+.capability-item h4 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.capability-item p {
+  font-size: 0.95rem;
+  color: #475569;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   Step-by-Step Flow (Onboarding / Usage Steps)
+   ========================================================================== */
+
+.steps-container {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.step-card {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 2rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.step-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateX(8px);
+  box-shadow: 0 12px 32px rgba(99, 102, 241, 0.15);
+}
+
+.step-number {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand-purple), #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 800;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.4);
+}
+
+.step-content {
+  flex: 1;
+}
+
+.step-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+}
+
+.step-desc {
+  font-size: 1rem;
+  color: #475569;
+  line-height: 1.6;
+}
+
+.step-icon {
+  font-size: 3rem;
+  color: var(--text-muted);
+  opacity: 0.3;
+  flex-shrink: 0;
+}
+
+.step-arrow {
+  text-align: center;
+  padding: 1rem 0;
+  font-size: 2rem;
+  color: var(--brand-purple);
+  opacity: 0.5;
+}
+
+/* ==========================================================================
+   Final Call-To-Action Card
+   ========================================================================== */
+
+.final-cta-card {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  border-radius: 2rem;
+  padding: 4rem 3rem;
+  text-align: center;
+  color: white;
+  box-shadow: 0 25px 50px rgba(99, 102, 241, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.25rem 3rem;
+  background: white;
+  color: #6366f1;
+  font-weight: 700;
+  font-size: 1.125rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+}
+
+.btn-cta:hover {
+  transform: translateY(-3px) scale(1.05);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+}
+
+/* ==========================================================================
+   Responsive Layout Adjustments
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding-top: 100px;
+    padding-bottom: 60px;
+  }
+
+  .cta-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .preview-content {
+    flex-direction: column;
+  }
+
+  .preview-sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .capabilities-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .step-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .step-icon {
+    display: none;
+  }
+
+  .final-cta-card {
+    padding: 3rem 2rem;
+  }
+}
+
+/* ==========================================================================
+   Theme-Specific Adjustments (Dark / Light Mode)
+   ========================================================================== */
+
+.dark .preview-card {
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.dark .feature-card {
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.dark .capability-item {
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.dark .step-card {
+  background: rgba(30, 41, 59, 0.5);
+}
+
+body:not(.dark) .preview-card {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+body:not(.dark) .feature-card {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+body:not(.dark) .capability-item {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+body:not(.dark) .step-card {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+/* ===== feature.css ===== */
+/* ==========================================================================
+   Supporter Bot - Feature Details & CTA Styles
+   - Hero section layout & animated background blobs
+   - Detailed feature cards with highlights
+   - Call-to-action (CTA) section
+   - Responsive behavior
+   - Dark / light mode visual adjustments
+   ========================================================================== */
+
+
+/* ==========================================================================
+   Hero Section & Background Blobs
+   ========================================================================== */
+
+.hero-section {
+  min-height: 70vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 120px;
+  padding-bottom: 60px;
+  position: relative;
+  overflow: hidden;
+}
+
+.blob-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+}
+
+.blob-purple {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(
+    circle,
+    rgba(99, 102, 241, 0.4) 0%,
+    transparent 70%
+  );
+  top: -200px;
+  right: -100px;
+  animation: blob-move 12s ease-in-out infinite;
+}
+
+.blob-blue {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.3) 0%,
+    transparent 70%
+  );
+  bottom: -150px;
+  left: -100px;
+  animation: blob-move 15s ease-in-out infinite reverse;
+}
+
+.blob-pink {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(
+    circle,
+    rgba(236, 72, 153, 0.3) 0%,
+    transparent 70%
+  );
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: blob-move 10s ease-in-out infinite;
+  animation-delay: -3s;
+}
+
+.hero-title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: var(--text-secondary);
+  max-width: 700px;
+  margin: 0 auto 2rem;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   Feature Detailed Cards & Highlights
+   ========================================================================== */
+
+.feature-detailed-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.5rem;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 16px var(--shadow-color);
+}
+
+.feature-detailed-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(99, 102, 241, 0.15);
+}
+
+.feature-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.feature-icon-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.feature-detailed-card:hover .feature-icon-large {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.feature-detailed-title {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.01em;
+}
+
+.feature-detailed-subtitle {
+  font-size: 1rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.feature-content {
+  padding: 0;
+}
+
+.feature-description {
+  font-size: 1.05rem;
+  line-height: 1.8;
+  color: #475569;
+  margin-bottom: 2rem;
+}
+
+.feature-highlights {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.highlight-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.highlight-item:hover {
+  background: var(--bg-card-hover);
+  border-color: rgba(99, 102, 241, 0.2);
+  transform: translateX(4px);
+}
+
+.highlight-item i {
+  font-size: 1.5rem;
+  margin-top: 0.25rem;
+  flex-shrink: 0;
+}
+
+.highlight-item h4 {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+}
+
+.highlight-item p {
+  font-size: 0.875rem;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   Call-To-Action (CTA) Card
+   ========================================================================== */
+
+.cta-card {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+  border-radius: 2rem;
+  padding: 4rem 3rem;
+  text-align: center;
+  color: white;
+  box-shadow: 0 25px 50px rgba(99, 102, 241, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .hero-section {
+    padding-top: 100px;
+    padding-bottom: 40px;
+  }
+
+  .feature-detailed-card {
+    padding: 1.5rem;
+  }
+
+  .feature-header {
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+  }
+
+  .feature-icon-large {
+    width: 64px;
+    height: 64px;
+    font-size: 2rem;
+  }
+
+  .feature-detailed-title {
+    font-size: 1.5rem;
+  }
+
+  .feature-highlights {
+    grid-template-columns: 1fr;
+  }
+
+  .cta-card {
+    padding: 3rem 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .feature-detailed-card {
+    padding: 1.25rem;
+  }
+
+  .feature-description {
+    font-size: 0.95rem;
+  }
+
+  .highlight-item {
+    padding: 1rem;
+  }
+}
+
+/* ==========================================================================
+   Theme-Specific Adjustments (Dark / Light)
+   ========================================================================== */
+
+.dark .feature-detailed-card {
+  background: rgba(30, 41, 59, 0.5);
+}
+
+.dark .highlight-item {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.dark .highlight-item:hover {
+  background: rgba(30, 41, 59, 0.8);
+}
+
+body:not(.dark) .feature-detailed-card {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+body:not(.dark) .highlight-item {
+  background: rgba(248, 250, 252, 0.8);
+}
+
+body:not(.dark) .highlight-item:hover {
+  background: rgba(241, 245, 249, 1);
+}
+
+/* ===== home.css ===== */
+/* ==========================================================================
+   Supporter Bot - Feature & Commands Showcase Styles
+   - Floating animation helpers
+   - Feature highlight boxes
+   - Command list / command category cards
+   - Animated statistic numbers
+   ========================================================================== */
+
+/* ==========================================================================
+   Base Imports
+   ========================================================================== */
+
+
+/* ==========================================================================
+   Global Animation Utilities
+   ========================================================================== */
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   Feature Highlight Boxes
+   ========================================================================== */
+
+.feature-box {
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-box::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(99, 102, 241, 0.5),
+    transparent
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.feature-box:hover {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 30px 60px rgba(99, 102, 241, 0.2);
+}
+
+.feature-box:hover::before {
+  opacity: 1;
+}
+
+.feature-box .icon-wrap {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  font-size: 1.5rem;
+  transition: all 0.4s ease;
+}
+
+.feature-box:hover .icon-wrap {
+  transform: scale(1.15) rotate(-5deg);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.feature-box h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+  color: white;
+}
+
+.feature-box p {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   Command Group Cards (Command Lists)
+   ========================================================================== */
+
+.cmd-card {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.cmd-card:hover {
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.cmd-card .cmd-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.cmd-card .cmd-list {
+  list-style: none;
+  padding: 1rem 1.25rem;
+}
+
+.cmd-card .cmd-list li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.cmd-card .cmd-list li:last-child {
+  border-bottom: none;
+}
+
+.cmd-card .cmd-list li span {
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.5rem;
+  background: rgba(99, 102, 241, 0.15);
+  border-radius: 0.375rem;
+  color: #a5b4fc;
+}
+
+/* ==========================================================================
+   Animated Stat Numbers
+   ========================================================================== */
+
+@keyframes number-increment {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.stat-animate {
+  animation: number-increment 0.6s ease-out forwards;
+}
+
+/* ===== index.css ===== */
+/* ==========================================================================
+   Supporter Bot - Marketing / Landing Page Styles
+   - Hero section layout & animated blobs
+   - Headline, subtitle, CTA buttons
+   - Stats strip & secondary sections
+   - Feature grid and command preview window
+   - Footer layout, navigation links, and social icons
+   ========================================================================== */
+
+
+/* ==========================================================================
+   Hero Section Layout & Animated Background Blobs
+   ========================================================================== */
+
+.hero-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 80px;
+  position: relative;
+  overflow: hidden;
+}
+
+.blob-container {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+}
+
+.blob-purple {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(
+    circle,
+    rgba(99, 102, 241, 0.4) 0%,
+    transparent 70%
+  );
+  top: -200px;
+  right: -100px;
+  animation: blob-move 12s ease-in-out infinite;
+}
+
+.blob-blue {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(
+    circle,
+    rgba(59, 130, 246, 0.3) 0%,
+    transparent 70%
+  );
+  bottom: -150px;
+  left: -100px;
+  animation: blob-move 15s ease-in-out infinite reverse;
+}
+
+.blob-pink {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(
+    circle,
+    rgba(236, 72, 153, 0.3) 0%,
+    transparent 70%
+  );
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: blob-move 10s ease-in-out infinite;
+  animation-delay: -3s;
+}
+
+/* ==========================================================================
+   Hero Headline, Subtitle & CTA Button Group
+   ========================================================================== */
+
+.hero-title {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+  font-weight: 900;
+  line-height: 1.1;
+  margin-bottom: 1.5rem;
+  letter-spacing: -0.02em;
+  animation: fade-in-up 0.8s ease-out forwards;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #6366f1 0%, #a855f7 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease infinite;
+}
+
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: #94a3b8;
+  max-width: 600px;
+  margin: 0 auto 3rem;
+  animation: fade-in-up 0.8s ease-out 0.2s forwards;
+  opacity: 0;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 4rem;
+  animation: fade-in-up 0.8s ease-out 0.4s forwards;
+  opacity: 0;
+}
+
+/* ==========================================================================
+   Primary & Secondary Hero CTA Buttons
+   ========================================================================== */
+
+.btn-hero-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 40px rgba(99, 102, 241, 0.4);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-hero-primary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.btn-hero-primary:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 20px 60px rgba(99, 102, 241, 0.5);
+}
+
+.btn-hero-primary:hover::before {
+  left: 100%;
+}
+
+.btn-hero-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 9999px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.btn-hero-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(99, 102, 241, 0.5);
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   Stats Strip Below Hero
+   ========================================================================== */
+
+.stats-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem;
+  border-radius: 1.5rem;
+  animation: fade-in-up 0.8s ease-out 0.6s forwards;
+  opacity: 0;
+}
+
+@media (max-width: 768px) {
+  .stats-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1rem;
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+}
+
+.stat-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateY(-4px);
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 900;
+  margin-bottom: 0.25rem;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #64748b;
+  font-weight: 600;
+}
+
+/* ==========================================================================
+   Secondary Section Background & Headings
+   ========================================================================== */
+
+.section-bg-alt {
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.5) 0%,
+    rgba(15, 23, 42, 0.8) 100%
+  );
+  padding: 6rem 0;
+  position: relative;
+}
+
+.section-tag {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 9999px;
+  color: #818cf8;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 1rem;
+}
+
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+}
+
+.section-desc {
+  font-size: 1.125rem;
+  color: #94a3b8;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   Dashboard Access Button (Section CTA)
+   ========================================================================== */
+
+.btn-dashboard-access {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 2rem;
+  color: white;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.btn-dashboard-access:hover {
+  transform: translateY(-3px);
+}
+
+/* ==========================================================================
+   Feature Cards (Key Selling Points)
+   ========================================================================== */
+
+.feature-card {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  text-align: center;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.feature-card:hover {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-8px);
+  box-shadow: 0 25px 50px rgba(99, 102, 241, 0.15);
+}
+
+.feature-icon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.feature-card:hover .feature-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.feature-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.feature-text {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   Grid Cards (Info Blocks / Additional Highlights)
+   ========================================================================== */
+
+.grid-card {
+  background: rgba(30, 41, 59, 0.4);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 1.25rem;
+  padding: 2rem;
+  transition: all 0.3s ease;
+}
+
+.grid-card:hover {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(99, 102, 241, 0.2);
+  transform: translateY(-4px);
+}
+
+.grid-card-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.grid-card-text {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   Command Palette / Command Window Preview
+   ========================================================================== */
+
+.cmd-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 0.5rem;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.cmd-window {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  overflow: hidden;
+  text-align: left;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+}
+
+.cmd-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: rgba(30, 41, 59, 0.8);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  font-weight: 600;
+}
+
+.cmd-footer {
+  padding: 1rem 1.5rem;
+  background: rgba(30, 41, 59, 0.5);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  font-size: 0.75rem;
+  color: #64748b;
+  text-align: center;
+}
+
+.cmd-category h4 {
+  font-weight: 700;
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.cmd-category ul {
+  list-style: none;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.cmd-category.border-none ul {
+  border-bottom: none;
+}
+
+.cmd-category li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  font-size: 0.875rem;
+  color: #94a3b8;
+}
+
+.cmd-name {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8rem;
+  padding: 0.25rem 0.5rem;
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: 0.375rem;
+  color: #a5b4fc;
+  font-weight: 500;
+}
+
+/* ==========================================================================
+   Footer Layout, Links & Social Icons
+   ========================================================================== */
+
+.footer {
+  background: rgba(15, 23, 42, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding: 4rem 0 2rem;
+}
+
+.footer-logo {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: white;
+}
+
+.footer-links {
+  list-style: none;
+}
+
+.footer-links li {
+  margin-bottom: 0.75rem;
+}
+
+.footer-links a {
+  color: #64748b;
+  text-decoration: none;
+  font-size: 0.875rem;
+  transition: color 0.2s ease;
+}
+
+.footer-links a:hover {
+  color: #a5b4fc;
+}
+
+.footer-bottom {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  margin-top: 2rem;
+}
+
+.social-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  color: #64748b;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.social-icon:hover {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  transform: translateY(-2px);
+}
+
+/* ===== profile.css ===== */
+/* ==========================================================================
+   Supporter Bot - Profile & Server Overview Styles
+   - Profile header and identity elements
+   - Owner-only panel styling
+   - Stats and metric cards
+   - Server list grid & server cards
+   - Action buttons (manage / invite)
+   - Empty state styling
+   - Entry animations
+   ========================================================================== */
+
+/* ==========================================================================
+   Base Imports
+   ========================================================================== */
+
+
+/* ==========================================================================
+   Profile Header & Avatar
+   ========================================================================== */
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-header::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+}
+
+.profile-avatar {
+  width: 6rem;
+  height: 6rem;
+  border-radius: 50%;
+  border: 4px solid rgba(99, 102, 241, 0.3);
+  box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+}
+
+/* ==========================================================================
+   Owner Panel (Owner-specific Highlight Area)
+   ========================================================================== */
+
+.owner-panel {
+  background: rgba(239, 68, 68, 0.05);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+}
+
+/* ==========================================================================
+   Stats & Metric Cards
+   ========================================================================== */
+
+.stat-card {
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-4px);
+}
+
+/* ==========================================================================
+   Server Grid & Cards
+   ========================================================================== */
+
+.server-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.server-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.server-card:hover {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateX(4px);
+}
+
+/* ==========================================================================
+   Server Icons & Placeholders
+   ========================================================================== */
+
+.server-icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  object-fit: cover;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.server-icon-placeholder {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: white;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+/* ==========================================================================
+   Action Buttons (Manage / Invite)
+   ========================================================================== */
+
+.btn-manage {
+  padding: 0.5rem 1rem;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-manage:hover {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+}
+
+.btn-invite {
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.btn-invite:hover {
+  background: rgba(99, 102, 241, 0.1);
+  border-color: rgba(99, 102, 241, 0.3);
+  color: #a5b4fc;
+}
+
+/* ==========================================================================
+   Empty State (No Servers / Data)
+   ========================================================================== */
+
+.empty-state {
+  background: rgba(30, 41, 59, 0.3);
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  color: #64748b;
+}
+
+/* ==========================================================================
+   Animations
+   ========================================================================== */
+
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.5s ease-out forwards;
+}
+
+/* ===== server_config.css ===== */
+/* ==========================================================================
+   Supporter Bot Dashboard Styles
+   - Navigation & layout components
+   - Settings cards & controls
+   - Modal dialog styling
+   - Select2 dark theme overrides
+   - Analytics configuration section
+   ========================================================================== */
+
+
+/* ==========================================================================
+   Navigation Items
+   ========================================================================== */
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 0.75rem;
+  color: #94a3b8;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.nav-item:hover {
+  background: rgba(99, 102, 241, 0.1);
+  color: #a5b4fc;
+}
+
+.nav-item.active {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.2) 0%,
+    rgba(139, 92, 246, 0.1) 100%
+  );
+  color: white;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.15);
+}
+
+.nav-item i {
+  font-size: 1rem;
+  width: 1.25rem;
+  text-align: center;
+}
+
+.nav-divider {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #475569;
+  padding: 1.5rem 1rem 0.5rem;
+  margin-top: 0.5rem;
+}
+
+/* ==========================================================================
+   Content Tabs
+   ========================================================================== */
+
+.content-tab {
+  animation: fade-in-up 0.4s ease-out forwards;
+}
+
+.content-tab.hidden {
+  display: none;
+}
+
+/* ==========================================================================
+   Settings Cards & Inputs
+   ========================================================================== */
+
+.setting-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.setting-card:hover {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+.icon-bg {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.setting-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: white;
+}
+
+.setting-desc {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+.setting-input {
+  width: 5rem;
+  padding: 0.625rem 0.875rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.setting-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+  outline: none;
+}
+
+/* ==========================================================================
+   Primary Actions (Buttons)
+   ========================================================================== */
+
+.btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
+
+.btn-save:active {
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   Modal Overlay & Content
+   ========================================================================== */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: none;
+  transform: scale(0.95);
+  transition: all 0.3s ease;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  margin: auto;
+}
+
+.modal-overlay.active .modal-content {
+  transform: scale(1);
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .nav-item {
+    padding: 1rem;
+    font-size: 0.9rem;
+  }
+
+  .setting-card {
+    flex-wrap: wrap;
+  }
+
+  .setting-input {
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+}
+
+/* ==========================================================================
+   Select2 Dark Theme Overrides
+   ========================================================================== */
+
+.select2-container--default .select2-selection--single {
+  background-color: rgba(30, 41, 59, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0.5rem !important;
+  height: 46px !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.select2-container--default
+  .select2-selection--single
+  .select2-selection__rendered {
+  color: #e2e8f0 !important;
+  padding-left: 1rem !important;
+  line-height: 44px !important;
+}
+
+.select2-container--default
+  .select2-selection--single
+  .select2-selection__arrow {
+  height: 44px !important;
+  right: 10px !important;
+}
+
+.select2-dropdown {
+  background-color: #1e293b !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5) !important;
+  z-index: 9999 !important;
+}
+
+.select2-results__option {
+  color: #94a3b8 !important;
+  padding: 8px 16px !important;
+}
+
+.select2-container--default
+  .select2-results__option--highlighted[aria-selected] {
+  background-color: #6366f1 !important;
+  color: white !important;
+}
+
+.select2-container--default .select2-results__option[aria-selected="true"] {
+  background-color: rgba(99, 102, 241, 0.1) !important;
+  color: #a5b4fc !important;
+}
+
+.select2-search--dropdown .select2-search__field {
+  background-color: rgba(15, 23, 42, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0.25rem !important;
+  color: white !important;
+  padding: 6px 12px !important;
+}
+
+/* ==========================================================================
+   Analytics Settings Section
+   ========================================================================== */
+
+.config-section {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: rgba(30, 41, 59, 0.3);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 1rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: white;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-title i {
+  color: #6366f1;
+}
+
+.section-description {
+  font-size: 0.875rem;
+  color: #94a3b8;
+  margin-bottom: 1.5rem;
+}
+
+.setting-group {
+  margin-bottom: 1.5rem;
+}
+
+.setting-group label.setting-label {
+  display: block;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #e2e8f0;
+  margin-bottom: 0.5rem;
+}
+
+.setting-group input[type="checkbox"] {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.5rem;
+  cursor: pointer;
+}
+
+.form-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  color: white;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+.form-select:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+  outline: none;
+}
+
+.help-text {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.5rem;
+}
+
+.help-text strong {
+  color: #94a3b8;
+}
+
+.text-primary {
+  color: #6366f1;
+  font-weight: 600;
+}
+
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+  margin-top: 1rem;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* ===== Tabs\SubTabsAnalytics\config_analytics_guide.css ===== */
+/* ==========================================================================
+   Supporter Bot - Analytics Health Score Guide Styles
+   - Root theme tokens & global reset
+   - Page background & container layout
+   - Header, icon, and close button
+   - Guide grid + generic cards
+   - Intro metrics & data point chips
+   - Formula / logic highlight & health scale
+   - Engagement tiers list
+   - Privacy explanation list
+   - Responsive adjustments
+   ========================================================================== */
+
+/* ==========================================================================
+   Root Palette & Global Reset
+   ========================================================================== */
+
+:root {
+  --bg-dark: #0f172a;
+  --card-bg: rgba(30, 41, 59, 0.7);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --accent-color: #6366f1;
+  --accent-glow: rgba(99, 102, 241, 0.3);
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Outfit", sans-serif;
+}
+
+/* ==========================================================================
+   Page Background & Main Container
+   ========================================================================== */
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding: 2rem;
+  background-image: radial-gradient(
+      circle at 10% 20%,
+      rgba(99, 102, 241, 0.15) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 90% 80%,
+      rgba(168, 85, 247, 0.15) 0%,
+      transparent 40%
+    );
+}
+
+.guide-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   Guide Header: Title, Icon & Close Button
+   ========================================================================== */
+
+.guide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.icon-wrapper {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--accent-color), #a855f7);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  box-shadow: 0 10px 20px var(--accent-glow);
+}
+
+.text-content h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.text-content p {
+  color: var(--text-secondary);
+}
+
+.close-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* ==========================================================================
+   Guide Grid Layout & Generic Card Styling
+   ========================================================================== */
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.card h2 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.card h2 i {
+  color: var(--accent-color);
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+/* ==========================================================================
+   Intro Card & Data Points
+   ========================================================================== */
+
+.intro-card {
+  grid-column: span 2;
+}
+
+.data-points {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.point {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.point i {
+  color: #a855f7;
+}
+
+/* ==========================================================================
+   Logic Highlight Card & Score Scale
+   ========================================================================== */
+
+.highlight {
+  background: linear-gradient(
+    145deg,
+    rgba(30, 41, 59, 0.9),
+    rgba(15, 23, 42, 0.9)
+  );
+  border: 1px solid var(--accent-color);
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.1);
+}
+
+.formula-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formula-item {
+  display: flex;
+  gap: 1rem;
+}
+
+.score-badge {
+  min-width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.activity {
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+.engagement {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+.growth {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.details h3 {
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+.details p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.health-scale {
+  margin-top: 2rem;
+  display: flex;
+  gap: 5px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.scale-item {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.low {
+  background: #ef4444;
+}
+.med {
+  background: #eab308;
+}
+.high {
+  background: #22c55e;
+}
+.elite {
+  background: #3b82f6;
+}
+
+/* ==========================================================================
+   Engagement Tiers Panel
+   ========================================================================== */
+
+.tier-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tier-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.tier-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(5px);
+}
+
+.tier-item .icon {
+  font-size: 1.5rem;
+}
+
+.tier-info h3 {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.tier-info p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Privacy Card & Bullet List
+   ========================================================================== */
+
+.privacy-card ul {
+  list-style: none;
+}
+
+.privacy-card li {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.privacy-card i {
+  color: var(--success);
+}
+
+/* ==========================================================================
+   Responsive Layout Adjustments
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .guide-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .intro-card {
+    grid-column: auto;
+  }
+
+  .data-points {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+/* ===== Tabs\SubTabsAnalytics\config_analytics_history.css ===== */
+/* ==========================================================================
+   Supporter Bot - Analytics History Page Styles
+   - Root design tokens (colors, shadows, glass)
+   - Global reset & page background
+   - Header, back navigation, and guild label
+   - Timeline spine + snapshot cards
+   - Snapshot stats, trends, and CTA
+   - Loading & empty states
+   - Responsive layout tweaks (tablet & below)
+   ========================================================================== */
+
+/* ==========================================================================
+   Root Tokens & Global Reset
+   ========================================================================== */
+
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --glass-bg: rgba(30, 41, 59, 0.7);
+  --glass-border: rgba(148, 163, 184, 0.1);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --primary-color: #6366f1;
+  --accent-color: #a855f7;
+  --success-color: #22c55e;
+  --warning-color: #f59e0b;
+  --error-color: #ef4444;
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Page Base Styling
+   ========================================================================== */
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.history-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   Header & Guild Metadata
+   ========================================================================== */
+
+.history-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  margin-bottom: 2rem;
+}
+
+.back-btn:hover {
+  background: var(--bg-secondary);
+  border-color: var(--primary-color);
+  transform: translateX(-5px);
+}
+
+.history-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--accent-color)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.guild-name {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Timeline Spine & Snapshot Cards
+   ========================================================================== */
+
+.timeline {
+  position: relative;
+  padding-left: 2rem;
+}
+
+.timeline::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(
+    180deg,
+    var(--primary-color),
+    var(--accent-color)
+  );
+}
+
+.snapshot-card {
+  position: relative;
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 15px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  margin-left: 2rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-md);
+}
+
+.snapshot-card::before {
+  content: "";
+  position: absolute;
+  left: -2.75rem;
+  top: 2rem;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  border: 3px solid var(--bg-primary);
+}
+
+.snapshot-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-color);
+}
+
+/* ==========================================================================
+   Snapshot Header: Title, Date & Health Badge
+   ========================================================================== */
+
+.snapshot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.snapshot-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.snapshot-date {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.health-badge {
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.health-badge.excellent {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--success-color);
+}
+
+.health-badge.good {
+  background: rgba(245, 158, 11, 0.2);
+  color: var(--warning-color);
+}
+
+.health-badge.fair {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--error-color);
+}
+
+/* ==========================================================================
+   Snapshot Summary Stats & Trends
+   ========================================================================== */
+
+.snapshot-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+}
+
+.stat-icon {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.trend-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+}
+
+.trend-indicator.up {
+  color: var(--success-color);
+}
+
+.trend-indicator.down {
+  color: var(--error-color);
+}
+
+.trend-indicator.stable {
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Snapshot Call-to-Action (View Details)
+   ========================================================================== */
+
+.view-details-btn {
+  width: 100%;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--accent-color)
+  );
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.view-details-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+}
+
+/* ==========================================================================
+   Loading & Empty States
+   ========================================================================== */
+
+.loading-spinner {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-secondary);
+}
+
+.loading-spinner i {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  color: var(--primary-color);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.empty-state i {
+  font-size: 5rem;
+  color: var(--text-secondary);
+  margin-bottom: 1rem;
+}
+
+.empty-state h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.empty-state p {
+  color: var(--text-secondary);
+  margin-bottom: 2rem;
+}
+
+.btn-primary {
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--accent-color)
+  );
+  border: none;
+  border-radius: 10px;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(99, 102, 241, 0.4);
+}
+
+/* ==========================================================================
+   Responsive Layout Adjustments (≤ 768px)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  body {
+    padding: 1rem;
+  }
+
+  .history-header h1 {
+    font-size: 2rem;
+  }
+
+  .timeline {
+    padding-left: 1rem;
+  }
+
+  .snapshot-card {
+    margin-left: 1rem;
+    padding: 1.5rem;
+  }
+
+  .snapshot-card::before {
+    left: -1.75rem;
+  }
+
+  .snapshot-summary {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ===== Tabs\SubTabsAnalytics\config_analytics_snapshot.css ===== */
+/* ==========================================================================
+   Supporter Bot - Analytics Snapshot Detail Page Styles
+   - Root design tokens (colors, shadows, glass)
+   - Global reset & page background
+   - Header, back button, and guild metadata
+   - Loading/empty states
+   - Snapshot health score (circle + status)
+   - Metrics, engagement tiers, leveling stats
+   - Top contributors and insights list
+   - Responsive behavior (tablet & below)
+   ========================================================================== */
+
+/* ==========================================================================
+   Root Tokens & Global Reset
+   ========================================================================== */
+
+:root {
+  --bg-primary: #0f172a;
+  --bg-secondary: #1e293b;
+  --glass-bg: rgba(30, 41, 59, 0.7);
+  --glass-border: rgba(148, 163, 184, 0.1);
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --primary-color: #6366f1;
+  --accent-color: #a855f7;
+  --success-color: #22c55e;
+  --warning-color: #f59e0b;
+  --error-color: #ef4444;
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   Page Base Styling
+   ========================================================================== */
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+.snapshot-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   Header & Back Navigation
+   ========================================================================== */
+
+.snapshot-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  margin-bottom: 2rem;
+}
+
+.back-btn:hover {
+  background: var(--bg-secondary);
+  border-color: var(--primary-color);
+  transform: translateX(-5px);
+}
+
+.snapshot-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--accent-color)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.guild-name {
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Loading / Empty State
+   ========================================================================== */
+
+.loading-state {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.loading-state i {
+  font-size: 3rem;
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+/* ==========================================================================
+   Generic Section Card Shell
+   ========================================================================== */
+
+.section-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 15px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-md);
+}
+
+.section-card h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   Health Section (Overall Guild Health Score)
+   ========================================================================== */
+
+.health-section {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.1),
+    rgba(168, 85, 247, 0.1)
+  );
+}
+
+.health-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  flex-wrap: wrap;
+}
+
+.health-circle {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--success-color) 0deg,
+    var(--success-color) calc(var(--health-score, 0) * 3.6deg),
+    var(--glass-border) calc(var(--health-score, 0) * 3.6deg),
+    var(--glass-border) 360deg
+  );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.health-circle::before {
+  content: "";
+  position: absolute;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+}
+
+.health-value {
+  font-size: 3.5rem;
+  font-weight: 700;
+  position: relative;
+  z-index: 1;
+}
+
+.health-label {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  position: relative;
+  z-index: 1;
+}
+
+.health-status {
+  font-size: 1.5rem;
+  font-weight: 600;
+  padding: 1rem 2rem;
+  border-radius: 10px;
+  background: var(--glass-bg);
+}
+
+/* ==========================================================================
+   Key Metrics Grid (Activity / Engagement / Growth)
+   ========================================================================== */
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.metric-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 15px;
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.metric-icon {
+  font-size: 2.5rem;
+}
+
+.metric-content {
+  flex: 1;
+}
+
+.metric-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.metric-subtitle {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.metric-trend {
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.metric-trend.up {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--success-color);
+}
+
+.metric-trend.down {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--error-color);
+}
+
+.metric-trend.stable {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+
+/* ==========================================================================
+   Engagement Tiers Grid (Elite / Active / Casual / Inactive)
+   ========================================================================== */
+
+.engagement-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.tier-card {
+  text-align: center;
+  padding: 2rem;
+  background: var(--bg-secondary);
+  border-radius: 15px;
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.tier-card:hover {
+  transform: translateY(-5px);
+}
+
+.tier-card.elite {
+  border-color: #fbbf24;
+}
+
+.tier-card.active {
+  border-color: #22c55e;
+}
+
+.tier-card.casual {
+  border-color: #3b82f6;
+}
+
+.tier-card.inactive {
+  border-color: #6b7280;
+}
+
+.tier-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.tier-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.tier-count {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.tier-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Leveling Summary Stats
+   ========================================================================== */
+
+.leveling-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.stat-box {
+  text-align: center;
+  padding: 1.5rem;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+/* ==========================================================================
+   Top Contributors List
+   ========================================================================== */
+
+.contributors-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contributor-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+}
+
+.contributor-rank {
+  font-size: 1.5rem;
+  font-weight: 700;
+  min-width: 40px;
+  text-align: center;
+}
+
+.contributor-rank.top-1 {
+  color: #fbbf24;
+}
+.contributor-rank.top-2 {
+  color: #d1d5db;
+}
+.contributor-rank.top-3 {
+  color: #cd7f32;
+}
+
+.contributor-info {
+  flex: 1;
+}
+
+.contributor-name {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.contributor-stats {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.contributor-xp {
+  font-weight: 700;
+  color: var(--primary-color);
+  font-size: 1.1rem;
+}
+
+/* ==========================================================================
+   Insights Panel (Narrative Recommendations)
+   ========================================================================== */
+
+.insights-card {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.1),
+    rgba(168, 85, 247, 0.1)
+  );
+}
+
+.insights-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.insight-item {
+  padding: 1rem;
+  background: var(--glass-bg);
+  border-left: 4px solid var(--primary-color);
+  border-radius: 8px;
+  line-height: 1.6;
+}
+
+.loading-text {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 2rem;
+}
+
+/* ==========================================================================
+   Responsive Layout (≤ 768px)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  body {
+    padding: 1rem;
+  }
+
+  .snapshot-header h1 {
+    font-size: 2rem;
+  }
+
+  .health-display {
+    flex-direction: column;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .engagement-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* ===== Tabs\SubTabsLevel\config_level_leaderboard.css ===== */
+/* ==========================================================================
+   Supporter Bot - Leaderboard Styles
+   - Leaderboard wrapper & refresh action button
+   - Leaderboard card container & table layout
+   - Table header & cell alignment rules
+   - Row hover effects & top 3 highlight styling
+   - Rank badge appearance (gold / silver / bronze)
+   ========================================================================== */
+
+/* ==========================================================================
+   Leaderboard Wrapper & Refresh Button
+   ========================================================================== */
+
+.leaderboard-wrapper {
+  padding: 0.5rem 0;
+}
+
+.btn-refresh {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1rem;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+  font-weight: 600;
+  font-size: 0.75rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-refresh:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.4);
+  transform: translateY(-2px);
+}
+
+/* ==========================================================================
+   Leaderboard Card Container & Table Base
+   ========================================================================== */
+
+.leaderboard-card {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.leaderboard-table thead {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.15),
+    rgba(139, 92, 246, 0.1)
+  );
+}
+
+/* ==========================================================================
+   Table Header & Cell Alignment
+   ========================================================================== */
+
+.leaderboard-table th {
+  padding: 1.25rem 1.5rem;
+  text-align: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #a5b4fc;
+  border-bottom: 2px solid rgba(99, 102, 241, 0.2);
+}
+
+.leaderboard-table th:nth-child(2) {
+  text-align: left;
+}
+
+.leaderboard-table td {
+  padding: 1.25rem 1.5rem;
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: middle;
+}
+
+.leaderboard-table td:first-child {
+  text-align: center;
+}
+
+.leaderboard-table td:last-child,
+.leaderboard-table td:nth-last-child(2) {
+  text-align: center;
+}
+
+/* ==========================================================================
+   Table Row Hover & Top-3 Highlighting
+   ========================================================================== */
+
+.leaderboard-table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.leaderboard-table tbody tr:hover {
+  background: rgba(99, 102, 241, 0.08);
+  transform: scale(1.01);
+}
+
+.leaderboard-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.leaderboard-table tbody tr:first-child td:first-child {
+  color: #fbbf24;
+  font-weight: 700;
+}
+
+.leaderboard-table tbody tr:nth-child(2) td:first-child {
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.leaderboard-table tbody tr:nth-child(3) td:first-child {
+  color: #cd7f32;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   Rank Badges (Gold / Silver / Bronze)
+   ========================================================================== */
+
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.75rem;
+}
+
+.rank-badge.gold {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #1e293b;
+}
+
+.rank-badge.silver {
+  background: linear-gradient(135deg, #94a3b8, #64748b);
+  color: #1e293b;
+}
+
+.rank-badge.bronze {
+  background: linear-gradient(135deg, #cd7f32, #b06c2c);
+  color: #1e293b;
+}
+
+/* ===== Tabs\SubTabsLevel\config_level_leaderboard_full.css ===== */
+/* ==========================================================================
+   Supporter Bot - Full Leaderboard Page Styles
+   - Page container, header, and back navigation
+   - Search input (filter by member)
+   - Main leaderboard card & table layout
+   - Rank styles (top 3 & normal)
+   - User identity cells, level badges, and XP text
+   ========================================================================== */
+
+/* ==========================================================================
+   Full Leaderboard Container & Header
+   ========================================================================== */
+
+.leaderboard-container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.leaderboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.leaderboard-title h1 {
+  font-size: 2rem;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+/* ==========================================================================
+   Search Bar (Member Filter)
+   ========================================================================== */
+
+.search-container {
+  position: relative;
+  width: 300px;
+}
+
+.search-input {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 0.75rem 1rem 0.75rem 2.5rem;
+  color: white;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+
+/* ==========================================================================
+   Main Leaderboard Card & Table
+   ========================================================================== */
+
+.leaderboard-full-card {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.full-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.full-table th {
+  background: rgba(15, 23, 42, 0.4);
+  padding: 1rem 1.5rem;
+  text-align: left;
+  color: #94a3b8;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.full-table td {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  color: #e2e8f0;
+}
+
+.full-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.full-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* ==========================================================================
+   Rank Cells & Badges
+   ========================================================================== */
+
+.rank-cell {
+  font-weight: 700;
+  width: 80px;
+  text-align: center;
+}
+
+.rank-badge-full {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 0.9rem;
+}
+
+.rank-gold {
+  background: linear-gradient(135deg, #ffd700, #fdb931);
+  color: black;
+  box-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+}
+
+.rank-silver {
+  background: linear-gradient(135deg, #e0e0e0, #bdbdbd);
+  color: black;
+  box-shadow: 0 2px 10px rgba(192, 192, 192, 0.3);
+}
+
+.rank-bronze {
+  background: linear-gradient(135deg, #cd7f32, #a0522d);
+  color: white;
+  box-shadow: 0 2px 10px rgba(205, 127, 50, 0.3);
+}
+
+.rank-normal {
+  color: #64748b;
+}
+
+/* ==========================================================================
+   User Identity Cells (Avatar & Name)
+   ========================================================================== */
+
+.user-cell {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-avatar-lg {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-name-lg {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+/* ==========================================================================
+   Level & XP Display
+   ========================================================================== */
+
+.level-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  background: rgba(99, 102, 241, 0.1);
+  color: #818cf8;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.xp-text {
+  font-family: "Space Mono", monospace;
+  color: #94a3b8;
+}
+
+/* ==========================================================================
+   Back Navigation Button
+   ========================================================================== */
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #cbd5e1;
+  margin-bottom: 2rem;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.back-btn:hover {
+  color: white;
+}
+
+/* ===== Tabs\SubTabsLevel\config_level_reward.css ===== */
+/* ==========================================================================
+   Supporter Bot - Leveling Rewards & Modal Styles
+   - Reward container & add reward button
+   - Reward card layout, role info, and delete control
+   - Modal shell, overlay, and content panel
+   - Entrance animations (fade / slide / pop)
+   ========================================================================== */
+
+/* ==========================================================================
+   Reward Container & Add Reward Button
+   ========================================================================== */
+
+.reward-container {
+  padding: 0.5rem 0;
+}
+
+.btn-add-reward {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: white;
+  font-weight: 700;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+}
+
+.btn-add-reward:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
+}
+
+/* ==========================================================================
+   Reward Cards (Layout, Level & Role Display)
+   ========================================================================== */
+
+.reward-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.reward-card:hover {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(99, 102, 241, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.reward-level {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 4rem;
+}
+
+.reward-arrow {
+  flex-shrink: 0;
+}
+
+.reward-role {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+/* ==========================================================================
+   Reward Delete Button (Inline Control)
+   ========================================================================== */
+
+.reward-delete-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  width: 1.75rem;
+  height: 1.75rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: none;
+  border-radius: 0.375rem;
+  color: #f87171;
+  font-size: 0.75rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.3s ease;
+}
+
+.reward-card:hover .reward-delete-btn {
+  opacity: 1;
+}
+
+.reward-delete-btn:hover {
+  background: #ef4444;
+  color: white;
+}
+
+/* ==========================================================================
+   Modal Shell, Overlay & Content Panel
+   ========================================================================== */
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.modal.hidden {
+  display: none;
+}
+
+.modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+}
+
+.modal-content {
+  position: relative;
+  background: linear-gradient(
+    135deg,
+    rgba(30, 41, 59, 0.95),
+    rgba(15, 23, 42, 0.95)
+  );
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 1.5rem;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease-out;
+}
+
+/* ==========================================================================
+   Modal & Reward Animations
+   ========================================================================== */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-popIn {
+  animation: popIn 0.3s ease-out forwards;
+}
+
+/* ===== Tabs\SubTabsLevel\config_level_setting.css ===== */
+/* ==========================================================================
+   Supporter Bot - Level Settings Styles
+   - Level settings wrapper layout
+   - Save button states (default, hover, active, disabled, saving)
+   - Pulse animation for saving state
+   - Settings card container & form controls
+   ========================================================================== */
+
+/* ==========================================================================
+   Level Settings Wrapper
+   ========================================================================== */
+
+.level-settings-wrapper {
+  padding: 0.5rem 0;
+}
+
+/* ==========================================================================
+   Save Level Button (States & Interaction)
+   ========================================================================== */
+
+.btn-save-level {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  font-weight: 700;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 0.625rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.btn-save-level:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
+
+.btn-save-level:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+}
+
+.btn-save-level:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ==========================================================================
+   Pulse Animation (Saving State)
+   ========================================================================== */
+
+@keyframes pulse {
+  0%,
+  100% {
+    box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+  }
+  50% {
+    box-shadow: 0 4px 25px rgba(99, 102, 241, 0.6);
+  }
+}
+
+.btn-save-level.saving {
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   Settings Card Container & Form Controls
+   ========================================================================== */
+
+.settings-card {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 1.5rem;
+}
+
+.settings-card label {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: white;
+}
+
+.settings-card select,
+.settings-card input {
+  transition: all 0.3s ease;
+}
+
+.settings-card select:focus,
+.settings-card input:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+  outline: none;
+}
+
+/* ===== Tabs\config_analytics.css ===== */
+/* ==========================================================================
+   Supporter Bot - Analytics Dashboard Styles
+   - Layout container & global spacing
+   - Header, actions, and health score overview
+   - Metrics grid & trend badges
+   - Section cards: engagement tiers, contributors, insights
+   - Loading states & responsive behavior
+   ========================================================================== */
+
+/* ==========================================================================
+   Analytics Layout Container
+   ========================================================================== */
+
+.analytics-container {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   Header & Actions
+   ========================================================================== */
+
+.analytics-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.analytics-header h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(
+    135deg,
+    var(--primary-color),
+    var(--accent-color)
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 0.5rem;
+}
+
+.analytics-subtitle {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.analytics-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
+   Health Score Overview
+   ========================================================================== */
+
+.health-overview {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.health-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.health-score-circle {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--success-color) 0deg,
+    var(--success-color) calc(var(--health-score, 0) * 3.6deg),
+    var(--glass-border) calc(var(--health-score, 0) * 3.6deg),
+    var(--glass-border) 360deg
+  );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin: 0 auto 1rem;
+}
+
+.health-score-circle::before {
+  content: "";
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: var(--bg-primary);
+}
+
+.health-score-value {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  position: relative;
+  z-index: 1;
+}
+
+.health-score-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  position: relative;
+  z-index: 1;
+}
+
+.health-status {
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  background: var(--glass-bg);
+}
+
+/* ==========================================================================
+   Metrics Grid & Cards
+   ========================================================================== */
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.metric-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 15px;
+  padding: 1.5rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-md);
+}
+
+.metric-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-color);
+}
+
+.metric-icon {
+  font-size: 2.5rem;
+  min-width: 60px;
+  text-align: center;
+}
+
+.metric-content {
+  flex: 1;
+}
+
+.metric-label {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.metric-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.metric-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.metric-trend {
+  font-size: 0.85rem;
+  margin-top: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  display: inline-block;
+}
+
+.metric-trend.up {
+  background: rgba(34, 197, 94, 0.2);
+  color: var(--success-color);
+}
+
+.metric-trend.down {
+  background: rgba(239, 68, 68, 0.2);
+  color: var(--error-color);
+}
+
+.metric-trend.stable {
+  background: rgba(59, 130, 246, 0.2);
+  color: var(--info-color);
+}
+
+/* ==========================================================================
+   Section Cards (Composite Blocks)
+   ========================================================================== */
+
+.section-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border);
+  border-radius: 15px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-md);
+}
+
+.section-card h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--text-primary);
+}
+
+/* ==========================================================================
+   Engagement Tiers (Activity Distribution Bars)
+   ========================================================================== */
+
+.engagement-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.engagement-tier {
+  width: 100%;
+}
+
+.tier-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.tier-name {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.tier-count {
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.tier-bar {
+  height: 30px;
+  background: var(--glass-border);
+  border-radius: 15px;
+  overflow: hidden;
+  position: relative;
+}
+
+.tier-fill {
+  height: 100%;
+  border-radius: 15px;
+  transition: width 0.8s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tier-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.tier-fill.elite {
+  background: linear-gradient(90deg, #fbbf24, #f59e0b);
+}
+
+.tier-fill.active {
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+}
+
+.tier-fill.casual {
+  background: linear-gradient(90deg, #3b82f6, #2563eb);
+}
+
+.tier-fill.inactive {
+  background: linear-gradient(90deg, #6b7280, #4b5563);
+}
+
+/* ==========================================================================
+   Top Contributors List
+   ========================================================================== */
+
+.contributors-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contributor-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bg-secondary);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.contributor-item:hover {
+  background: var(--glass-bg);
+  transform: translateX(5px);
+}
+
+.contributor-rank {
+  font-size: 1.5rem;
+  font-weight: 700;
+  min-width: 40px;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.contributor-rank.top-1 {
+  color: #fbbf24;
+}
+.contributor-rank.top-2 {
+  color: #d1d5db;
+}
+.contributor-rank.top-3 {
+  color: #cd7f32;
+}
+
+.contributor-info {
+  flex: 1;
+}
+
+.contributor-name {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.contributor-stats {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.contributor-xp {
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-left: auto;
+  font-size: 1.1rem;
+}
+
+/* ==========================================================================
+   Insights Panel (AI / Analytical Notes)
+   ========================================================================== */
+
+.insights-panel {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.1),
+    rgba(168, 85, 247, 0.1)
+  );
+}
+
+.insights-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.insight-item {
+  padding: 1rem;
+  background: var(--glass-bg);
+  border-left: 4px solid var(--primary-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.insight-placeholder {
+  text-align: center;
+  color: var(--text-secondary);
+  padding: 2rem;
+}
+
+/* ==========================================================================
+   Loading States
+   ========================================================================== */
+
+.loading-spinner {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .analytics-container {
+    padding: 1rem;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .health-score-circle {
+    width: 150px;
+    height: 150px;
+  }
+
+  .health-score-circle::before {
+    width: 120px;
+    height: 120px;
+  }
+
+  .health-score-value {
+    font-size: 2.5rem;
+  }
+}
+
+/* ===== Tabs\config_general.css ===== */
+/* ==========================================================================
+   Supporter Bot - General Settings Styles
+   - General wrapper layout
+   - Setting cards, icons, labels & descriptions
+   - Numeric / text setting input fields
+   - Save button styling
+   ========================================================================== */
+
+/* ==========================================================================
+   General Settings Wrapper
+   ========================================================================== */
+
+.general-settings-wrapper {
+  padding: 0.5rem 0;
+}
+
+/* ==========================================================================
+   Setting Cards (Row Container)
+   ========================================================================== */
+
+.setting-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.setting-card:hover {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(99, 102, 241, 0.2);
+  transform: translateX(4px);
+}
+
+/* ==========================================================================
+   Setting Icon Container
+   ========================================================================== */
+
+.icon-bg {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.setting-card:hover .icon-bg {
+  transform: scale(1.1) rotate(-5deg);
+}
+
+/* ==========================================================================
+   Setting Labels & Descriptions
+   ========================================================================== */
+
+.setting-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: white;
+  display: block;
+}
+
+.setting-desc {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+/* ==========================================================================
+   Setting Input Field
+   ========================================================================== */
+
+.setting-input {
+  width: 5rem;
+  padding: 0.625rem 0.875rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.setting-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+  outline: none;
+}
+
+/* ==========================================================================
+   Save Button (Primary Action)
+   ========================================================================== */
+
+.btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
+
+/* ===== Tabs\config_level.css ===== */
+/* ==========================================================================
+   Supporter Bot - Leveling Settings & Rewards Styles
+   - Leveling wrapper & sub-tab navigation
+   - Level sub-content visibility & animation
+   - Add reward button styling
+   ========================================================================== */
+
+/* ==========================================================================
+   Leveling Wrapper & Sub-Tab Navigation
+   ========================================================================== */
+
+.leveling-wrapper {
+  padding: 0.5rem 0;
+}
+
+.sub-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.625rem 1rem;
+  background: transparent;
+  border: none;
+  border-radius: 0.5rem;
+  color: #64748b;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.sub-tab-btn:hover {
+  color: #a5b4fc;
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.sub-tab-btn.active {
+  background: linear-gradient(
+    135deg,
+    rgba(99, 102, 241, 0.2),
+    rgba(139, 92, 246, 0.1)
+  );
+  color: white;
+  box-shadow: 0 2px 10px rgba(99, 102, 241, 0.2);
+}
+
+/* ==========================================================================
+   Level Sub-Content Visibility & Animation
+   ========================================================================== */
+
+.level-sub-content {
+  margin-top: 1.5rem;
+  animation: fade-in-up 0.3s ease-out forwards;
+}
+
+.level-sub-content.hidden {
+  display: none;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   Leveling Rewards - Add Reward Button
+   ========================================================================== */
+
+.btn-add-reward {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b); /* Golden */
+  color: white;
+  font-weight: 700;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+}
+
+.btn-add-reward:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(251, 191, 36, 0.4);
+}
+
+/* ===== Tabs\config_reminder.css ===== */
+.reminder-wrapper {
+  padding: 0.5rem 0;
+}
+
+.btn-add-rem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #22c55e, #16a34a); /* Green */
+  color: white;
+  font-weight: 700;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
+}
+
+.btn-add-rem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(34, 197, 94, 0.4);
+}
+
+.rem-card {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.rem-card:hover {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(34, 197, 94, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.rem-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: rgba(34, 197, 94, 0.1);
+  border-radius: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: #22c55e;
+}
+
+.rem-status {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.rem-status.active {
+  background: rgba(34, 197, 94, 0.1);
+  color: #4ade80;
+}
+
+.rem-status.paused {
+  background: rgba(251, 191, 36, 0.1);
+  color: #fbbf24;
+}
+
+.rem-interval {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  background: rgba(99, 102, 241, 0.1);
+  border-radius: 0.375rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #a5b4fc;
+}
+
+/* ===== Tabs\config_restriction.css ===== */
+/* ==========================================================================
+   Supporter Bot - Channel Restrictions & Select2 Overrides
+   - Restriction wrapper, add button, and cards
+   - Restriction type badges & flags
+   - Advanced restriction toggle container
+   - Select2 multi-select field styling
+   - Select2 dropdown readability in dark layouts
+   ========================================================================== */
+
+/* ==========================================================================
+   Restriction Wrapper & Add Button
+   ========================================================================== */
+
+.restriction-wrapper {
+  padding: 0.5rem 0;
+}
+
+.btn-add-res {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #eab308, #ca8a04);
+  color: white;
+  font-weight: 700;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(234, 179, 8, 0.3);
+}
+
+.btn-add-res:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(234, 179, 8, 0.4);
+}
+
+/* ==========================================================================
+   Restriction Cards & Badge Chips
+   ========================================================================== */
+
+.res-card {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.res-card:hover {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(249, 115, 22, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.res-badge {
+  display: inline-block;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.res-badge.block-invites {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.res-badge.block-links {
+  background: rgba(59, 130, 246, 0.1);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.res-badge.media-only {
+  background: rgba(168, 85, 247, 0.1);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.res-badge.text-only {
+  background: rgba(34, 197, 94, 0.1);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+/* ==========================================================================
+   Restriction Flags & Advanced Options Container
+   ========================================================================== */
+
+.res-flag {
+  accent-color: #6366f1;
+  width: 1rem;
+  height: 1rem;
+  cursor: pointer;
+}
+
+#advResContent {
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.3);
+  border-radius: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+#advResChevron {
+  transition: transform 0.3s ease;
+}
+
+#advResChevron.rotated {
+  transform: rotate(180deg);
+}
+
+/* ==========================================================================
+   Select2 Multi-Select Field Styling
+   ========================================================================== */
+
+.select2-container--default .select2-selection--multiple {
+  background: rgba(15, 23, 42, 0.5) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0.5rem !important;
+  min-height: 42px !important;
+  padding: 4px !important;
+}
+
+.select2-container--default
+  .select2-selection--multiple
+  .select2-selection__choice {
+  background: rgba(99, 102, 241, 0.2) !important;
+  border: 1px solid rgba(99, 102, 241, 0.3) !important;
+  border-radius: 0.375rem !important;
+  color: #e2e8f0 !important;
+  padding: 4px 8px !important;
+}
+
+/* ==========================================================================
+   Select2 Dropdown Options & Search (Base Light Theme)
+   ========================================================================== */
+
+.select2-container--default .select2-results__option {
+  color: #000000 !important;
+  background-color: #ffffff !important;
+  padding: 8px 12px !important;
+  font-weight: 600 !important;
+}
+
+.select2-container--default .select2-results__option:hover,
+.select2-container--default .select2-results__option--highlighted {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+.select2-container--default .select2-results__option[aria-selected="true"] {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 0.375rem !important;
+  padding: 6px 10px !important;
+}
+
+.select2-container--default
+  .select2-search--dropdown
+  .select2-search__field:focus {
+  border-color: #3b82f6 !important;
+  outline: none !important;
+}
+
+.select2-dropdown {
+  background-color: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 0.5rem !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+}
+
+/* ==========================================================================
+   Select2 Readability Overrides in Dark Contexts
+   ========================================================================== */
+
+.select2-dropdown,
+.select2-dropdown * {
+  opacity: 1 !important;
+  filter: none !important;
+}
+
+.select2-container--default .select2-results__option {
+  color: #0f172a !important;
+  background-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.select2-container--default .select2-results__option--highlighted,
+.select2-container--default .select2-results__option:hover,
+.select2-container--default .select2-results__option[aria-selected="true"] {
+  background-color: #3b82f6 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.select2-container--default .select2-results__option[aria-disabled="true"],
+.select2-container--default
+  .select2-results__option.select2-results__option--disabled {
+  color: #6b7280 !important;
+  background-color: #ffffff !important;
+  opacity: 0.6 !important;
+}
+
+.select2-results__options,
+.select2-results__option {
+  opacity: 1 !important;
+}
+
+/* Selected choice tokens in multi-select: ensure legible text on tinted background */
+.select2-container--default
+  .select2-selection--multiple
+  .select2-selection__choice {
+  color: #0f172a !important;
+  background: rgba(99, 102, 241, 0.25) !important;
+}
+
+/* Stronger shadow for dropdown contrast on dark pages */
+.select2-dropdown {
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.45) !important;
+}
+
+/* ===== Tabs\config_time.css ===== */
+/* ==========================================================================
+   Supporter Bot - Timezone & Multi-Clock UI Styles
+   - Time wrapper & layout
+   - Searchable timezone dropdown (input, list, items, empty state)
+   - Add clock action button
+   - Clock card display
+   ========================================================================== */
+
+/* ==========================================================================
+   Time Wrapper
+   ========================================================================== */
+
+.time-wrapper {
+  padding: 0.5rem 0;
+}
+
+/* ==========================================================================
+   Searchable Timezone Dropdown
+   - Wrapper, search input, dropdown list, items, and empty state
+   ========================================================================== */
+
+.timezone-select-wrapper {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  z-index: 10000000 !important; /* Higher than Select2's default 1051 and 999999 override */
+}
+
+.timezone-search-input {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: rgba(15, 23, 42, 0.7);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.5rem;
+  outline: none;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+}
+
+.timezone-search-input:focus {
+  border-color: rgba(99, 102, 241, 0.6);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.12);
+}
+
+.timezone-dropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 0.4rem);
+  z-index: 10000000 !important;
+  max-height: 300px;
+  overflow: auto;
+  background: #0f172a;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.6);
+  padding: 0.35rem;
+}
+
+.timezone-item {
+  padding: 0.5rem 0.75rem;
+  color: #cbd5e1;
+  cursor: pointer;
+  border-radius: 0.375rem;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+.timezone-item:hover,
+.timezone-item.highlighted {
+  background: rgba(99, 102, 241, 0.12);
+  color: #fff;
+}
+
+.timezone-empty {
+  padding: 0.5rem 0.75rem;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+/* ==========================================================================
+   Add Clock Button
+   ========================================================================== */
+
+.btn-add-clock {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #3b82f6, #2563eb); /* Blue */
+  color: white;
+  font-weight: 700;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+}
+
+/* ==========================================================================
+   Clock Cards (Per-Timezone Display)
+   ========================================================================== */
+
+.clock-card {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+/* ===== Tabs\config_youtube.css ===== */
+/* ==========================================================================
+   Supporter Bot - YouTube Integration & Toast Styles
+   - YouTube section wrapper, add button, and cards
+   - Variable badges for template placeholders
+   - Modal layout tweaks for YouTube steps
+   - Toast notifications (success / error)
+   - Loading spinner helper
+   ========================================================================== */
+
+/* ==========================================================================
+   YouTube Section Wrapper & Add Button
+   ========================================================================== */
+
+.youtube-wrapper {
+  padding: 0.5rem 0;
+}
+
+.btn-add-yt {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  color: white;
+  font-weight: 700;
+  font-size: 0.8rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+}
+
+.btn-add-yt:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+}
+
+/* ==========================================================================
+   YouTube Channel Cards & Avatars
+   ========================================================================== */
+
+.yt-card {
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.yt-card:hover {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(239, 68, 68, 0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.yt-icon-wrapper {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: white;
+  flex-shrink: 0;
+}
+
+.yt-thumb {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(239, 68, 68, 0.3);
+}
+
+/* ==========================================================================
+   Variable Badge Chips (Template Placeholders)
+   ========================================================================== */
+
+.var-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  background: rgba(99, 102, 241, 0.1);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 0.375rem;
+  font-size: 0.7rem;
+  font-family: "JetBrains Mono", monospace;
+  color: #a5b4fc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.var-badge:hover {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: rgba(99, 102, 241, 0.4);
+}
+
+/* ==========================================================================
+   YouTube Modal Layout Tweaks
+   ========================================================================== */
+
+#yt-step-2 > div:first-child {
+  margin-bottom: 1.5rem;
+}
+
+#ytModal .custom-scrollbar {
+  padding-top: 0.5rem;
+}
+
+#yt-step-2 {
+  padding-top: 1rem;
+}
+
+/* ==========================================================================
+   Toast Notifications (Success & Error)
+   ========================================================================== */
+
+.toast {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  padding: 1rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  transform: translateX(400px);
+  opacity: 0;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  backdrop-filter: blur(10px);
+  border: 1px solid;
+}
+
+.toast.show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.toast-success {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.toast-error {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* ==========================================================================
+   Loading Spinner Helper
+   ========================================================================== */
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fa-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ===== partials\navbar.css ===== */
+/* ==========================================================================
+   Supporter Bot - Navbar Styles
+   - Glass navigation bar appearance
+   - Scroll state transition effects
+   ========================================================================== */
+
+/* ==========================================================================
+   Glass Navigation Bar
+   ========================================================================== */
+
+.nav-glass {
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ==========================================================================
+   Navbar Scroll State (Shrink / Elevation)
+   ========================================================================== */
+
+#navbar {
+  transition: all 0.3s ease-in-out;
+}
+
+#navbar.scrolled {
+  background: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== partials\privacy_policy.css ===== */
+/* ==========================================================================
+   Supporter Bot - Privacy Policy Page Styles
+   - Shared legal layout (container, header, metadata)
+   - Section headings & body text
+   - List styling
+   - Dark mode adjustments
+   ========================================================================== */
+
+/* ==========================================================================
+   Legal Container & Header
+   ========================================================================== */
+
+.legal-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.legal-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.legal-header h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.last-updated {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ==========================================================================
+   Legal Content Sections & Typography
+   ========================================================================== */
+
+.legal-content section {
+  margin-bottom: 2.5rem;
+}
+
+.legal-content h2 {
+  color: var(--brand-purple-light);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.legal-content p,
+.legal-content ul {
+  color: var(--text-secondary);
+  line-height: 1.7;
+  font-size: 1.05rem;
+}
+
+/* ==========================================================================
+   Legal Lists (Bullets & Spacing)
+   ========================================================================== */
+
+.legal-content ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.legal-content ul li {
+  margin-bottom: 0.5rem;
+}
+
+/* ==========================================================================
+   Dark Mode Overrides
+   ========================================================================== */
+
+.dark .legal-content h2 {
+  border-color: var(--glass-border);
+}
+
+/* ===== partials\terms_of_service.css ===== */
+/* ==========================================================================
+   Supporter Bot - Legal Pages (Terms / Privacy) Styles
+   - Container layout & header
+   - Section headings & body text
+   - Lists & spacing
+   - Dark mode adjustments
+   ========================================================================== */
+
+/* ==========================================================================
+   Legal Container & Header
+   ========================================================================== */
+
+.legal-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
+}
+
+.legal-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.legal-header h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.last-updated {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ==========================================================================
+   Legal Content Sections & Typography
+   ========================================================================== */
+
+.legal-content section {
+  margin-bottom: 2.5rem;
+}
+
+.legal-content h2 {
+  color: var(--brand-purple-light);
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.legal-content p,
+.legal-content ul {
+  color: var(--text-secondary);
+  line-height: 1.7;
+  font-size: 1.05rem;
+}
+
+/* ==========================================================================
+   Legal Lists (Bullets & Spacing)
+   ========================================================================== */
+
+.legal-content ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-top: 0.5rem;
+}
+
+.legal-content ul li {
+  margin-bottom: 0.5rem;
+}
+
+/* ==========================================================================
+   Dark Mode Overrides
+   ========================================================================== */
+
+.dark .legal-content h2 {
+  border-color: var(--glass-border);
+}
+

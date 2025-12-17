@@ -1,0 +1,144 @@
+<!--
+  Component: Level Role Rewards Panel
+  Location: Dashboard → Leveling → Role Rewards Sub-Tab
+
+  Purpose:
+    - Display and manage XP-based role rewards for the server.
+    - Automatically assign Discord roles when users reach configured levels.
+    - Provide a modal workflow to add new rewards.
+
+  Server-Side Data (Jinja Context):
+    - level_rewards:
+        • reward.level     → Integer level threshold.
+        • reward.role_name → Name of the Discord role granted at that level.
+
+  Frontend Integration (JavaScript Hooks):
+    - #rewardList        → Container where existing rewards are rendered.
+    - .reward-delete-btn → Buttons bound to delete a specific reward.
+    - #addRewardBtn      → Opens the "Add Role Reward" modal.
+    - #rewardModal       → Modal container for creating a new reward.
+    - #newRewardLevel    → Input for required level.
+    - #newRewardRole     → Select populated with available guild roles.
+    - #btnSaveReward     → Triggers saveLevelReward() to persist a new reward.
+-->
+
+<div class="reward-container">
+  <!-- Header: Section title and primary action -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h3 class="font-bold text-lg">Role Rewards</h3>
+      <p class="text-sm text-slate-500">
+        Automatically assign roles when users reach specific levels
+      </p>
+    </div>
+    <button
+      class="btn-add-reward"
+      id="addRewardBtn"
+      onclick="openRewardModal()"
+    >
+      <i class="fas fa-plus"></i>
+      Add Reward
+    </button>
+  </div>
+
+  <!-- Configured rewards list (rendered from level_rewards) -->
+  <div class="space-y-3" id="rewardList">
+    {% for reward in level_rewards %}
+    <div
+      class="reward-card animate-popIn"
+      style="animation-delay: '{{ loop.index * 0.1 }}s'"
+    >
+      <div class="reward-level">
+        <span class="text-2xl font-black text-indigo-400"
+          >{{ reward.level }}</span
+        >
+        <span class="text-xs text-slate-500 uppercase">Level</span>
+      </div>
+      <div class="reward-arrow text-slate-600">
+        <i class="fas fa-arrow-right"></i>
+      </div>
+      <div class="reward-role flex items-center gap-3">
+        <div
+          class="w-4 h-4 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"
+        ></div>
+        <div>
+          <span class="font-bold">{{ reward.role_name }}</span>
+          <span class="text-xs text-slate-500 block">Role Reward</span>
+        </div>
+      </div>
+      <button class="reward-delete-btn" title="Delete reward">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Empty state: shown when no rewards are configured -->
+  {% if not level_rewards %}
+  <div class="text-center py-12 text-slate-500">
+    <i class="fas fa-gift text-4xl mb-3 opacity-30"></i>
+    <p>No role rewards configured yet.</p>
+    <p class="text-sm">Click "Add Reward" to create your first level reward!</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Modal: Add new role reward -->
+<div id="rewardModal" class="modal hidden">
+  <div class="modal-overlay" onclick="closeRewardModal()"></div>
+  <div class="modal-content">
+    <!-- Modal header -->
+    <div class="flex justify-between items-center mb-6">
+      <h3 class="text-xl font-bold">Add Role Reward</h3>
+      <button
+        onclick="closeRewardModal()"
+        class="text-slate-400 hover:text-white transition-colors"
+      >
+        <i class="fas fa-times text-xl"></i>
+      </button>
+    </div>
+
+    <!-- Modal body: reward configuration inputs -->
+    <div class="space-y-4">
+      <div>
+        <label class="block mb-2 font-medium">Level Required</label>
+        <input
+          type="number"
+          id="newRewardLevel"
+          min="1"
+          max="100"
+          placeholder="e.g., 5"
+          class="w-full bg-brand-dark/50 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-indigo-500"
+        />
+      </div>
+
+      <div>
+        <label class="block mb-2 font-medium">Role to Assign</label>
+        <select
+          id="newRewardRole"
+          class="w-full bg-brand-dark/50 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:border-indigo-500"
+        >
+          <option value="" disabled selected>Loading roles...</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Modal footer: primary actions -->
+    <div class="flex justify-end gap-3 mt-6">
+      <button
+        onclick="closeRewardModal()"
+        class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg transition-colors"
+      >
+        Cancel
+      </button>
+      <button
+        id="btnSaveReward"
+        onclick="saveLevelReward()"
+        class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 rounded-lg font-semibold transition-colors"
+      >
+        <i class="fas fa-save mr-2"></i>
+        Save Reward
+      </button>
+    </div>
+  </div>
+</div>

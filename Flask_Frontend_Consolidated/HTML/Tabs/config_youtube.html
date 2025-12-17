@@ -1,0 +1,49 @@
+<!--
+  Component: YouTube Notifications Panel
+  Description:
+    - Dashboard section for managing YouTube notification channels.
+    - Shows a header, helper description text, and a container
+      where configured YouTube channels will be rendered dynamically.
+  Structure:
+    - Header:
+        - Icon + title ("YouTube Notifications").
+        - Short explanatory subtitle about alerts for new uploads.
+    - Toolbar:
+        - Left: informational note indicating RSS feeds are used.
+        - Right: "Add Channel" button to open channel-add flow.
+    - Content:
+        - #youtubeList acts as a dynamic list container populated
+          via JavaScript with configured YouTube channel entries.
+  Integration Notes:
+    - Expected to be used inside a dashboard/settings page.
+    - JavaScript:
+        - The button with id="addYoutubeBtn" should be bound to logic
+          that opens a modal or form for adding a new YouTube channel.
+        - The div with id="youtubeList" should be populated at runtime
+          with the current server's YouTube notification configurations.
+-->
+
+<div id="view-config-youtube" class="youtube-wrapper">
+  <h2 class="text-2xl font-bold mb-2 flex items-center gap-3">
+    <i class="fab fa-youtube text-red-400"></i>
+    YouTube Notifications
+  </h2>
+  <p class="text-slate-500 mb-6">
+    Get alerted when your favorite channels upload new videos.
+  </p>
+
+  <div class="flex justify-between items-center mb-6">
+    <div class="text-sm text-slate-500">
+      <i class="fas fa-rss mr-1"></i>
+      Using RSS feeds for reliable notifications
+    </div>
+    <button class="btn-add-yt" id="addYoutubeBtn">
+      <i class="fas fa-plus"></i>
+      Add Channel
+    </button>
+  </div>
+
+  <div class="space-y-4" id="youtubeList">
+    <!-- Dynamic Content -->
+  </div>
+</div>

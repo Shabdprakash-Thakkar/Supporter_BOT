@@ -1,0 +1,60 @@
+<!--
+  Component: Channel Restrictions Management Panel
+  Description:
+    - Dashboard section for configuring automated content rules on specific channels.
+    - Allows users to:
+        • View all existing channel restrictions (loaded dynamically).
+        • Open a modal to create new restrictions (e.g., no links, images-only).
+  Structure:
+    - Header:
+        • Icon + title ("Channel Restrictions") and short description.
+    - Toolbar:
+        • Left: informational note indicating automatic enforcement.
+        • Right: "Add Restriction" button that triggers restriction creation flow.
+    - Restrictions List:
+        • #restrictionsList container where restriction cards/rows are injected by JavaScript.
+        • Shows a loading placeholder until data is fetched.
+  Integration Notes:
+    - JavaScript is expected to:
+        • Bind #addRestrictionBtn to open the restriction creation UI (modal or separate section).
+        • Replace the loading placeholder in #restrictionsList with actual restriction entries.
+-->
+
+<div class="restriction-wrapper">
+  <h2 class="text-2xl font-bold mb-2 flex items-center gap-3">
+    <i class="fas fa-ban text-orange-400"></i>
+    Channel Restrictions
+  </h2>
+  <p class="text-slate-500 mb-6">
+    Set rules for specific channels like blocking links or allowing only images.
+  </p>
+
+  <!--
+    Toolbar
+    - Left: informational label about automatic enforcement.
+    - Right: primary action button to add a new restriction.
+  -->
+  <div class="flex justify-between items-center mb-6">
+    <div class="text-sm text-slate-500">
+      <i class="fas fa-shield-alt mr-1"></i>
+      Rules are enforced automatically
+    </div>
+    <button class="btn-add-res" id="addRestrictionBtn">
+      <i class="fas fa-plus"></i>
+      Add Restriction
+    </button>
+  </div>
+
+  <!--
+    Restrictions List Container
+    - Element: #restrictionsList
+    - Purpose:
+        • Serve as the parent node for dynamically rendered restriction items.
+        • Initially shows a loading message until data is fetched via API.
+    - Expected JS behavior:
+        • Replace the placeholder paragraph with one or more restriction components/cards.
+  -->
+  <div class="space-y-4" id="restrictionsList">
+    <p class="text-slate-400 text-center py-8">Loading restrictions...</p>
+  </div>
+</div>

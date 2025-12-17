@@ -1,0 +1,61 @@
+<!--
+  Component: Server Leaderboard Panel
+  Location: Dashboard → Leveling → Leaderboard Sub-Tab
+
+  Purpose:
+    - Display the top members in the server ranked by XP.
+    - Provide a quick view of rank, level, and XP for high-performing members.
+    - Offer a link to open the full leaderboard view in a separate tab.
+
+  Server-Side Data (Jinja Context):
+    - server.id → Guild/server identifier used to build the "View Full Leaderboard" URL.
+
+  Frontend Integration (JavaScript Hooks):
+    - #refreshLeaderboardBtn → Triggers a refresh of leaderboard data via external JS.
+    - #leaderboardBody        → Table body that is populated dynamically with leaderboard rows.
+-->
+
+<div id="view-level-leaderboard" class="leaderboard-wrapper">
+  <!-- Header: Section title and refresh action -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h3 class="font-bold text-lg">Server Leaderboard</h3>
+      <p class="text-sm text-slate-500">Top members ranked by XP</p>
+    </div>
+    <button class="btn-refresh" id="refreshLeaderboardBtn">
+      <i class="fas fa-sync-alt"></i>
+      Refresh
+    </button>
+  </div>
+
+  <!-- Leaderboard table: populated by external JavaScript -->
+  <div class="leaderboard-card">
+    <table class="leaderboard-table">
+      <thead>
+        <tr>
+          <th class="w-16">Rank</th>
+          <th>Member</th>
+          <th>Level</th>
+          <th>XP</th>
+        </tr>
+      </thead>
+      <tbody id="leaderboardBody">
+        <!-- Default loading state before data is injected -->
+        <tr>
+          <td colspan="4" class="text-center py-8 text-slate-500">
+            <i class="fas fa-spinner fa-spin mr-2"></i>
+            Loading leaderboard...
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Link to open full leaderboard in a new tab -->
+  <div class="mt-4 text-center">
+    <a href="/dashboard/server/{{ server.id }}/view-leaderboard" target="_blank"
+      class="text-sm text-indigo-400 hover:text-indigo-300 transition-colors inline-flex items-center">
+      View Full Leaderboard <i class="fas fa-external-link-alt ml-1"></i>
+    </a>
+  </div>
+</div>

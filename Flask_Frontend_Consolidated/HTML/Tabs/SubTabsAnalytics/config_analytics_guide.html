@@ -1,0 +1,213 @@
+<!--
+  Page: Analytics Logic Guide
+  Purpose:
+    - Explain how SupperBOT's analytics pipeline works.
+    - Document how server health, engagement tiers, and growth metrics are calculated.
+    - Clarify what data is stored and how member privacy is handled.
+
+  Key Sections:
+    1) Header
+       - Page title, short description, and a close button for the guide window.
+    2) Intro Card ("How It Works")
+       - High-level description of data sources and weekly snapshot schedule.
+    3) Health Score Logic
+       - Breakdown of the 0–100 health score into core weighting components.
+    4) Engagement Tiers
+       - Definitions of Elite / Active / Casual / Inactive member groups.
+    5) Data & Privacy
+       - Summary of what is tracked, what is NOT stored, and how snapshots are retained.
+
+      Integration Notes:
+    - The "Close Guide" button is expected to be used in a popup/tab context
+        and relies on `window.close()` to dismiss the guide.
+    - Styling for this page is defined in:
+        /CSS/Tabs/SubTabsAnalytics/guide.css
+    - Icons are provided via Font Awesome; typography via Google Fonts (Outfit).
+-->
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Analytics Guide - SupperBOT</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='app_hcj.css') }}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+</head>
+
+<body id="page-analytics-guide">
+  <div class="guide-container">
+    <!-- Section: Page header & close control -->
+    <header class="guide-header">
+      <div class="header-content">
+        <div class="icon-wrapper">
+          <i class="fas fa-book-open"></i>
+        </div>
+        <div class="text-content">
+          <h1>Analytics Logic Guide</h1>
+          <p>Understanding how SupperBOT evaluates your community</p>
+        </div>
+      </div>
+      <button onclick="window.close()" class="close-btn">
+        <i class="fas fa-times"></i> Close Guide
+      </button>
+    </header>
+
+    <!-- Section: Main content grid (intro, logic, tiers, privacy) -->
+    <main class="guide-grid">
+      <!-- Card: High-level analytics overview -->
+      <section class="card intro-card">
+        <h2><i class="fas fa-info-circle"></i> How It Works</h2>
+        <p>
+          SupperBOT Analytics processes real-time events from your server to
+          generate actionable insights. Data is collected continuously and
+          aggregated into weekly snapshots every Monday at 00:00 UTC.
+        </p>
+        <div class="data-points">
+          <div class="point">
+            <i class="fas fa-database"></i>
+            <span>Message Activity</span>
+          </div>
+          <div class="point">
+            <i class="fas fa-users"></i>
+            <span>Member Growth</span>
+          </div>
+          <div class="point">
+            <i class="fas fa-star"></i>
+            <span>XP & Leveling</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Card: Server health score formula & scale -->
+      <section class="card logic-card highlight">
+        <h2><i class="fas fa-heartbeat"></i> Server Health Score</h2>
+        <p class="subtitle">
+          A 0-100 metric calculated from three key pillars:
+        </p>
+
+        <div class="formula-breakdown">
+          <div class="formula-item">
+            <div class="score-badge activity">40%</div>
+            <div class="details">
+              <h3>Activity Rate</h3>
+              <p>
+                Messages per member ratio. High scores require consistent
+                daily conversations relative to server size.
+              </p>
+            </div>
+          </div>
+
+          <div class="formula-item">
+            <div class="score-badge engagement">30%</div>
+            <div class="details">
+              <h3>Engagement Depth</h3>
+              <p>
+                Percentage of "Active" members vs "Inactive". Measures how
+                many people actually participate.
+              </p>
+            </div>
+          </div>
+
+          <div class="formula-item">
+            <div class="score-badge growth">30%</div>
+            <div class="details">
+              <h3>Growth & Retention</h3>
+              <p>
+                New member joins minus leaves. Positive growth boosts this
+                score significantly.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="health-scale">
+          <div class="scale-item low">0-39 Low</div>
+          <div class="scale-item med">40-69 Fair</div>
+          <div class="scale-item high">70-89 Good</div>
+          <div class="scale-item elite">90+ Elite</div>
+        </div>
+      </section>
+
+      <!-- Card: Engagement tier definitions -->
+      <section class="card tiers-card">
+        <h2><i class="fas fa-layer-group"></i> Engagement Tiers</h2>
+        <p class="subtitle">
+          Members are categorized based on their weekly activity intensity:
+        </p>
+
+        <div class="tier-list">
+          <div class="tier-item elite-tier">
+            <div class="icon">🏆</div>
+            <div class="tier-info">
+              <h3>Elite (Top 5%)</h3>
+              <p>
+                The core pillars of your community. They drive conversations
+                and have the highest XP gain.
+              </p>
+            </div>
+          </div>
+
+          <div class="tier-item active-tier">
+            <div class="icon">⚡</div>
+            <div class="tier-info">
+              <h3>Active (20%)</h3>
+              <p>
+                Regular participants who contribute frequently but aren't
+                online 24/7.
+              </p>
+            </div>
+          </div>
+
+          <div class="tier-item casual-tier">
+            <div class="icon">👤</div>
+            <div class="tier-info">
+              <h3>Casual (50%)</h3>
+              <p>
+                Lurkers or occasional posters. They read more than they write.
+              </p>
+            </div>
+          </div>
+
+          <div class="tier-item inactive-tier">
+            <div class="icon">💤</div>
+            <div class="tier-info">
+              <h3>Inactive (25%)</h3>
+              <p>Members with zero activity in the last 7 days.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Card: Data handling, storage and privacy guarantees -->
+      <section class="card privacy-card">
+        <h2><i class="fas fa-shield-alt"></i> Data & Privacy</h2>
+        <ul>
+          <li>
+            <i class="fas fa-check"></i> Only message counts and timestamps
+            are stored.
+          </li>
+          <li>
+            <i class="fas fa-check"></i> Message content is
+            <strong>never</strong> saved.
+          </li>
+          <li>
+            <i class="fas fa-check"></i> Individual user stats are public on
+            the leaderboard.
+          </li>
+          <li>
+            <i class="fas fa-check"></i> Snapshots are retained for historical
+            comparison.
+          </li>
+        </ul>
+      </section>
+    </main>
+  </div>
+  <script src="{{ url_for('static', filename='app_hcj.js') }}"></script>
+</body>
+
+</html>

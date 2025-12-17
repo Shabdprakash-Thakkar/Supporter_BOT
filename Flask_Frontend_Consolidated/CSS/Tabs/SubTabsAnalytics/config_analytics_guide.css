@@ -1,0 +1,357 @@
+/* ==========================================================================
+   Supporter Bot - Analytics Health Score Guide Styles
+   - Root theme tokens & global reset
+   - Page background & container layout
+   - Header, icon, and close button
+   - Guide grid + generic cards
+   - Intro metrics & data point chips
+   - Formula / logic highlight & health scale
+   - Engagement tiers list
+   - Privacy explanation list
+   - Responsive adjustments
+   ========================================================================== */
+
+/* ==========================================================================
+   Root Palette & Global Reset
+   ========================================================================== */
+
+:root {
+  --bg-dark: #0f172a;
+  --card-bg: rgba(30, 41, 59, 0.7);
+  --text-primary: #f8fafc;
+  --text-secondary: #94a3b8;
+  --accent-color: #6366f1;
+  --accent-glow: rgba(99, 102, 241, 0.3);
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Outfit", sans-serif;
+}
+
+/* ==========================================================================
+   Page Background & Main Container
+   ========================================================================== */
+
+body {
+  background-color: var(--bg-dark);
+  color: var(--text-primary);
+  min-height: 100vh;
+  padding: 2rem;
+  background-image: radial-gradient(
+      circle at 10% 20%,
+      rgba(99, 102, 241, 0.15) 0%,
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 90% 80%,
+      rgba(168, 85, 247, 0.15) 0%,
+      transparent 40%
+    );
+}
+
+.guide-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* ==========================================================================
+   Guide Header: Title, Icon & Close Button
+   ========================================================================== */
+
+.guide-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.icon-wrapper {
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--accent-color), #a855f7);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  box-shadow: 0 10px 20px var(--accent-glow);
+}
+
+.text-content h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 0.2rem;
+}
+
+.text-content p {
+  color: var(--text-secondary);
+}
+
+.close-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-secondary);
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.close-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+}
+
+/* ==========================================================================
+   Guide Grid Layout & Generic Card Styling
+   ========================================================================== */
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+}
+
+.card {
+  background: var(--card-bg);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+}
+
+.card h2 {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.card h2 i {
+  color: var(--accent-color);
+}
+
+.subtitle {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+/* ==========================================================================
+   Intro Card & Data Points
+   ========================================================================== */
+
+.intro-card {
+  grid-column: span 2;
+}
+
+.data-points {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.point {
+  background: rgba(255, 255, 255, 0.03);
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.point i {
+  color: #a855f7;
+}
+
+/* ==========================================================================
+   Logic Highlight Card & Score Scale
+   ========================================================================== */
+
+.highlight {
+  background: linear-gradient(
+    145deg,
+    rgba(30, 41, 59, 0.9),
+    rgba(15, 23, 42, 0.9)
+  );
+  border: 1px solid var(--accent-color);
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.1);
+}
+
+.formula-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.formula-item {
+  display: flex;
+  gap: 1rem;
+}
+
+.score-badge {
+  min-width: 50px;
+  height: 50px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+}
+
+.activity {
+  background: rgba(99, 102, 241, 0.2);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.3);
+}
+.engagement {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+.growth {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.details h3 {
+  font-size: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+.details p {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.health-scale {
+  margin-top: 2rem;
+  display: flex;
+  gap: 5px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.scale-item {
+  flex: 1;
+  text-align: center;
+  padding: 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.6);
+}
+
+.low {
+  background: #ef4444;
+}
+.med {
+  background: #eab308;
+}
+.high {
+  background: #22c55e;
+}
+.elite {
+  background: #3b82f6;
+}
+
+/* ==========================================================================
+   Engagement Tiers Panel
+   ========================================================================== */
+
+.tier-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tier-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 12px;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+}
+
+.tier-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(5px);
+}
+
+.tier-item .icon {
+  font-size: 1.5rem;
+}
+
+.tier-info h3 {
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.tier-info p {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Privacy Card & Bullet List
+   ========================================================================== */
+
+.privacy-card ul {
+  list-style: none;
+}
+
+.privacy-card li {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.privacy-card i {
+  color: var(--success);
+}
+
+/* ==========================================================================
+   Responsive Layout Adjustments
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .guide-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .intro-card {
+    grid-column: auto;
+  }
+
+  .data-points {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}

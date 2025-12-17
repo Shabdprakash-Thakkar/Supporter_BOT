@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<!--
+  File: server_config.html
+  Description: Guild configuration dashboard for Supporter Bot.
+  Purpose:
+    - Provides a multi-tab configuration UI for a single Discord server.
+    - Manages modules such as leveling, time channels, YouTube alerts,
+      channel restrictions, reminders, and analytics.
+  Stack & Integration:
+    - Flask + Jinja2 templating
+    - Tailwind CSS (CDN) + custom CSS
+    - Font Awesome icons
+    - jQuery + Select2 for enhanced selects
+    - Feature-specific JS modules (per tab and sub-tab)
+  Notes:
+    - Expects `server`, `guild_stats`, `total_members`, and `current_user`
+      to be provided by the Flask backend.
+    - Dark mode is the default theme; persisted via localStorage.
+-->
+
+<html lang="en" class="dark">
+
+<head>
+  <!-- ========== META & PAGE SETTINGS ========== -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Configure {{ server.name }} - Supporter Bot</title>
+
+  <!-- ========== FAVICONS ========== -->
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='Assets/quality-32px.png') }}" />
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='Assets/quality-16px.png') }}" />
+
+  <!-- ========== CORE EXTERNAL LIBRARIES ========== -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Flatpickr (Date Picker) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+
+  <!-- ========== TAILWIND CONFIGURATION ========== -->
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: { sans: ["Outfit", "sans-serif"] },
+          colors: {
+            brand: { purple: "#6366f1", dark: "#0f172a", card: "#1e293b" },
+          },
+        },
+      },
+    };
+  </script>
+
+  <!-- ========== THEME INITIALIZATION (DARK MODE) ========== -->
+  <script>
+    // Initialize theme before paint to prevent flash of incorrect theme
+    (function () {
+      const theme = localStorage.getItem("theme") || "dark";
+      if (theme === "dark") {
+        document.documentElement.classList.add("dark");
+      }
+    })();
+  </script>
+
+  <!-- ========== APPLICATION STYLESHEETS ========== -->
+  <!-- Core server configuration layout -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/server_config.css') }}?v=2" />
+  <!-- Tab containers -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Tabs/config_level.css') }}?v=2" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Tabs/SubTabsLevel/config_level_reward.css') }}?v=2" />
+  <link rel="stylesheet"
+    href="{{ url_for('static', filename='CSS/Tabs/SubTabsLevel/config_level_leaderboard.css') }}?v=2" />
+  <link rel="stylesheet"
+    href="{{ url_for('static', filename='CSS/Tabs/SubTabsLevel/config_level_setting.css') }}?v=2" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Tabs/config_time.css') }}?v=2" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Tabs/config_youtube.css') }}?v=2" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Tabs/config_restriction.css') }}?v=2" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Tabs/config_reminder.css') }}?v=2" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/Tabs/config_analytics.css') }}?v=2" />
+
+  <!-- ========== THIRD-PARTY COMPONENT STYLES ========== -->
+  <!-- Select2 (searchable select inputs) -->
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+  <!-- ========== INLINE SELECT2 DARK THEME OVERRIDES ========== -->
+  <style>
+    /*
+        Purpose:
+          - Apply strong, high-contrast Select2 styling for dark theme.
+          - Ensure dropdowns remain readable inside modals or semi-transparent containers.
+        Scope:
+          - Global Select2 dropdown containers, options, search field, and multi-select tokens.
+      */
+
+    /* Ensure Select2 dropdowns always appear above other overlays */
+    .select2-container,
+    .select2-container--open {
+      z-index: 999999 !important;
+    }
+
+    /* Enforce dropdown appearance and positioning for dark theme */
+    .select2-container--open .select2-dropdown,
+    .select2-dropdown {
+      position: absolute !important;
+      top: auto !important;
+      left: auto !important;
+      background-color: #1e293b !important;
+      /* Dark slate background */
+      color: #f8fafc !important;
+      /* Light text */
+      opacity: 1 !important;
+      filter: none !important;
+      border: 1px solid #334155 !important;
+      border-radius: 0.5rem !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5) !important;
+      -webkit-backdrop-filter: none !important;
+      backdrop-filter: none !important;
+    }
+
+    /* Prevent dropdown from inheriting parent opacity or filters */
+    .select2-dropdown,
+    .select2-dropdown * {
+      opacity: 1 !important;
+      filter: none !important;
+      color: inherit !important;
+      background: transparent !important;
+    }
+
+    /* Base styling for options */
+    .select2-container--default .select2-results__option {
+      color: #cbd5e1 !important;
+      /* Slate 300 */
+      background-color: #1e293b !important;
+      /* Match dropdown bg */
+      padding: 8px 12px !important;
+      font-weight: 500 !important;
+      opacity: 1 !important;
+    }
+
+    /* Hover, highlight, and selected states */
+    .select2-container--default .select2-results__option--highlighted,
+    .select2-container--default .select2-results__option:hover,
+    .select2-container--default .select2-results__option[aria-selected="true"] {
+      background-color: #6366f1 !important;
+      /* Indigo 500 */
+      color: #ffffff !important;
+      opacity: 1 !important;
+    }
+
+    /* Disabled options */
+    .select2-container--default .select2-results__option[aria-disabled="true"],
+    .select2-container--default .select2-results__option.select2-results__option--disabled {
+      color: #475569 !important;
+      background-color: #1e293b !important;
+      opacity: 0.5 !important;
+    }
+
+    /* Multi-select choice badges */
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+      color: #e2e8f0 !important;
+      background: rgba(99, 102, 241, 0.25) !important;
+      border: 1px solid rgba(99, 102, 241, 0.3) !important;
+      padding: 4px 8px !important;
+    }
+
+    /* Search input inside dropdown */
+    .select2-container--default .select2-search--dropdown .select2-search__field {
+      background-color: #0f172a !important;
+      color: #ffffff !important;
+      border: 1px solid #334155 !important;
+      border-radius: 0.375rem !important;
+      padding: 6px 10px !important;
+    }
+
+    .select2-container--default .select2-search--dropdown .select2-search__field:focus {
+      border-color: #6366f1 !important;
+      outline: none !important;
+      box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2) !important;
+    }
+  </style>
+</head>
+
+<body
+  class="bg-white dark:bg-brand-dark text-slate-900 dark:text-white h-screen overflow-hidden flex flex-col md:flex-row">
+  <!-- ========== SIDEBAR: SERVER NAVIGATION & USER INFO ========== -->
+  <aside class="w-full md:w-72 bg-brand-card/80 backdrop-blur-xl border-r border-slate-700/50 flex flex-col z-20">
+    <!-- Sidebar header with back link and server name -->
+    <div class="h-20 flex items-center px-6 border-b border-slate-700/50">
+      <a href="/dashboard/profile" class="flex items-center gap-3 hover:opacity-80 transition-opacity group">
+        <i class="fas fa-arrow-left text-slate-400 group-hover:text-indigo-400 transition-colors"></i>
+        <div class="font-bold text-lg truncate group-hover:text-indigo-400 transition-colors cursor-pointer">
+          {{ server.name }}
+        </div>
+      </a>
+    </div>
+
+    <!-- Mobile menu toggle (visible on small screens) -->
+    <div class="md:hidden p-4 border-b border-slate-700/50 bg-slate-800/50 flex justify-between items-center">
+      <span class="text-sm font-bold text-slate-500">Menu</span>
+      <button id="mobileNavToggle" class="text-slate-400 hover:text-white">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+
+    <!-- Sidebar navigation: main and module tabs -->
+    <nav class="flex-grow overflow-y-auto p-4 space-y-2 hidden md:block" id="sidebarNav">
+      <button class="nav-item active" onclick="switchTab('general', this)" data-tab="general">
+        <i class="fas fa-cog"></i>
+        <span>General Settings</span>
+      </button>
+
+      <div class="nav-divider">Modules</div>
+
+      <button class="nav-item" onclick="switchTab('leveling', this)" data-tab="leveling">
+        <i class="fas fa-trophy text-yellow-400"></i>
+        <span>Leveling System</span>
+      </button>
+
+      <button class="nav-item" onclick="switchTab('time', this)" data-tab="time">
+        <i class="fas fa-clock text-blue-400"></i>
+        <span>Time Channels</span>
+      </button>
+
+      <button class="nav-item" onclick="switchTab('youtube', this)" data-tab="youtube">
+        <i class="fab fa-youtube text-red-400"></i>
+        <span>YouTube Alerts</span>
+      </button>
+
+      <button class="nav-item" onclick="switchTab('restriction', this)" data-tab="restrictions">
+        <i class="fas fa-ban text-orange-400"></i>
+        <span>Channel Restrictions</span>
+      </button>
+
+      <button class="nav-item" onclick="switchTab('reminder', this)" data-tab="reminders" id="btn-tab-reminder">
+        <i class="fas fa-bell text-green-400"></i>
+        <span>Smart Reminders</span>
+      </button>
+
+      <button class="nav-item" onclick="switchTab('analytics', this)" data-tab="analytics">
+        <i class="fas fa-chart-line text-indigo-400"></i>
+        <span>Analytics</span>
+      </button>
+    </nav>
+
+    <!-- Current user info (desktop only) -->
+    <div class="p-4 border-t border-slate-700/50 hidden md:flex items-center gap-3">
+      <img src="{{ current_user.get_avatar_url() }}" class="w-8 h-8 rounded-full ring-2 ring-indigo-500/30" />
+      <div class="text-sm font-bold truncate">
+        {{ current_user.username }}
+      </div>
+    </div>
+  </aside>
+
+  <!-- ========== MAIN CONTENT AREA ========== -->
+  <main class="flex-grow h-full overflow-y-auto relative bg-brand-dark/50">
+    <!-- Gradient header background -->
+    <div class="h-48 bg-gradient-to-r from-indigo-900 via-purple-900 to-slate-900 w-full absolute top-0 left-0 -z-10">
+    </div>
+
+    <div class="max-w-5xl mx-auto p-6 md:p-12 pt-16">
+      <!-- ========== SERVER HEADER & STATS SUMMARY ========== -->
+      <div class="flex flex-col md:flex-row items-start md:items-center gap-6 mb-6">
+        <!-- Server identity (icon / initials + name) -->
+        <div class="flex items-center gap-6">
+          {% if server.icon %}
+          <img src="https://cdn.discordapp.com/icons/{{ server.id }}/{{ server.icon }}.png"
+            class="w-24 h-24 rounded-3xl border-4 border-brand-dark shadow-2xl ring-4 ring-indigo-500/20" />
+          {% else %}
+          <div
+            class="w-24 h-24 rounded-3xl border-4 border-brand-dark shadow-2xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center text-3xl font-bold text-white ring-4 ring-indigo-500/20">
+            {{ server.name[:2] }}
+          </div>
+          {% endif %}
+          <div class="text-white">
+            <h1 class="text-3xl font-black">{{ server.name }}</h1>
+            <p class="opacity-70 text-sm">Server ID: {{ server.id }}</p>
+          </div>
+        </div>
+
+        <!-- Quick stats: members, growth, messages, refresh -->
+        <div class="flex flex-wrap gap-4 ml-auto">
+          <!-- Total Members -->
+          <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-4 min-w-[140px] border border-slate-700/50">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                <i class="fas fa-users text-white text-xl"></i>
+              </div>
+              <div>
+                <div id="totalMembers" class="text-2xl font-bold text-white">
+                  {{ total_members }}
+                </div>
+                <div class="text-xs text-slate-400 uppercase tracking-wide">
+                  Members
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- New Members This Week -->
+          <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-4 min-w-[140px] border border-slate-700/50">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-12 h-12 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                <i class="fas fa-user-plus text-white text-xl"></i>
+              </div>
+              <div>
+                <div id="newMembers" class="text-2xl font-bold text-white">
+                  {{ guild_stats.new_members_this_week }}
+                </div>
+                <div class="text-xs text-slate-400 uppercase tracking-wide">
+                  Growth
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Messages This Week -->
+          <div class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-4 min-w-[140px] border border-slate-700/50">
+            <div class="flex items-center gap-3">
+              <div
+                class="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+                <i class="fas fa-comments text-white text-xl"></i>
+              </div>
+              <div>
+                <div id="messagesCount" class="text-2xl font-bold text-white">
+                  {{ guild_stats.messages_this_week }}
+                </div>
+                <div class="text-xs text-slate-400 uppercase tracking-wide">
+                  Messages
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Manual refresh action -->
+          <button onclick="refreshAllData()" id="refreshBtn"
+            class="bg-slate-800/50 backdrop-blur-sm rounded-xl p-4 border border-slate-700/50 hover:bg-slate-700/50 transition-all hover:scale-105 group">
+            <i
+              class="fas fa-sync-alt text-indigo-400 text-2xl group-hover:rotate-180 transition-transform duration-500"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Weekly reset info (analytics context) -->
+      <div class="text-center mb-6">
+        <p class="text-xs text-slate-500 italic">
+          <i class="fas fa-info-circle mr-1"></i>
+          Growth and Messages reset every Monday at 00:00
+          <span id="resetTimezoneDisplay">UTC</span>
+        </p>
+      </div>
+
+      <script>
+        // Lightweight header-only analytics settings fetch for timezone label
+        (async function () {
+          try {
+            const guildId = "{{ server.id }}";
+            const response = await fetch(
+              `/api/analytics/${guildId}/settings`
+            );
+            if (response.ok) {
+              const data = await response.json();
+              if (data.weekly_reset_timezone) {
+                document.getElementById("resetTimezoneDisplay").textContent =
+                  data.weekly_reset_timezone;
+              }
+            }
+          } catch (e) {
+            console.log("Could not load timezone for header text", e);
+          }
+        })();
+      </script>
+
+      <!-- ========== CONFIGURATION TABS CONTAINER ========== -->
+      <div class="bg-brand-card/80 backdrop-blur-xl rounded-2xl shadow-xl border border-slate-700/50 min-h-[500px] p-8">
+        <div id="tab-general" class="content-tab">
+          {% include 'Tabs/config_general.html' %}
+        </div>
+
+        <div id="tab-leveling" class="content-tab hidden">
+          {% include 'Tabs/config_level.html' %}
+        </div>
+
+        <div id="tab-time" class="content-tab hidden">
+          {% include 'Tabs/config_time.html' %}
+        </div>
+
+        <div id="tab-youtube" class="content-tab hidden">
+          {% include 'Tabs/config_youtube.html' %}
+        </div>
+
+        <div id="tab-restriction" class="content-tab hidden">
+          {% include 'Tabs/config_restriction.html' %}
+        </div>
+
+        <div id="tab-reminder" class="content-tab hidden">
+          {% include 'Tabs/config_reminder.html' %}
+        </div>
+
+        <div id="tab-analytics" class="content-tab hidden">
+          {% include 'Tabs/config_analytics.html' %}
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ========== YOUTUBE ALERTS MODAL (TOP-LEVEL TO AVOID CLIPPING) ========== -->
+  <div id="ytModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div
+      class="bg-brand-card border border-slate-700 w-full max-w-2xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+      <!-- Modal header -->
+      <div class="p-6 border-b border-slate-700 flex justify-between items-center">
+        <h3 class="text-xl font-bold flex items-center gap-2">
+          <i class="fab fa-youtube text-red-500"></i>
+          <span id="ytModalTitle">Add YouTube Channel</span>
+        </h3>
+        <button onclick="closeYTModal()" class="text-slate-400 hover:text-white transition-colors">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Scrollable body content -->
+      <div class="p-6 overflow-y-auto custom-scrollbar">
+        <!-- Step 1: Search channel -->
+        <div class="mb-8">
+          <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Find Channel</label>
+          <div class="flex gap-2">
+            <input type="text" id="ytSearchInput" placeholder="Paste Channel URL, Handle (@handle), or ID"
+              class="flex-grow bg-brand-dark border border-slate-700 rounded-lg px-4 py-3 focus:border-red-500 focus:outline-none transition-colors text-white"
+              onkeypress="if(event.key === 'Enter') searchChannel()" />
+            <button onclick="searchChannel()"
+              class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-bold transition-all shadow-lg hover:shadow-red-500/20 active:scale-95">
+              <i class="fas fa-search"></i>
+            </button>
+          </div>
+          <p id="ytSearchError" class="text-red-400 text-sm mt-2 hidden">
+            <i class="fas fa-exclamation-circle mr-1"></i>Channel not found
+          </p>
+        </div>
+
+        <!-- Step 2: Configure alert -->
+        <div id="yt-step-2" class="hidden space-y-6 animate-fade-in">
+          <!-- Channel preview -->
+          <div class="bg-brand-dark/50 rounded-xl p-4 border border-slate-700 flex items-center gap-4">
+            <img id="ytPreviewImg" src="" class="w-16 h-16 rounded-full object-cover border-2 border-slate-600"
+              alt="Channel" />
+            <div>
+              <h4 id="ytPreviewName" class="font-bold text-lg text-white">
+                Channel Name
+              </h4>
+              <div class="flex gap-4 text-xs text-slate-400 mt-1">
+                <span><i class="fas fa-users mr-1"></i>
+                  <span id="ytPreviewSubs">0</span> Subs</span>
+                <span><i class="fas fa-video mr-1"></i>
+                  <span id="ytPreviewVids">0</span> Videos</span>
+              </div>
+              <div class="text-[10px] text-slate-600 font-mono mt-1" id="ytPreviewID">
+                UC...
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Destination channel -->
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Post To
+                Channel</label>
+              <select id="ytTargetChannel"
+                class="w-full bg-brand-dark border border-slate-700 rounded-lg px-4 py-3 focus:border-indigo-500 focus:outline-none transition-colors text-white appearance-none">
+                <option>Loading...</option>
+              </select>
+            </div>
+
+            <!-- Optional role mention -->
+            <div>
+              <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Mention Role
+                (Optional)</label>
+              <select id="ytMentionRole"
+                class="w-full bg-brand-dark border border-slate-700 rounded-lg px-4 py-3 focus:border-indigo-500 focus:outline-none transition-colors text-white appearance-none">
+                <option>None</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Custom notification message -->
+          <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Notification
+              Message</label>
+            <textarea id="ytCustomMsg" rows="6"
+              class="w-full bg-brand-dark border border-slate-700 rounded-lg px-4 py-3 focus:border-indigo-500 focus:outline-none transition-colors text-white font-mono text-sm resize-none">
+🔔 {@role} **{channel_name}** has uploaded a new video!
+              
+              {video_url}</textarea>
+            <div class="mt-4 p-4 bg-brand-dark/50 rounded-lg border border-slate-700/50">
+              <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                Available Variables
+              </h4>
+              <div class="flex flex-wrap gap-2">
+                <span class="var-badge" onclick="insertYTVar('{role}')">{role}</span>
+                <span class="var-badge" onclick="insertYTVar('{channel_name}')">{channel_name}</span>
+                <span class="var-badge" onclick="insertYTVar('{video_title}')">{video_title}</span>
+                <span class="var-badge" onclick="insertYTVar('{video_url}')">{video_url}</span>
+                <span class="var-badge" onclick="insertYTVar('{thumbnail}')">{thumbnail}</span>
+                <span class="var-badge" onclick="insertYTVar('{published_at}')">{published_at}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal footer actions -->
+      <div class="p-6 border-t border-slate-700 flex justify-end gap-3 bg-brand-dark/20 rounded-b-2xl">
+        <button onclick="closeYTModal()"
+          class="px-6 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all font-medium">
+          Cancel
+        </button>
+        <button id="btnSaveYT" onclick="saveYTConfig()
+            "
+          class="bg-indigo-500 hover:bg-indigo-600 text-white px-8 py-2 rounded-lg font-bold transition-all shadow-lg hover:shadow-indigo-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+          <i class="fas fa-save mr-2"></i>
+          <span id="btnSaveYTText">Save Changes</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== CHANNEL RESTRICTIONS MODAL ========== -->
+  <div id="resModal"
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div
+      class="bg-brand-card border border-slate-700 w-full max-w-3xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh]">
+      <!-- Modal header -->
+      <div class="p-6 border-b border-slate-700 flex justify-between items-center">
+        <h3 class="text-xl font-bold flex items-center gap-2">
+          <i class="fas fa-ban text-orange-400"></i>
+          <span id="resModalTitle">Add Restriction</span>
+        </h3>
+        <button onclick="closeResModal()" class="text-slate-400 hover:text-white transition-colors">
+          <i class="fas fa-times text-xl"></i>
+        </button>
+      </div>
+
+      <!-- Scrollable body with restriction configuration -->
+      <div class="p-6 overflow-y-auto custom-scrollbar space-y-6">
+        <!-- Hidden identifier used when editing an existing restriction -->
+        <input type="hidden" id="editResId" value="" />
+
+        <!-- Target text channel -->
+        <div>
+          <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+            <i class="fas fa-hashtag mr-1"></i> Target Channel
+          </label>
+          <select id="resTargetChannel"
+            class="w-full bg-brand-dark border border-slate-700 rounded-lg px-4 py-3 focus:border-orange-500 focus:outline-none transition-colors text-white appearance-none">
+            <option value="" disabled selected>Select Channel</option>
+          </select>
+        </div>
+
+        <!-- Restriction mode (legacy vs granular) -->
+        <div>
+          <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+            <i class="fas fa-shield-alt mr-1"></i> Restriction Mode
+          </label>
+          <select id="resModeSelect" onchange="switchRestrictionMode()"
+            class="w-full bg-brand-dark border border-slate-700 rounded-lg px-4 py-3 focus:border-orange-500 focus:outline-none transition-colors text-white appearance-none">
+            <option value="legacy">Legacy Mode</option>
+            <option value="granular">Granular Mode</option>
+          </select>
+          <p class="text-xs text-slate-500 mt-2">
+            <i class="fas fa-info-circle mr-1"></i> Choose between simple
+            presets or advanced granular control
+          </p>
+        </div>
+
+        <!-- Legacy preset-based configuration -->
+        <div id="legacyModeOptions" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+              <i class="fas fa-cog mr-1"></i> Restriction Type
+            </label>
+            <select id="resTypeSelect" onchange="applyResPreset()"
+              class="w-full bg-brand-dark border border-slate-700 rounded-lg px-4 py-3 focus:border-orange-500 focus:outline-none transition-colors text-white appearance-none">
+              <option value="block_invites">Block Discord Invites</option>
+              <option value="block_all_links">Block All Links</option>
+              <option value="media_only">Media Only (No Text)</option>
+              <option value="text_only">Text Only (No Media)</option>
+            </select>
+            <p class="text-xs text-slate-500 mt-2">
+              <i class="fas fa-info-circle mr-1"></i> Presets automatically
+              configure content restrictions
+            </p>
+          </div>
+        </div>
+
+        <!-- Granular bitflag-based configuration -->
+        <div id="granularModeOptions" class="hidden space-y-4">
+          <!-- Allowed content configuration -->
+          <div>
+            <h4 class="text-xs font-bold text-green-400 uppercase tracking-wider mb-2">
+              ✓ Allowed Content
+            </h4>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="allow-flag" data-bit="1" checked />
+                <span>Text Messages</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="allow-flag" data-bit="2" checked />
+                <span>Discord Invites</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="allow-flag" data-bit="4" checked />
+                <span>Media Links</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="allow-flag" data-bit="8" checked />
+                <span>All Links</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="allow-flag" data-bit="16" checked />
+                <span>Media Files</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="allow-flag" data-bit="32" checked />
+                <span>Other Files</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="allow-flag" data-bit="64" checked />
+                <span>Embeds</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="allow-flag" data-bit="128" checked />
+                <span>Social Media Links</span>
+              </label>
+            </div>
+            <p class="text-xs text-slate-500 mt-2">
+              <i class="fas fa-info-circle mr-1"></i>
+              Media Links = URLs ending with .png, .jpg, .jpeg, .mp3, .mp4,
+              .wav, .mkv, etc. | Media Files = All images, audio, video
+              attachments | All Links = Any links, all links include | Social
+              Media = Instagram, YouTube, TikTok, Facebook, Twitter/X, Twitch,
+              Snapchat, Quora, Reddit, Telegram
+            </p>
+          </div>
+
+          <!-- Blocked content configuration -->
+          <div>
+            <h4 class="text-xs font-bold text-red-400 uppercase tracking-wider mb-2">
+              ✗ Blocked Content
+            </h4>
+            <div class="grid grid-cols-2 gap-2">
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="block-flag" data-bit="1" />
+                <span>Text Messages</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="block-flag" data-bit="2" />
+                <span>Discord Invites</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="block-flag" data-bit="4" />
+                <span>Media Links</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="block-flag" data-bit="8" />
+                <span>All Links</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="block-flag" data-bit="16" />
+                <span>Media Files</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="block-flag" data-bit="32" />
+                <span>Other Files</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="block-flag" data-bit="64" />
+                <span>Embeds</span>
+              </label>
+              <label class="flex items-center gap-2 text-sm">
+                <input type="checkbox" class="block-flag" data-bit="128" />
+                <span>Social Media Links</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Optional redirect channel for reposting deleted content -->
+        <div>
+          <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+            <i class="fas fa-arrow-right mr-1"></i> Redirect Channel
+            (Optional)
+          </label>
+          <select id="resRedirectChannel"
+            class="w-full bg-brand-dark border border-slate-700 rounded-lg px-4 py-3 focus:border-orange-500 focus:outline-none transition-colors text-white appearance-none">
+            <option value="">None</option>
+          </select>
+          <p class="text-xs text-slate-500 mt-2">
+            <i class="fas fa-info-circle mr-1"></i> Deleted messages will be
+            reposted here
+          </p>
+        </div>
+
+        <!-- Immune roles (multi-select via Select2) -->
+        <div>
+          <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+            <i class="fas fa-user-shield mr-1"></i> Immune Roles (Optional)
+          </label>
+          <select id="resImmuneRoles" multiple
+            class="w-full bg-brand-dark border border-slate-700 rounded-lg px-4 py-3 focus:border-orange-500 focus:outline-none transition-colors text-white"></select>
+          <p class="text-xs text-slate-500 mt-2">
+            <i class="fas fa-info-circle mr-1"></i> Users with these roles
+            will bypass this restriction
+          </p>
+        </div>
+      </div>
+
+      <!-- Modal footer actions -->
+      <div class="p-6 border-t border-slate-700 flex justify-end gap-3 bg-brand-dark/20 rounded-b-2xl">
+        <button onclick="closeResModal()"
+          class="px-6 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all font-medium">
+          Cancel
+        </button>
+        <button id="btnSaveRes" onclick="saveRestriction()"
+          class="bg-orange-500 hover:bg-orange-600 text-white px-8 py-2 rounded-lg font-bold transition-all shadow-lg hover:shadow-orange-500/20 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed">
+          <i class="fas fa-save mr-2"></i> Save Rule
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== CORE JS DEPENDENCIES ========== -->
+  <!-- jQuery + Select2 (required before tab-specific scripts) -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+  
+  <!-- Shared Utilities -->
+  <script src="{{ url_for('static', filename='JS/Utils/populateChannelDropdownWithCategories.js') }}"></script>
+
+  <!-- ========== APPLICATION SCRIPTS ========== -->
+  <!-- Global server config logic -->
+  <script src="{{ url_for('static', filename='JS/server_config.js') }}"></script>
+
+  <!-- General settings -->
+  <script src="{{ url_for('static', filename='JS/Tabs/config_general.js') }}"></script>
+
+  <!-- Leveling sub-tabs -->
+  <script src="{{ url_for('static', filename='JS/Tabs/SubTabsLevel/config_level_reward.js') }}"></script>
+  <script src="{{ url_for('static', filename='JS/Tabs/SubTabsLevel/config_level_leaderboard.js') }}"></script>
+  <script src="{{ url_for('static', filename='JS/Tabs/SubTabsLevel/config_level_setting.js') }}?v=1"></script>
+
+  <!-- Time module (depends on jQuery + Select2) -->
+  <script src="{{ url_for('static', filename='JS/Tabs/config_time.js') }}?v=4"></script>
+
+  <!-- Module-specific controllers -->
+  <script src="{{ url_for('static', filename='JS/Tabs/config_youtube.js') }}"></script>
+  <script src="{{ url_for('static', filename='JS/Tabs/config_restriction.js') }}"></script>
+  <script src="{{ url_for('static', filename='JS/Tabs/config_reminder.js') }}"></script>
+  <script src="{{ url_for('static', filename='JS/Tabs/config_level.js') }}"></script>
+  <script src="{{ url_for('static', filename='JS/Tabs/config_analytics.js') }}"></script>
+  <script src="{{ url_for('static', filename='JS/Tabs/SubTabsAnalytics/config_analytics_settings.js') }}"></script>
+
+  <!-- ========== SAFETY GUARD: SELECT2 INITIALIZATION FALLBACK ========== -->
+  <script>
+    /*
+      Purpose:
+        - Ensure Select2 is correctly attached to the `resImmuneRoles` element
+          with `dropdownParent` bound to the restrictions modal.
+      Behavior:
+        - Runs after DOMContentLoaded.
+        - Initializes Select2 only if:
+            - jQuery and Select2 are available.
+            - The target select exists and is not already initialized.
+        - Silently logs a warning if initialization fails (e.g., already initialized).
+    */
+    (function () {
+      document.addEventListener("DOMContentLoaded", function () {
+        if (window.jQuery && window.$ && $.fn && $.fn.select2) {
+          const $sel = $("#resImmuneRoles");
+          try {
+            if ($sel.length && !$sel.hasClass("select2-hidden-accessible")) {
+              $sel.select2({
+                dropdownParent: $("#resModal"),
+                width: "100%",
+                placeholder: "Select roles...",
+                theme: "default",
+              });
+            }
+          } catch (e) {
+            console.warn("Select2 init guard:", e);
+          }
+        }
+      });
+    })();
+  </script>
+</body>
+
+</html>

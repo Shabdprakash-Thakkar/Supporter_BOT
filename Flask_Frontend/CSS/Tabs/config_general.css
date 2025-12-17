@@ -1,0 +1,122 @@
+/* ==========================================================================
+   Supporter Bot - General Settings Styles
+   - General wrapper layout
+   - Setting cards, icons, labels & descriptions
+   - Numeric / text setting input fields
+   - Save button styling
+   ========================================================================== */
+
+/* ==========================================================================
+   General Settings Wrapper
+   ========================================================================== */
+
+.general-settings-wrapper {
+  padding: 0.5rem 0;
+}
+
+/* ==========================================================================
+   Setting Cards (Row Container)
+   ========================================================================== */
+
+.setting-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(30, 41, 59, 0.5);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1rem;
+  padding: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.setting-card:hover {
+  background: rgba(30, 41, 59, 0.7);
+  border-color: rgba(99, 102, 241, 0.2);
+  transform: translateX(4px);
+}
+
+/* ==========================================================================
+   Setting Icon Container
+   ========================================================================== */
+
+.icon-bg {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.setting-card:hover .icon-bg {
+  transform: scale(1.1) rotate(-5deg);
+}
+
+/* ==========================================================================
+   Setting Labels & Descriptions
+   ========================================================================== */
+
+.setting-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: white;
+  display: block;
+}
+
+.setting-desc {
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-top: 0.25rem;
+}
+
+/* ==========================================================================
+   Setting Input Field
+   ========================================================================== */
+
+.setting-input {
+  width: 5rem;
+  padding: 0.625rem 0.875rem;
+  background: rgba(15, 23, 42, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.setting-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+  outline: none;
+}
+
+/* ==========================================================================
+   Save Button (Primary Action)
+   ========================================================================== */
+
+.btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: white;
+  font-weight: 700;
+  font-size: 0.875rem;
+  border: none;
+  border-radius: 0.75rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+}
