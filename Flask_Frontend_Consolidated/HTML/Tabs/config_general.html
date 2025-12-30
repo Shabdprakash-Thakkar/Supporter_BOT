@@ -1,3 +1,4 @@
+<!-- v4.0.0 -->
 <!--
   Component: General Settings Panel
   Purpose:
@@ -38,7 +39,7 @@
           such as .setting-card, .setting-input, .config-section, .btn-primary, .btn-save, etc.
 -->
 
-<div id="view-config-general" class="general-settings-wrapper">
+<div class="general-settings-wrapper">
   <!-- Section Header: Title + Description -->
   <h2 class="text-2xl font-bold mb-2 flex items-center gap-3">
     <i class="fas fa-cog text-indigo-400"></i>
@@ -60,8 +61,14 @@
         <span class="setting-label">XP Per Message</span>
         <p class="setting-desc">Points awarded for each message sent</p>
       </div>
-      <input type="number" class="setting-input" value="{{ settings.xp_per_message }}" min="0" max="100"
-        id="xpPerMessage" />
+      <input
+        type="number"
+        class="setting-input"
+        value="{{ settings.xp_per_message }}"
+        min="0"
+        max="100"
+        id="xpPerMessage"
+      />
     </div>
 
     <!-- Setting: XP per image upload -->
@@ -73,8 +80,14 @@
         <span class="setting-label">XP Per Image</span>
         <p class="setting-desc">Bonus points for posting images</p>
       </div>
-      <input type="number" class="setting-input" value="{{ settings.xp_per_image }}" min="0" max="100"
-        id="xpPerImage" />
+      <input
+        type="number"
+        class="setting-input"
+        value="{{ settings.xp_per_image }}"
+        min="0"
+        max="100"
+        id="xpPerImage"
+      />
     </div>
 
     <!-- Setting: XP per minute of voice activity -->
@@ -86,21 +99,33 @@
         <span class="setting-label">XP Per Minute in Voice</span>
         <p class="setting-desc">Points earned for voice channel activity</p>
       </div>
-      <input type="number" class="setting-input" value="{{ settings.xp_per_minute_in_voice }}" min="0" max="50"
-        id="xpPerVoice" />
+      <input
+        type="number"
+        class="setting-input"
+        value="{{ settings.xp_per_minute_in_voice }}"
+        min="0"
+        max="50"
+        id="xpPerVoice"
+      />
     </div>
 
-    <!-- Setting: Daily cap on voice XP -->
+    <!-- Setting: Till Next Reset, cap on voice XP -->
     <div class="setting-card">
       <div class="icon-bg bg-purple-500/10 text-purple-400">
         <i class="fas fa-clock"></i>
       </div>
       <div class="flex-grow">
-        <span class="setting-label">Daily Voice XP Limit</span>
-        <p class="setting-desc">Maximum voice XP per day (0 = unlimited)</p>
+        <span class="setting-label">Voice XP Limit</span>
+        <p class="setting-desc">Maximum voice XP per reset (0 = unlimited)</p>
       </div>
-      <input type="number" class="setting-input" value="{{ settings.voice_xp_limit }}" min="0" max="10000"
-        id="voiceXpLimit" />
+      <input
+        type="number"
+        class="setting-input"
+        value="{{ settings.voice_xp_limit }}"
+        min="0"
+        max="10000"
+        id="voiceXpLimit"
+      />
     </div>
 
     <!-- Setting: Global XP cooldown duration -->

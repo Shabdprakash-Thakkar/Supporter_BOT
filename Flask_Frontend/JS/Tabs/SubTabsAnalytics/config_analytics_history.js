@@ -1,3 +1,4 @@
+// v4.0.0
 /**
  * @file Analytics History JavaScript
  * @description
@@ -62,12 +63,11 @@ function renderTimeline(snapshots) {
             <div class="snapshot-card">
                 <div class="snapshot-header">
                     <div>
-                        <div class="snapshot-title">Week ${
-                          snapshot.week_number
-                        }, ${snapshot.year}</div>
+                        <div class="snapshot-title">Week ${snapshot.week_number
+        }, ${snapshot.year}</div>
                         <div class="snapshot-date">${formatDate(
-                          snapshot.snapshot_date
-                        )}</div>
+          snapshot.snapshot_date
+        )}</div>
                     </div>
                     <div class="health-badge ${healthClass}">
                         ${snapshot.health_score}/100
@@ -78,8 +78,8 @@ function renderTimeline(snapshots) {
                     <div class="stat-item">
                         <div class="stat-icon">💬</div>
                         <div class="stat-value">${formatNumber(
-                          snapshot.messages_count
-                        )}</div>
+          snapshot.messages_count
+        )}</div>
                         <div class="stat-label">Messages</div>
                         <div class="trend-indicator ${snapshot.message_trend}">
                             ${trendEmoji} ${snapshot.message_trend}
@@ -88,9 +88,8 @@ function renderTimeline(snapshots) {
                     
                     <div class="stat-item">
                         <div class="stat-icon">👥</div>
-                        <div class="stat-value">+${
-                          snapshot.new_members_count
-                        }</div>
+                        <div class="stat-value">+${snapshot.new_members_count
+        }</div>
                         <div class="stat-label">New Members</div>
                         <div class="trend-indicator ${snapshot.member_trend}">
                             ${memberTrendEmoji} ${snapshot.member_trend}
@@ -100,18 +99,17 @@ function renderTimeline(snapshots) {
                     <div class="stat-item">
                         <div class="stat-icon">📈</div>
                         <div class="stat-value">${formatNumber(
-                          snapshot.active_members
-                        )}</div>
+          snapshot.active_members
+        )}</div>
                         <div class="stat-label">Active Members</div>
                         <div class="stat-label">${formatNumber(
-                          snapshot.total_members
-                        )} total</div>
+          snapshot.total_members
+        )} total</div>
                     </div>
                 </div>
                 
-                <button class="view-details-btn" onclick="viewSnapshot(${
-                  snapshot.id
-                })">
+                <button class="view-details-btn" onclick="viewSnapshot(${snapshot.id
+        })">
                     <i class="fas fa-chart-bar"></i> View Full Report
                 </button>
             </div>
@@ -178,7 +176,7 @@ function getHealthClass(score) {
 /**
  * Get an emoji representing the trend direction.
  *
- * @param {string} trend - "up" | "down" | "stable" | other.
+ * @param {string} trend - "up" | "down" | "stable" | "insufficient_data" | other.
  * @returns {string} Emoji representing trend.
  */
 function getTrendEmoji(trend) {
@@ -189,6 +187,8 @@ function getTrendEmoji(trend) {
       return "📉";
     case "stable":
       return "➡️";
+    case "insufficient_data":
+      return "❓";
     default:
       return "➡️";
   }

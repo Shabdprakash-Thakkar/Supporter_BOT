@@ -1,3 +1,4 @@
+# v4.0.0
 """
 Analytics Engine for SupporterBOT.
 
@@ -40,7 +41,7 @@ class AnalyticsEngine:
     - Generate and persist analytics snapshots in the database.
     """
 
-    def __init__(self, pool: asyncpg.Pool):
+    def __init__(self, pool: asyncpg.Pool, bot: commands.Bot = None):
         """
         Initialize the analytics engine.
 
@@ -48,10 +49,13 @@ class AnalyticsEngine:
         ----------
         pool : asyncpg.Pool
             PostgreSQL connection pool used for analytics queries.
+        bot : commands.Bot, optional
+            Discord bot instance for accessing guild objects via API.
         """
         self.pool = pool
+        self.bot = bot
 
-    async def calculate_server_health(self, guild_id: str) -> int:
+    async def calculate_server_health(self, guild_id: str, guild: discord.Guild = None) -> int:
         """
         Calculate a composite server health score (0–100).
 
@@ -67,6 +71,9 @@ class AnalyticsEngine:
         ----------
         guild_id : str
             Guild ID as a string.
+        guild : discord.Guild, optional
+            Discord guild object to get real member count from API.
+            If not provided, falls back to XP table count (less accurate).
 
         Returns
         -------
@@ -84,16 +91,30 @@ class AnalyticsEngine:
                 guild_id,
             )
 
-            member_stats = await self.pool.fetchrow(
+            # Get active members (users with XP > 0) from database
+            active_members = await self.pool.fetchval(
                 """
-                SELECT 
-                    COUNT(*) as total_members,
-                    COUNT(*) FILTER (WHERE xp > 0) as active_members
+                SELECT COUNT(*) 
                 FROM public.users
-                WHERE guild_id = $1
+                WHERE guild_id = $1 AND xp > 0
                 """,
                 guild_id,
-            )
+            ) or 0
+
+            # Use Discord API for total members if available, otherwise fall back to XP table
+            if guild:
+                total_members = guild.member_count or 1
+                log.info(f"Using Discord API member count for {guild_id}: {total_members}")
+            else:
+                total_members = await self.pool.fetchval(
+                    """
+                    SELECT COUNT(*) 
+                    FROM public.users
+                    WHERE guild_id = $1
+                    """,
+                    guild_id,
+                ) or 1
+                log.warning(f"Guild object not provided for {guild_id}, using XP table count: {total_members}")
 
             features = await self.pool.fetchrow(
                 """
@@ -106,8 +127,6 @@ class AnalyticsEngine:
                 guild_id,
             )
 
-            total_members = member_stats["total_members"] or 1
-            active_members = member_stats["active_members"] or 0
             messages = stats["messages_this_week"] if stats else 0
             new_members = stats["new_members_this_week"] if stats else 0
 
@@ -142,7 +161,8 @@ class AnalyticsEngine:
 
             log.info(
                 f"Health score for {guild_id}: {health_score}/100 "
-                f"(Activity: {activity_score:.1f}, Engagement: {engagement_score:.1f}, "
+                f"(Total: {total_members}, Active: {active_members}, "
+                f"Activity: {activity_score:.1f}, Engagement: {engagement_score:.1f}, "
                 f"Growth: {growth_score:.1f}, Features: {feature_score:.1f})"
             )
 
@@ -354,6 +374,11 @@ class AnalyticsEngine:
         """
         Analyze week-over-week growth trends for messages and new members.
 
+        Applies statistical rigor to prevent misleading trends:
+        - Requires minimum data thresholds
+        - Requires absolute change minimums
+        - Returns 'insufficient_data' when criteria not met
+
         Parameters
         ----------
         guild_id : str
@@ -363,7 +388,15 @@ class AnalyticsEngine:
         -------
         Dict
             Contains `message_trend`, `member_trend`, and current counts.
+            Trends can be: 'up', 'down', 'stable', or 'insufficient_data'
         """
+        # Minimum thresholds for meaningful trend analysis
+        MIN_MESSAGES_FOR_TREND = 10  # Need at least 10 messages
+        MIN_MEMBERS_FOR_TREND = 2    # Need at least 2 members
+        MIN_MESSAGE_CHANGE = 5       # Change must be at least 5 messages
+        MIN_MEMBER_CHANGE = 2        # Change must be at least 2 members
+        TREND_THRESHOLD = 0.1        # 10% change threshold
+
         try:
             current_stats = await self.pool.fetchrow(
                 """
@@ -392,24 +425,56 @@ class AnalyticsEngine:
                 current_stats["new_members_this_week"] if current_stats else 0
             )
 
-            if last_snapshot:
-                last_messages = last_snapshot["messages_count"]
-                last_members = last_snapshot["new_members_count"]
+            # Default to insufficient data if no historical snapshot
+            if not last_snapshot:
+                log.info(f"No historical snapshot for {guild_id}, trends = insufficient_data")
+                return {
+                    "message_trend": "insufficient_data",
+                    "member_trend": "insufficient_data",
+                    "current_messages": current_messages,
+                    "current_members": current_members,
+                }
 
-                message_trend = "stable"
-                if current_messages > last_messages * 1.1:
-                    message_trend = "up"
-                elif current_messages < last_messages * 0.9:
-                    message_trend = "down"
+            last_messages = last_snapshot["messages_count"]
+            last_members = last_snapshot["new_members_count"]
 
-                member_trend = "stable"
-                if current_members > last_members * 1.1:
-                    member_trend = "up"
-                elif current_members < last_members * 0.9:
-                    member_trend = "down"
+            # Analyze message trend with statistical rigor
+            if current_messages < MIN_MESSAGES_FOR_TREND and last_messages < MIN_MESSAGES_FOR_TREND:
+                message_trend = "insufficient_data"
+                log.debug(f"Message trend for {guild_id}: insufficient data (current: {current_messages}, last: {last_messages})")
             else:
-                message_trend = "stable"
-                member_trend = "stable"
+                message_change = current_messages - last_messages
+                message_change_pct = (message_change / last_messages) if last_messages > 0 else 0
+
+                if abs(message_change) < MIN_MESSAGE_CHANGE:
+                    message_trend = "stable"
+                elif message_change_pct > TREND_THRESHOLD:
+                    message_trend = "up"
+                elif message_change_pct < -TREND_THRESHOLD:
+                    message_trend = "down"
+                else:
+                    message_trend = "stable"
+
+                log.debug(f"Message trend for {guild_id}: {message_trend} (change: {message_change}, {message_change_pct:.1%})")
+
+            # Analyze member trend with statistical rigor
+            if current_members < MIN_MEMBERS_FOR_TREND and last_members < MIN_MEMBERS_FOR_TREND:
+                member_trend = "insufficient_data"
+                log.debug(f"Member trend for {guild_id}: insufficient data (current: {current_members}, last: {last_members})")
+            else:
+                member_change = current_members - last_members
+                member_change_pct = (member_change / last_members) if last_members > 0 else 0
+
+                if abs(member_change) < MIN_MEMBER_CHANGE:
+                    member_trend = "stable"
+                elif member_change_pct > TREND_THRESHOLD:
+                    member_trend = "up"
+                elif member_change_pct < -TREND_THRESHOLD:
+                    member_trend = "down"
+                else:
+                    member_trend = "stable"
+
+                log.debug(f"Member trend for {guild_id}: {member_trend} (change: {member_change}, {member_change_pct:.1%})")
 
             return {
                 "message_trend": message_trend,
@@ -421,8 +486,8 @@ class AnalyticsEngine:
         except Exception as e:
             log.error(f"Error calculating growth trends for {guild_id}: {e}")
             return {
-                "message_trend": "stable",
-                "member_trend": "stable",
+                "message_trend": "insufficient_data",
+                "member_trend": "insufficient_data",
                 "current_messages": 0,
                 "current_members": 0,
             }
@@ -543,7 +608,17 @@ class AnalyticsEngine:
             week_number = now.isocalendar()[1]
             year = now.year
 
-            health_score = await self.calculate_server_health(guild_id)
+            # Fetch Discord guild object for accurate member count
+            guild = None
+            if self.bot:
+                try:
+                    guild = self.bot.get_guild(int(guild_id))
+                    if not guild:
+                        log.warning(f"Could not fetch guild object for {guild_id}")
+                except Exception as e:
+                    log.error(f"Error fetching guild object for {guild_id}: {e}")
+
+            health_score = await self.calculate_server_health(guild_id, guild)
             engagement_tiers = await self.get_engagement_tiers(guild_id)
             leveling_insights = await self.get_leveling_insights(guild_id)
             top_contributors = await self.get_top_contributors(guild_id, 10)
@@ -558,19 +633,25 @@ class AnalyticsEngine:
                 guild_id,
             )
 
-            member_count = await self.pool.fetchval(
-                """
-                SELECT COUNT(*) FROM public.users WHERE guild_id = $1
-                """,
-                guild_id,
-            )
+            # Use Discord API member count if available, otherwise fall back to database count
+            if guild:
+                member_count = guild.member_count or 0
+                log.info(f"Using Discord API member count for snapshot: {member_count}")
+            else:
+                member_count = await self.pool.fetchval(
+                    """
+                    SELECT COUNT(*) FROM public.users WHERE guild_id = $1
+                    """,
+                    guild_id,
+                ) or 0
+                log.warning(f"Using database member count for snapshot: {member_count}")
 
             active_member_count = await self.pool.fetchval(
                 """
                 SELECT COUNT(*) FROM public.users WHERE guild_id = $1 AND xp > 0
                 """,
                 guild_id,
-            )
+            ) or 0
 
             analytics_data = {
                 "health_score": health_score,
@@ -700,7 +781,7 @@ class AnalyticsManager:
         """
         self.bot = bot
         self.pool = pool
-        self.engine = AnalyticsEngine(pool)
+        self.engine = AnalyticsEngine(pool, bot)
 
     async def start(self):
         """
@@ -805,11 +886,14 @@ class AnalyticsManager:
         """
         Reset weekly stats for all guilds based on their configured timezone.
 
+        CRITICAL: Generates snapshot BEFORE resetting to preserve weekly data.
+
         Logic
         -----
         - Uses `weekly_reset_timezone` from `guild_settings`.
         - Resets when local time hits Monday 00:00 within the 15-minute window.
-        - Resets message and new member counters in `guild_stats`.
+        - **FIRST**: Creates analytics snapshot with current week's data
+        - **THEN**: Resets message and new member counters in `guild_stats`
         """
         try:
             now_utc = datetime.now(timezone.utc)
@@ -836,6 +920,28 @@ class AnalyticsManager:
                             and now_local.minute < 15
                             and last_reset_local.date() < now_local.date()
                         ):
+                            # CRITICAL: Generate snapshot BEFORE reset to capture weekly data
+                            log.info(
+                                f"📊 Generating pre-reset snapshot for {guild['guild_id']} before weekly reset"
+                            )
+                            try:
+                                snapshot_id = await self.engine.create_snapshot(
+                                    guild["guild_id"], guild["weekly_reset_timezone"]
+                                )
+                                if snapshot_id:
+                                    log.info(
+                                        f"✅ Pre-reset snapshot {snapshot_id} created for {guild['guild_id']}"
+                                    )
+                                else:
+                                    log.warning(
+                                        f"⚠️ Failed to create pre-reset snapshot for {guild['guild_id']}"
+                                    )
+                            except Exception as e:
+                                log.error(
+                                    f"❌ Error creating pre-reset snapshot for {guild['guild_id']}: {e}"
+                                )
+
+                            # NOW reset the counters
                             await self.pool.execute(
                                 """
                                 UPDATE public.guild_stats
@@ -914,11 +1020,24 @@ class AnalyticsManager:
                 log.error(f"Snapshot {snapshot_id} not found")
                 return
 
+            # Get guild timezone for display
+            guild_tz_name = snapshot["timezone"] or "UTC"
+            try:
+                guild_tz = pytz.timezone(guild_tz_name)
+            except:
+                guild_tz = pytz.UTC
+
+            # Convert generated_at timestamp to guild timezone
+            generated_at_utc = snapshot["generated_at"]
+            if generated_at_utc.tzinfo is None:
+                generated_at_utc = generated_at_utc.replace(tzinfo=timezone.utc)
+            generated_at_local = generated_at_utc.astimezone(guild_tz)
+
             embed = discord.Embed(
                 title="📊 Weekly Analytics Report",
                 description=f"**{guild.name}**\nWeek {snapshot['week_number']}, {snapshot['year']}",
                 color=discord.Color.blue(),
-                timestamp=datetime.now(timezone.utc),
+                timestamp=generated_at_utc,  # Discord uses UTC internally
             )
 
             health_color = (
@@ -950,12 +1069,18 @@ class AnalyticsManager:
                 inline=True,
             )
 
-            trend_emoji = {"up": "📈", "down": "📉", "stable": "➡️"}
+            # Handle trend display with support for insufficient_data
+            trend_emoji = {"up": "📈", "down": "📉", "stable": "➡️", "insufficient_data": "❓"}
+            trend_text = {"up": "Up", "down": "Down", "stable": "Stable", "insufficient_data": "Insufficient Data"}
+            
+            message_trend = snapshot['message_trend'] or 'stable'
+            member_trend = snapshot['member_trend'] or 'stable'
+            
             embed.add_field(
                 name="Trends",
                 value=(
-                    f"Messages: {trend_emoji.get(snapshot['message_trend'], '➡️')} | "
-                    f"Members: {trend_emoji.get(snapshot['member_trend'], '➡️')}"
+                    f"Messages: {trend_emoji.get(message_trend, '➡️')} {trend_text.get(message_trend, 'Stable')}\n"
+                    f"Members: {trend_emoji.get(member_trend, '➡️')} {trend_text.get(member_trend, 'Stable')}"
                 ),
                 inline=True,
             )
@@ -977,8 +1102,9 @@ class AnalyticsManager:
                 inline=False,
             )
 
+            # Display timestamp in guild timezone
             embed.set_footer(
-                text=f"Generated at {snapshot['generated_at'].strftime('%Y-%m-%d %H:%M %Z')}"
+                text=f"Generated at {generated_at_local.strftime('%Y-%m-%d %H:%M')} {guild_tz_name}"
             )
 
             if guild.icon:

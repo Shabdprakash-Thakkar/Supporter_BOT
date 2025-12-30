@@ -1,3 +1,4 @@
+// v4.0.0
 /**
  * @file Server Configuration Manager
  * @description
@@ -207,6 +208,12 @@ function loadTabData(tabName, force = false) {
     case "analytics":
       if (typeof loadAnalyticsDashboard === "function") {
         loadAnalyticsDashboard();
+      }
+      break;
+
+    case "tickets":
+      if (typeof initTicketTab === "function") {
+        initTicketTab();
       }
       break;
   }

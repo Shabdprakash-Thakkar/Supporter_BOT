@@ -1,0 +1,44 @@
+<!-- v4.0.0 -->
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transcript - {{ transcript.ticket_id }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="/CSS/transcript.css">
+</head>
+
+<body class="text-gray-100 min-h-screen">
+
+    <!-- Top Bar -->
+    <div class="h-16 border-b border-[#26272D] flex items-center px-4 sticky top-0 bg-[#313338] z-10 shadow-sm">
+        <div class="flex items-center text-slate-200">
+            <i class="fas fa-ticket-alt text-gray-400 text-xl mr-3"></i>
+            <div>
+                <h1 class="font-bold text-lg leading-tight">Ticket #{{ transcript.ticket_id }}</h1>
+                <p class="text-xs text-gray-400">Closed on {{ transcript.closed_at }}</p>
+            </div>
+        </div>
+        <div class="ml-auto">
+            <span
+                class="px-2 py-1 bg-red-500/10 text-red-400 border border-red-500/20 rounded text-xs font-bold uppercase tracking-wide">Closed</span>
+        </div>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="container" class="max-w-6xl mx-auto p-4 pb-20">
+        <!-- Messages will be injected here -->
+    </div>
+
+    <!-- Raw Data Hidden -->
+    <pre id="raw-data" class="hidden">{{ transcript.transcript_text }}</pre>
+
+    <script src="/JS/transcript.js"></script>
+</body>
+
+</html>

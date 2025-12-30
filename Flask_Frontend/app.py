@@ -1,3 +1,4 @@
+# v4.0.0
 """
 Flask Frontend for Supporter Discord Bot
 
@@ -39,6 +40,10 @@ from datetime import datetime, timedelta
 import requests
 from requests_oauthlib import OAuth2Session
 from supabase import create_client, Client
+from werkzeug.middleware.proxy_fix import ProxyFix
+import asyncio
+import discord
+from supporter import bot
 
 # ==================== LOGGING & ENVIRONMENT ====================
 
@@ -61,6 +66,7 @@ app = Flask(
     static_folder=".",  # Serve files from Flask_Frontend/ (where this file lives)
     static_url_path="",
 )
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
 app.config["SECRET_KEY"] = os.getenv("FLASK_SECRET_KEY", "dev-secret-key")
 app.config["PERMANENT_SESSION_LIFETIME"] = timedelta(days=7)
 
@@ -98,7 +104,7 @@ if not SUPABASE_URL or not SUPABASE_KEY:
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Global DB connection pool removed
-# db_pool = None 
+# db_pool = None
 stats_cache = {"data": None, "timestamp": None}
 CACHE_DURATION = timedelta(minutes=1)
 
@@ -555,6 +561,211 @@ def analytics_snapshot(guild_id, snapshot_id):
         week_number=week_number,
         year=year,
     )
+
+
+# ==================== TICKET SYSTEM ROUTES ====================
+
+
+@app.route("/dashboard/tickets/<guild_id>")
+@login_required
+def dashboard_tickets(guild_id):
+    """
+    List closed tickets for a guild.
+    """
+    if not user_has_access(current_user.id, guild_id):
+        return "Unauthorized", 403
+
+    try:
+        res = supabase.table('users').select('guild_name').eq('guild_id', guild_id).limit(1).single().execute()
+        guild_name = res.data['guild_name'] if res.data else "Unknown Server"
+        
+        tickets_res = supabase.table('ticket_transcripts').select('id, ticket_id, closed_at, opener_user_id').eq('guild_id', guild_id).eq('status', 'closed').order('closed_at', desc=True).limit(50).execute()
+        tickets = tickets_res.data if tickets_res.data else []
+    except Exception as e:
+        log.error(f"Error fetching tickets: {e}")
+        return "Error loading tickets", 500
+
+    return render_template('transcript_list.html', guild_id=guild_id, guild_name=guild_name, tickets=tickets)
+
+
+@app.route("/transcript/<int:transcript_id>")
+def view_transcript(transcript_id):
+    """
+    Public view for a ticket transcript.
+    """
+    try:
+        res = supabase.table('ticket_transcripts').select('*').eq('id', transcript_id).single().execute()
+        if not res.data:
+            return "Transcript not found", 404
+        
+        transcript = res.data
+        return render_template('transcript_view.html', transcript=transcript)
+    except Exception as e:
+        return "Error loading transcript", 500
+
+
+# ==================== VOICE CHANNELS (JOIN-TO-CREATE) ROUTES ====================
+
+
+@app.route("/dashboard/voice-channels/<guild_id>")
+@login_required
+def dashboard_voice_channels(guild_id):
+    """
+    Voice channels dashboard - displays Join-to-Create analytics and history.
+    """
+    if not user_has_access(current_user.id, guild_id):
+        return "Unauthorized", 403
+
+    try:
+        # Get guild name
+        res = supabase.table('users').select('guild_name').eq('guild_id', guild_id).limit(1).single().execute()
+        guild_name = res.data['guild_name'] if res.data else "Unknown Server"
+    except Exception as e:
+        log.error(f"Error fetching guild name: {e}")
+        guild_name = "Unknown Server"
+
+    # Construct server object for template compatibility
+    server = {
+        'id': guild_id,
+        'name': guild_name,
+        'icon': None  # We'd need to fetch this from Discord API or cache if needed
+    }
+    
+    # Mock stats to prevent template errors (since we focus on voice stats here)
+    guild_stats = {'new_members_this_week': 0, 'messages_this_week': 0}
+    
+    # Fetch guild settings for template context
+    try:
+        settings_res = supabase.table('guild_settings').select('*').eq('guild_id', guild_id).single().execute()
+        settings = settings_res.data if settings_res.data else {}
+    except Exception as e:
+        log.error(f"Error fetching settings for dashboard: {e}")
+        settings = {}
+        
+    # Ensure default values for required fields
+    defaults = {
+        'xp_per_message': 5,
+        'xp_per_image': 10,
+        'xp_per_minute_in_voice': 15,
+        'voice_xp_limit': 1500,
+        'xp_cooldown': 60,
+        'analytics_timezone': 'UTC'
+    }
+    for key, value in defaults.items():
+        if key not in settings:
+            settings[key] = value
+
+    return render_template(
+        'voice_channels.html',
+        server=server,
+        current_user=current_user,
+        total_members=0,
+        guild_stats=guild_stats,
+        settings=settings,
+        current_tab='voice_channels'
+    )
+
+
+@app.route("/api/voice-stats/<guild_id>")
+@login_required
+def api_voice_stats(guild_id):
+    """
+    API endpoint for voice channel summary statistics.
+    """
+    if not user_has_access(current_user.id, guild_id):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    try:
+        # Get all temp channels for this guild
+        channels_res = supabase.table('voice_temp_channels').select('total_lifetime_seconds, deleted_at').eq('guild_id', guild_id).execute()
+        channels = channels_res.data if channels_res.data else []
+        
+        # Calculate stats
+        total_channels = len(channels)
+        active_channels = sum(1 for ch in channels if not ch.get('deleted_at'))
+        total_voice_time = sum(ch.get('total_lifetime_seconds', 0) for ch in channels if ch.get('deleted_at'))
+        avg_lifetime = total_voice_time // total_channels if total_channels > 0 else 0
+        
+        return jsonify({
+            "total_channels": total_channels,
+            "active_channels": active_channels,
+            "total_voice_time": total_voice_time,
+            "avg_lifetime": avg_lifetime
+        })
+    except Exception as e:
+        log.error(f"Error fetching voice stats: {e}")
+        return jsonify({"error": "Failed to fetch stats"}), 500
+
+
+@app.route("/api/voice-config/<guild_id>")
+@login_required
+def api_voice_config(guild_id):
+    """
+    API endpoint for Join-to-Create configuration.
+    """
+    if not user_has_access(current_user.id, guild_id):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    try:
+        config_res = supabase.table('join_to_create_config').select('*').eq('guild_id', guild_id).single().execute()
+        if not config_res.data:
+            return jsonify({"error": "Not configured"}), 404
+        
+        config = config_res.data
+        
+        # Try to get channel and category names from Discord
+        try:
+            guild = bot.get_guild(int(guild_id))
+            if guild:
+                trigger_channel = guild.get_channel(int(config['trigger_channel_id']))
+                category = guild.get_channel(int(config['category_id']))
+                
+                if trigger_channel:
+                    config['trigger_channel_name'] = trigger_channel.name
+                if category:
+                    config['category_name'] = category.name
+        except Exception as e:
+            log.warning(f"Could not fetch Discord channel names: {e}")
+        
+        return jsonify(config)
+    except Exception as e:
+        log.error(f"Error fetching voice config: {e}")
+        return jsonify({"error": "Failed to fetch configuration"}), 500
+
+
+@app.route("/api/voice-channels/<guild_id>")
+@login_required
+def api_voice_channels(guild_id):
+    """
+    API endpoint for voice channel history with optional filtering.
+    """
+    if not user_has_access(current_user.id, guild_id):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    try:
+        # Get query parameters for filtering
+        creator_id = request.args.get('creator_id')
+        start_date = request.args.get('start_date')
+        end_date = request.args.get('end_date')
+        
+        # Build query
+        query = supabase.table('voice_temp_channels').select('*').eq('guild_id', guild_id)
+        
+        if creator_id:
+            query = query.eq('creator_user_id', creator_id)
+        if start_date:
+            query = query.gte('created_at', start_date)
+        if end_date:
+            query = query.lte('created_at', end_date)
+        
+        # Order by created_at descending and limit to 500
+        channels_res = query.order('created_at', desc=True).limit(500).execute()
+        channels = channels_res.data if channels_res.data else []
+        
+        return jsonify({"channels": channels})
+    except Exception as e:
+        log.error(f"Error fetching voice channels: {e}")
+        return jsonify({"error": "Failed to fetch channels"}), 500
 
 
 # ==================== DASHBOARD CORE PAGES ====================
@@ -1024,6 +1235,7 @@ def profile():
             except Exception as e:
                 log.error(f"Error fetching owner stats: {e}")
 
+
         return render_template(
             "profile.html",
             active_servers=active_servers,
@@ -1039,6 +1251,237 @@ def profile():
     except Exception as e:
         log.error(f"Profile Error: {e}")
         return "An error occurred", 500
+
+
+# ==================== TICKET SYSTEM ROUTES ====================
+
+
+@app.route("/dashboard/tickets/<guild_id>")
+@login_required
+def transcript_list(guild_id):
+    """
+    List all closed ticket transcripts for a guild.
+    """
+    if not user_has_access(current_user.id, guild_id):
+        return "Access Denied", 403
+
+    try:
+        # Fetch closed tickets from database
+        res = supabase.table('ticket_transcripts').select('*').eq('guild_id', guild_id).eq('status', 'closed').order('closed_at', desc=True).execute()
+        tickets = res.data if res.data else []
+
+        # Get guild name for header
+        guild_name = "Server"
+        try:
+             # Try simple local cache or Supabase first to save API call? 
+             # For now, hit Discord API or trust what we might have.
+             # Actually, simpler is to just let the template or API call handle it.
+             # But the template uses {{ guild_name }}
+             headers = {"Authorization": f"Bot {DISCORD_BOT_TOKEN}"}
+             g_resp = requests.get(f"{DISCORD_API_BASE_URL}/guilds/{guild_id}", headers=headers)
+             if g_resp.status_code == 200:
+                 guild_name = g_resp.json().get('name', 'Server')
+        except:
+             pass
+
+        return render_template(
+            "transcript_list.html",
+            guild_name=guild_name,
+            guild_id=guild_id,
+            tickets=tickets
+        )
+    except Exception as e:
+        log.error(f"Transcript List Error: {e}")
+        return "Error loading transcripts", 500
+
+
+@app.route("/transcript/<transcript_id>")
+def transcript_view(transcript_id):
+    """
+    View a specific ticket transcript.
+    """
+    # Note: We should probably valid user access here too!
+    # But for a simple shareable link, often these are public UUIDs.
+    # However, `ticket_id` here is likely the numeric channel ID from Discord (based on ticket_system.py)
+    # Re-reading ticket_system.py: 
+    #   INSERT INTO public.ticket_transcripts (ticket_id, ...) VALUES (channel.id, ...)
+    #   AND we also have a primary key 'id' likely (serial/uuid).
+    #   transcript_list.html links to `/transcript/{{ ticket.id }}`
+    #   So we are looking up by parsing the Primary Key 'id' (int/uuid) NOT the channel 'ticket_id'.
+    
+    # We should add login_required for security unless it's a secret UUID.
+    # Given the requirements don't specify, I'll add login_required for safety 
+    # and restrict to members of the guild.
+    
+    if not current_user.is_authenticated:
+         return redirect(url_for('dashboard_login'))
+
+    try:
+        # Fetch transcript
+        # We need to know which guild it belongs to for auth check
+        res = supabase.table('ticket_transcripts').select('*').eq('id', transcript_id).single().execute()
+        
+        if not res.data:
+            return "Transcript not found", 404
+            
+        transcript = res.data
+        guild_id = transcript['guild_id']
+        
+        if not user_has_access(current_user.id, guild_id):
+             return "Access Denied", 403
+
+        return render_template(
+            "transcript_view.html",
+            transcript=transcript
+        )
+
+    except Exception as e:
+        log.error(f"Transcript View Error: {e}")
+        return "Error loading transcript", 500
+
+
+
+# ==================== TICKET SYSTEM CONFIG API ====================
+
+
+@app.route("/api/server/<guild_id>/ticket-config", methods=["GET"])
+@login_required
+def get_ticket_config(guild_id):
+    """
+    Fetch ticket system configuration for a guild.
+    
+    Returns:
+        JSON with ticket configuration or empty config if not set up
+    """
+    if not user_has_access(current_user.id, guild_id):
+        return jsonify({"error": "Access denied"}), 403
+    
+    try:
+        res = supabase.table('ticket_system_config').select('*').eq('guild_id', guild_id).execute()
+        
+        if res.data and len(res.data) > 0:
+            config = res.data[0]
+            return jsonify({
+                "success": True,
+                "config": {
+                    "ticket_channel_id": config.get('ticket_channel_id'),
+                    "ticket_category_id": config.get('ticket_category_id'),
+                    "admin_role_id": config.get('admin_role_id'),
+                    "transcript_channel_id": config.get('transcript_channel_id'),
+                    "ticket_message": config.get('ticket_message', 'Click the button below to open a support ticket.'),
+                    "welcome_message": config.get('welcome_message', 'Hello {user}, support will be with you shortly. Please describe your issue and we\'ll help you as soon as possible.')
+                }
+            })
+        else:
+            # Return default empty config
+            return jsonify({
+                "success": True,
+                "config": {
+                    "ticket_channel_id": None,
+                    "ticket_category_id": None,
+                    "admin_role_id": None,
+                    "transcript_channel_id": None,
+                    "ticket_message": "Click the button below to open a support ticket.",
+                    "welcome_message": "Hello {user}, support will be with you shortly. Please describe your issue and we'll help you as soon as possible."
+                }
+            })
+    except Exception as e:
+        log.error(f"Get Ticket Config Error: {e}")
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/server/<guild_id>/ticket-config", methods=["POST"])
+@login_required
+def save_ticket_config(guild_id):
+    """
+    Save ticket system configuration for a guild.
+    
+    Expected JSON body:
+        {
+            "ticket_channel_id": "123...",
+            "ticket_category_id": "456...",
+            "admin_role_id": "789...",
+            "transcript_channel_id": "012..." (optional),
+            "ticket_message": "Custom message...",
+            "welcome_message": "Custom welcome..."
+        }
+    """
+    if not user_has_access(current_user.id, guild_id):
+        return jsonify({"error": "Access denied"}), 403
+    
+    try:
+        data = request.get_json()
+        
+        # Validate required fields
+        if not data.get('ticket_channel_id'):
+            return jsonify({"error": "Ticket channel is required"}), 400
+        if not data.get('ticket_category_id'):
+            return jsonify({"error": "Ticket category is required"}), 400
+        if not data.get('admin_role_id'):
+            return jsonify({"error": "Admin/Staff role is required"}), 400
+        
+        # Upsert configuration
+        supabase.table('ticket_system_config').upsert({
+            'guild_id': guild_id,
+            'ticket_channel_id': data.get('ticket_channel_id'),
+            'ticket_category_id': data.get('ticket_category_id'),
+            'admin_role_id': data.get('admin_role_id'),
+            'transcript_channel_id': data.get('transcript_channel_id'),
+            'ticket_message': data.get('ticket_message', 'Click the button below to open a support ticket.'),
+            'welcome_message': data.get('welcome_message', 'Hello {user}, support will be with you shortly. Please describe your issue and we\'ll help you as soon as possible.'),
+            'updated_at': datetime.now().isoformat()
+        }, on_conflict='guild_id').execute()
+        
+        # Log activity
+        log_dashboard_activity(
+            guild_id,
+            'ticket_config_update',
+            f'Updated ticket system configuration'
+        )
+        
+        increment_command_counter()
+        
+        # --- Trigger Discord Message ---
+        try:
+            from ticket_system import TicketView
+            
+            async def send_ticket_msg():
+                channel_id = data.get('ticket_channel_id')
+                message_text = data.get('ticket_message', 'Click the button below to open a support ticket.')
+                
+                channel = bot.get_channel(int(channel_id))
+                if not channel:
+                    try:
+                        channel = await bot.fetch_channel(int(channel_id))
+                    except:
+                        log.error(f"Could not find channel {channel_id} to send ticket message.")
+                        return
+
+                embed = discord.Embed(
+                    title="Support Tickets",
+                    description=message_text,
+                    color=discord.Color.green()
+                )
+                await channel.send(embed=embed, view=TicketView(bot, bot.pool))
+                log.info(f"Successfully sent ticket setup message to channel {channel_id}")
+
+            # Schedule the coroutine in the bot's event loop
+            if bot and bot.loop and bot.loop.is_running():
+                asyncio.run_coroutine_threadsafe(send_ticket_msg(), bot.loop)
+            else:
+                log.warning("Bot loop not running, could not send ticket message.")
+                
+        except Exception as msg_err:
+            log.error(f"Error sending ticket Discord message: {msg_err}")
+
+        return jsonify({
+            "success": True,
+            "message": "Ticket configuration saved successfully"
+        })
+        
+    except Exception as e:
+        log.error(f"Save Ticket Config Error: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 # ==================== OWNER API ENDPOINTS ====================
@@ -2314,7 +2757,7 @@ def server_settings_api(guild_id):
 
     try:
         if request.method == "GET":
-            # FIXED: Use limit(1) instead of single() to avoid errors when no row exists
+            # Use limit(1) instead of single() to avoid errors when no row exists
             gs_res = supabase.table('guild_settings').select(
                 'xp_per_message, xp_per_image, xp_per_minute_in_voice, voice_xp_limit, xp_cooldown'
             ).eq('guild_id', guild_id).limit(1).execute()
@@ -2493,7 +2936,7 @@ def get_current_analytics(guild_id):
     Returns:
         JSON with:
             - Weekly message and member stats.
-            - Member counts (DB + live from Discord).
+            - Member counts (Discord API for total, DB for active).
             - XP and level statistics.
             - Feature adoption metrics.
             - Top contributors list.
@@ -2503,41 +2946,28 @@ def get_current_analytics(guild_id):
 
     try:
         # Guild-level weekly stats
-        gs_res = supabase.table('guild_stats').select('messages_this_week, new_members_this_week').eq('guild_id', guild_id).single().execute()
-        stats = gs_res.data
+        try:
+            gs_res = supabase.table('guild_stats').select('messages_this_week, new_members_this_week').eq('guild_id', guild_id).limit(1).execute()
+            stats = gs_res.data[0] if gs_res.data and len(gs_res.data) > 0 else None
+        except Exception as e:
+            log.warning(f"Failed to fetch guild_stats for {guild_id}: {e}")
+            stats = None
         
-        # Member & XP aggregates
-        # Supabase doesn't support aggregate functions like COUNT(*), SUM, AVG directly on client except for count=exact.
-        # Options:
-        # 1. RPC call (Best, but requires creating function in DB)
-        # 2. Fetch all rows and calculate in Python (Slow for large guilds, ok for small)
-        # 3. Maintain these aggregates in `guild_stats` using triggers (Best practice)
-        
-        # Assuming we don't have RPCs yet, we might need to rely on `get_stats` logic or similar.
-        # But `users` table can be large.
-        
-        # Let's try to fetch all users for the guild (paginated if needed) and calculate.
-        # Or better: check if we can skip this or if we already have it.
-        # `guild_stats` has `member_count` but not total_xp etc.
-        
-        # As a temporary measure, to avoid fetching 10k rows, we will return 0 for aggregates 
-        # OR fetch only necessary columns.
-        
-        # Actually, for this specific refactor, we are avoiding raw SQL.
-        # Let's assume we can fetch all users for now (Python aggregation).
-        # WARNING: Performance hit.
-        
+        # Fetch users for XP/level aggregation and active member count
         u_res = supabase.table('users').select('xp, weekly_xp, level').eq('guild_id', guild_id).execute()
         users = u_res.data or []
         
-        db_total_members = len(users)
-        active_members_weekly = sum(1 for u in users if u['weekly_xp'] > 0)
-        total_xp_lifetime = sum(u['xp'] for u in users)
-        total_xp_weekly = sum(u['weekly_xp'] for u in users)
-        avg_level = sum(u['level'] for u in users) / db_total_members if db_total_members > 0 else 0
+        # Active members = users with XP > 0 (matches backend logic)
+        active_members = sum(1 for u in users if u.get('xp', 0) > 0)
+        
+        # XP and level aggregates
+        total_xp_lifetime = sum(u.get('xp', 0) for u in users)
+        total_xp_weekly = sum(u.get('weekly_xp', 0) for u in users)
+        avg_level = sum(u.get('level', 0) for u in users) / len(users) if len(users) > 0 else 0
 
-        # Live member count from Discord API (fallback to DB count)
-        real_total_members = db_total_members
+        # Use Discord API for total member count 
+        # This matches the backend analytics fix
+        total_members = len(users)  
         try:
             bot_headers = {"Authorization": f"Bot {DISCORD_BOT_TOKEN}"}
             guild_resp = requests.get(
@@ -2547,40 +2977,35 @@ def get_current_analytics(guild_id):
             )
             if guild_resp.status_code == 200:
                 guild_data = guild_resp.json()
-                real_total_members = guild_data.get(
-                    "approximate_member_count", db_total_members
-                )
+                # Use approximate_member_count for real Discord member count
+                total_members = guild_data.get("approximate_member_count", total_members)
+                log.info(f"Frontend analytics: Using Discord API member count for {guild_id}: {total_members}")
+            else:
+                log.warning(f"Discord API returned status {guild_resp.status_code} for guild {guild_id}, using DB count: {total_members}")
         except Exception as e:
-            log.warning(f"Failed to get live member count from Discord API: {e}")
+            log.warning(f"Failed to get live member count from Discord API for {guild_id}: {e}, using DB count: {total_members}")
 
-        # Adoption / other stats
-        # Queries for feature adoption
+        # Feature adoption metrics
+        lr_count = supabase.table('level_roles').select('role_id', count='exact').eq('guild_id', guild_id).execute().count or 0
+        cr_count = supabase.table('channel_restrictions_v2').select('id', count='exact').eq('guild_id', guild_id).execute().count or 0
+        reminder_count = supabase.table('reminders').select('id', count='exact').eq('guild_id', guild_id).neq('status', 'deleted').execute().count or 0
         
-        lr_count = supabase.table('level_roles').select('role_id', count='exact').eq('guild_id', guild_id).execute().count
-        cr_count = supabase.table('channel_restrictions_v2').select('id', count='exact').eq('guild_id', guild_id).execute().count
-        reminder_count = supabase.table('reminders').select('id', count='exact').eq('guild_id', guild_id).execute().count
-        # wc_res = supabase.table('welcome_config').select('is_enabled').eq('guild_id', guild_id).single().execute()
-        # wc_enabled = wc_res.data['is_enabled'] if wc_res.data else False
-        wc_enabled = False # Default to False as table is missing
-        
+        # Top contributors (top 10 by XP)
         top_contributors = []
-        # Top 10 by XP
         tc_res = supabase.table('users').select('user_id, username, xp, level').eq('guild_id', guild_id).order('xp', desc=True).limit(10).execute()
         if tc_res.data:
             top_contributors = tc_res.data
 
-        # Return matched JSON structure
+        # Return analytics data matching backend structure
         return jsonify({
-            "messages_this_week": stats['messages_this_week'] if stats else 0,
-            "new_members_this_week": stats['new_members_this_week'] if stats else 0,
-            "total_members": real_total_members,
-            "active_members": active_members_weekly,
+            "messages_this_week": stats.get('messages_this_week', 0) if stats else 0,
+            "new_members_this_week": stats.get('new_members_this_week', 0) if stats else 0,
+            "total_members": total_members,
+            "active_members": active_members,
             "avg_level": round(avg_level, 1),
             "total_xp_weekly": total_xp_weekly, 
             "lifetime_xp": total_xp_lifetime,
-            "feature_count": None, # Deprecated or handled below if frontend uses it? Frontend likely uses granular data now or we construct it.
-            # Original code sum-ed features.
-            "feature_count": (lr_count or 0) + (cr_count or 0) + (reminder_count or 0) + (1 if wc_enabled else 0),
+            "feature_count": lr_count + cr_count + reminder_count,
             "top_contributors": [
                 {
                     "user_id": u['user_id'],
@@ -2589,14 +3014,15 @@ def get_current_analytics(guild_id):
                     "level": u['level'],
                 } for u in top_contributors
             ],
-            "total_xp": total_xp_lifetime, 
-            "max_level": 0 # Not calculated to save query
+            "total_xp": total_xp_lifetime,
+            "max_level": max((u.get('level', 0) for u in users), default=0)
         })
 
     except Exception as e:
-        log.error(f"Analytics Data Error: {e}")
+        log.error(f"Analytics Data Error for {guild_id}: {e}")
+        import traceback
+        log.error(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
-    # finally removed
 
 
 @app.route("/api/analytics/<guild_id>/history")
@@ -2708,8 +3134,6 @@ def get_snapshot_detail(guild_id, snapshot_id):
     if not pool:
         return jsonify({"error": "Database error"}), 500
 
-    # pool = init_db_pool() ...
-
     try:
         res = supabase.table('analytics_snapshots').select('*').eq('id', snapshot_id).eq('guild_id', guild_id).single().execute()
         snapshot = res.data
@@ -2721,7 +3145,7 @@ def get_snapshot_detail(guild_id, snapshot_id):
             {
                 "id": snapshot['id'],
                 "guild_id": snapshot['guild_id'],
-                "snapshot_date": snapshot['snapshot_date'], # Supabase returns ISO usually? Or we simply pass it.
+                "snapshot_date": snapshot['snapshot_date'],
                 "week_number": snapshot['week_number'],
                 "year": snapshot['year'],
                 "health_score": snapshot['health_score'],
@@ -2756,7 +3180,6 @@ def get_snapshot_detail(guild_id, snapshot_id):
     except Exception as e:
         log.error(f"Error fetching snapshot {snapshot_id}: {e}")
         return jsonify({"error": "Failed to fetch snapshot"}), 500
-    # finally removed
 
 
 @app.route("/api/analytics/<guild_id>/settings", methods=["GET", "POST"])
@@ -2834,7 +3257,6 @@ def analytics_settings(guild_id):
     except Exception as e:
         log.error(f"Error managing analytics settings for {guild_id}: {e}")
         return jsonify({"error": "Failed to manage settings"}), 500
-    # finally removed
 
 
 # ==================== RUNNER ====================
@@ -2845,9 +3267,7 @@ def check_and_migrate_schema():
     Perform minimal schema migrations required by the dashboard.
     For Supabase, logic is simplified or skipped if not using direct migrations here.
     """
-    # Skipping migration logic as we are not using psycopg2 anymore
     log.info("✅ Schema migration: Check skipped (Supabase Mode).")
-    # pool = init_db_pool() ... removed
 
 
 def run_flask_app():
@@ -2863,7 +3283,6 @@ def run_flask_app():
     debug = os.getenv("FLASK_DEBUG", "true").lower() == "true"
 
     log.info(f"🌐 Flask Server starting on {host}:{port}")
-    # init_db_pool() removed
     check_and_migrate_schema() # Keep as no-op or lightweight
     app.run(host=host, port=port, debug=debug, use_reloader=False)
 

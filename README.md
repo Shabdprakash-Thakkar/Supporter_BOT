@@ -1,29 +1,48 @@
 ```
+Supporter_BOT is a full-stack Discord bot with a Flask dashboard, modular frontend assets, and a production-ready consolidation pipeline — 232 files, built as a real system, not a demo.
+```
+
+---
+
+``` TOTAL FILES
+Root files:                       6
+Consolidate/:                     3
+Data_Files/:                      5
+Flask_Frontend (dev):           100
+Flask_Frontend_Consolidated:    102
+Python_Files/:                  12
+Runner_Files/:                   4
+-----------------------------------
+TOTAL FILES =                  232
+```
+
+---
+
+``` FILE STRUCTURE
 Supporter_BOT/
+├── .gitignore                                   # Git ignore rules
+├── LICENSE.txt                                  # License
+├── PerformanceReport.md                         # Performance report
+├── Project.md                                   # Project docs
+├── README.md                                    # Readme
+├── __init__.py                                  # Root init
 │
-├── .gitignore                                              # Git ignore rules
-├── LICENSE.txt                                             # Project license
-├── PerformanceReport.md                                    # Consolidated vs Separate mode analysis
-├── Project.md                                              # Project documentation and configuration
-├── README.md                                               # Project structure documentation
-├── __init__.py                                             # Python package initializer
+├── Consolidate/                                 # Consolidation scripts
+│   ├── consolidate_css.py                       # Merge CSS
+│   ├── consolidate_html.py                      # Merge HTML
+│   └── consolidate_js.py                        # Merge JS
 │
-├── Consolidate/                                            # 🔧 Optimization scripts
-│   ├── consolidate_css.py                                  # Merges all CSS files into one
-│   ├── consolidate_html.py                                 # Merges all HTML templates
-│   └── consolidate_js.py                                   # Merges all JavaScript files
+├── Data_Files/                                  # Config & DB
+│   ├── .env                                     # Env vars
+│   ├── .env.example                             # Env template
+│   ├── SQL.example.txt                          # Sample SQL
+│   ├── SQL.txt                                  # SQL schema
+│   └── requirements.txt                         # Python deps
 │
-├── Data_Files/                                             # 📦 Configuration and data storage
-│   ├── .env                                                # Environment variables
-│   ├── .env.example                                        # Example environment configuration
-│   ├── SQL.example.txt                                     # SQL schema examples
-│   ├── SQL.txt                                             # Start SQL schema
-│   └── requirements.txt                                    # Python dependencies
-│
-├── Flask_Frontend/                                         # 🌐 Source files for web dashboard
-│   ├── app.py                                              # Main Flask application
+├── Flask_Frontend/                              # Flask frontend (dev)
+│   ├── app.py                                   # Flask app
 │   │
-│   ├── Assets/                                             # 🖼️ Static images and icons
+│   ├── Assets/                                  # Images
 │   │   ├── bot-logo.png
 │   │   ├── quality-16px.png
 │   │   ├── quality-24px.png
@@ -31,9 +50,9 @@ Supporter_BOT/
 │   │   ├── quality-64px.png
 │   │   ├── quality-128px.png
 │   │   ├── quality-256px.png
-│   │   ├── quality-512px.png
+│   │   └── quality-512px.png
 │   │
-│   ├── CSS/                                                # 🎨 Stylesheets
+│   ├── CSS/                                     # Styles
 │   │   ├── base.css
 │   │   ├── command.css
 │   │   ├── contact.css
@@ -44,13 +63,13 @@ Supporter_BOT/
 │   │   ├── index.css
 │   │   ├── profile.css
 │   │   ├── server_config.css
-│   │   │
-│   │   ├── partials/                                       # Component styles
+│   │   ├── transcript.css
+│   │   ├── voice_channels.css
+│   │   ├── partials/
 │   │   │   ├── navbar.css
 │   │   │   ├── privacy_policy.css
 │   │   │   └── terms_of_service.css
-│   │   │
-│   │   └── Tabs/                                           # Dashboard tab styles
+│   │   └── Tabs/
 │   │       ├── config_analytics.css
 │   │       ├── config_general.css
 │   │       ├── config_level.css
@@ -58,19 +77,17 @@ Supporter_BOT/
 │   │       ├── config_restriction.css
 │   │       ├── config_time.css
 │   │       ├── config_youtube.css
-│   │       │
-│   │       ├── SubTabsAnalytics/                           # Analytics sub-tabs
+│   │       ├── SubTabsAnalytics/
 │   │       │   ├── config_analytics_guide.css
 │   │       │   ├── config_analytics_history.css
 │   │       │   └── config_analytics_snapshot.css
-│   │       │
-│   │       └── SubTabsLevel/                               # Leveling sub-tabs
+│   │       └── SubTabsLevel/
 │   │           ├── config_level_leaderboard.css
 │   │           ├── config_level_leaderboard_full.css
 │   │           ├── config_level_reward.css
 │   │           └── config_level_setting.css
 │   │
-│   ├── HTML/                                               # 🌐 HTML Templates
+│   ├── HTML/                                    # Templates
 │   │   ├── command.html
 │   │   ├── contact.html
 │   │   ├── dashboard.html
@@ -82,33 +99,34 @@ Supporter_BOT/
 │   │   ├── profile.html
 │   │   ├── server_config.html
 │   │   ├── terms_of_service.html
-│   │   │
-│   │   ├── partials/                                       # Reusable components
+│   │   ├── transcript_list.html
+│   │   ├── transcript_view.html
+│   │   ├── voice_channels.html
+│   │   ├── partials/
 │   │   │   ├── navbar.html
 │   │   │   ├── privacy_policy.html
 │   │   │   └── terms_of_service.html
-│   │   │
-│   │   └── Tabs/                                           # Dashboard configuration tabs
+│   │   └── Tabs/
 │   │       ├── config_analytics.html
 │   │       ├── config_general.html
 │   │       ├── config_level.html
 │   │       ├── config_reminder.html
 │   │       ├── config_restriction.html
+│   │       ├── config_tickets.html
 │   │       ├── config_time.html
+│   │       ├── config_voice_channels.html
 │   │       ├── config_youtube.html
-│   │       │
-│   │       ├── SubTabsAnalytics/                           # Analytics sub-tabs
+│   │       ├── SubTabsAnalytics/
 │   │       │   ├── config_analytics_guide.html
 │   │       │   ├── config_analytics_history.html
 │   │       │   └── config_analytics_snapshot.html
-│   │       │
-│   │       └── SubTabsLevel/                               # Leveling sub-tabs
+│   │       └── SubTabsLevel/
 │   │           ├── config_level_leaderboard.html
 │   │           ├── config_level_leaderboard_full.html
 │   │           ├── config_level_reward.html
 │   │           └── config_level_setting.html
 │   │
-│   └── JS/                                                 # 📜 JavaScript files
+│   └── JS/                                      # Scripts
 │       ├── command.js
 │       ├── contact.js
 │       ├── dashboard.js
@@ -118,40 +136,38 @@ Supporter_BOT/
 │       ├── index.js
 │       ├── profile.js
 │       ├── server_config.js
-│       │
-│       ├── partial/                                        # Shared components
+│       ├── transcript.js
+│       ├── voice_channels.js
+│       ├── partial/
 │       │   └── global_navbar.js
-│       │
-│       ├── Utils/                                          # 🛠️ Utility functions
-│       │   └── populateChannelDropdownWithCategories.js
-│       │
-│       └── Tabs/                                           # Dashboard tab scripts
-│           ├── config_analytics.js
-│           ├── config_general.js
-│           ├── config_level.js
-│           ├── config_reminder.js
-│           ├── config_restriction.js
-│           ├── config_time.js
-│           ├── config_youtube.js
-│           │
-│           ├── SubTabsAnalytics/                           # Analytics sub-tab scripts
-│           │   ├── config_analytics_history.js
-│           │   ├── config_analytics_settings.js
-│           │   ├── config_analytics_snapshot.js
-│           │
-│           └── SubTabsLevel/                               # Leveling sub-tab scripts
-│               ├── config_level_leaderboard.js
-│               ├── config_level_leaderboard_full.js
-│               ├── config_level_reward.js
-│               └── config_level_setting.js
+│       ├── Tabs/
+│       │   ├── config_analytics.js
+│       │   ├── config_general.js
+│       │   ├── config_level.js
+│       │   ├── config_reminder.js
+│       │   ├── config_restriction.js
+│       │   ├── config_tickets.js
+│       │   ├── config_time.js
+│       │   ├── config_youtube.js
+│       │   ├── SubTabsAnalytics/
+│       │   │   ├── config_analytics_history.js
+│       │   │   ├── config_analytics_settings.js
+│       │   │   └── config_analytics_snapshot.js
+│       │   └── SubTabsLevel/
+│       │       ├── config_level_leaderboard.js
+│       │       ├── config_level_leaderboard_full.js
+│       │       ├── config_level_reward.js
+│       │       └── config_level_setting.js
+│       └── Utils/
+│           └── populateChannelDropdownWithCategories.js
 │
-├── Flask_Frontend_Consolidated/                            # 🚀 Optimized production files
-│   ├── app_hcj.css                                         # Merged CSS
-│   ├── app_hcj.html                                        # Merged HTML
-│   ├── app_hcj.js                                          # Merged JS
-│   ├── app_hcj.py                                          # Production Flask app
+├── Flask_Frontend_Consolidated/                 # Frontend (prod)
+│   ├── app_hcj.css                              # Merged CSS
+│   ├── app_hcj.html                             # Merged HTML
+│   ├── app_hcj.js                               # Merged JS
+│   ├── app_hcj.py                               # Flask prod app
 │   │
-│   ├── Assets/                                             # 🖼️ Static images and icons
+│   ├── Assets/                                  # Images
 │   │   ├── bot-logo.png
 │   │   ├── quality-16px.png
 │   │   ├── quality-24px.png
@@ -159,9 +175,9 @@ Supporter_BOT/
 │   │   ├── quality-64px.png
 │   │   ├── quality-128px.png
 │   │   ├── quality-256px.png
-│   │   ├── quality-512px.png
+│   │   └── quality-512px.png
 │   │
-│   ├── CSS/                                                # 🎨 Stylesheets (Copied Source)
+│   ├── CSS/
 │   │   ├── base.css
 │   │   ├── command.css
 │   │   ├── contact.css
@@ -172,13 +188,13 @@ Supporter_BOT/
 │   │   ├── index.css
 │   │   ├── profile.css
 │   │   ├── server_config.css
-│   │   │
-│   │   ├── partials/                                       # Component styles
+│   │   ├── transcript.css
+│   │   ├── voice_channels.css
+│   │   ├── partials/
 │   │   │   ├── navbar.css
 │   │   │   ├── privacy_policy.css
 │   │   │   └── terms_of_service.css
-│   │   │
-│   │   └── Tabs/                                           # Dashboard tab styles
+│   │   └── Tabs/
 │   │       ├── config_analytics.css
 │   │       ├── config_general.css
 │   │       ├── config_level.css
@@ -186,19 +202,17 @@ Supporter_BOT/
 │   │       ├── config_restriction.css
 │   │       ├── config_time.css
 │   │       ├── config_youtube.css
-│   │       │
-│   │       ├── SubTabsAnalytics/                           # Analytics sub-tabs
+│   │       ├── SubTabsAnalytics/
 │   │       │   ├── config_analytics_guide.css
 │   │       │   ├── config_analytics_history.css
 │   │       │   └── config_analytics_snapshot.css
-│   │       │
-│   │       └── SubTabsLevel/                               # Leveling sub-tabs
+│   │       └── SubTabsLevel/
 │   │           ├── config_level_leaderboard.css
 │   │           ├── config_level_leaderboard_full.css
 │   │           ├── config_level_reward.css
 │   │           └── config_level_setting.css
 │   │
-│   ├── HTML/                                               # 🌐 HTML Templates (Copied Source)
+│   ├── HTML/
 │   │   ├── command.html
 │   │   ├── contact.html
 │   │   ├── dashboard.html
@@ -210,33 +224,34 @@ Supporter_BOT/
 │   │   ├── profile.html
 │   │   ├── server_config.html
 │   │   ├── terms_of_service.html
-│   │   │
-│   │   ├── partials/                                       # Reusable components
+│   │   ├── transcript_list.html
+│   │   ├── transcript_view.html
+│   │   ├── voice_channels.html
+│   │   ├── partials/
 │   │   │   ├── navbar.html
 │   │   │   ├── privacy_policy.html
 │   │   │   └── terms_of_service.html
-│   │   │
-│   │   └── Tabs/                                           # Dashboard configuration tabs
+│   │   └── Tabs/
 │   │       ├── config_analytics.html
 │   │       ├── config_general.html
 │   │       ├── config_level.html
 │   │       ├── config_reminder.html
 │   │       ├── config_restriction.html
+│   │       ├── config_tickets.html
 │   │       ├── config_time.html
+│   │       ├── config_voice_channels.html
 │   │       ├── config_youtube.html
-│   │       │
-│   │       ├── SubTabsAnalytics/                           # Analytics sub-tabs
+│   │       ├── SubTabsAnalytics/
 │   │       │   ├── config_analytics_guide.html
 │   │       │   ├── config_analytics_history.html
 │   │       │   └── config_analytics_snapshot.html
-│   │       │
-│   │       └── SubTabsLevel/                               # Leveling sub-tabs
+│   │       └── SubTabsLevel/
 │   │           ├── config_level_leaderboard.html
 │   │           ├── config_level_leaderboard_full.html
 │   │           ├── config_level_reward.html
 │   │           └── config_level_setting.html
 │   │
-│   └── JS/                                                 # 📜 JavaScript files (Copied Source)
+│   └── JS/
 │       ├── command.js
 │       ├── contact.js
 │       ├── dashboard.js
@@ -246,46 +261,46 @@ Supporter_BOT/
 │       ├── index.js
 │       ├── profile.js
 │       ├── server_config.js
-│       │
-│       ├── partial/                                        # Shared components
+│       ├── transcript.js
+│       ├── voice_channels.js
+│       ├── partial/
 │       │   └── global_navbar.js
-│       │
-│       ├── Utils/                                          # 🛠️ Utility functions
-│       │   └── populateChannelDropdownWithCategories.js
-│       │
-│       └── Tabs/                                           # Dashboard tab scripts
-│           ├── config_analytics.js
-│           ├── config_general.js
-│           ├── config_level.js
-│           ├── config_reminder.js
-│           ├── config_restriction.js
-│           ├── config_time.js
-│           ├── config_youtube.js
-│           │
-│           ├── SubTabsAnalytics/                           # Analytics sub-tab scripts
-│           │   ├── config_analytics_history.js
-│           │   ├── config_analytics_settings.js
-│           │   ├── config_analytics_snapshot.js
-│           │
-│           └── SubTabsLevel/                               # Leveling sub-tab scripts
-│               ├── config_level_leaderboard.js
-│               ├── config_level_leaderboard_full.js
-│               ├── config_level_reward.js
-│               └── config_level_setting.js
+│       ├── Tabs/
+│       │   ├── config_analytics.js
+│       │   ├── config_general.js
+│       │   ├── config_level.js
+│       │   ├── config_reminder.js
+│       │   ├── config_restriction.js
+│       │   ├── config_tickets.js
+│       │   ├── config_time.js
+│       │   ├── config_youtube.js
+│       │   ├── SubTabsAnalytics/
+│       │   │   ├── config_analytics_history.js
+│       │   │   ├── config_analytics_settings.js
+│       │   │   └── config_analytics_snapshot.js
+│       │   └── SubTabsLevel/
+│       │       ├── config_level_leaderboard.js
+│       │       ├── config_level_leaderboard_full.js
+│       │       ├── config_level_reward.js
+│       │       └── config_level_setting.js
+│       └── Utils/
+│           └── populateChannelDropdownWithCategories.js
 │
-├── Python_Files/                                           # 🤖 Core Discord bot logic
+├── Python_Files/                                # Bot backend
 │   ├── __init__.py
 │   ├── analytics.py
 │   ├── date_and_time.py
 │   ├── help.py
+│   ├── join_to_create.py
 │   ├── level.py
 │   ├── no_text.py
 │   ├── owner_actions.py
 │   ├── reminder.py
 │   ├── supporter.py
+│   ├── ticket_system.py
 │   └── youtube_notification.py
 │
-└── Runner_Files/                                           # ▶️ Execution scripts
+└── Runner_Files/                                # Run scripts
     ├── run_localhost.py
     ├── run_localhost_consolidated.py
     ├── run_production.py

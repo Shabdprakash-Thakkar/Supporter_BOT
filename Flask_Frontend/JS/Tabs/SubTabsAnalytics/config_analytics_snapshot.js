@@ -1,3 +1,4 @@
+// v4.0.0
 /**
  * @file Analytics Snapshot Detail JavaScript
  * @description

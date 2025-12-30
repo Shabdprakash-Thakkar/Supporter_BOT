@@ -1,3 +1,4 @@
+// v4.0.0
 /**
  * @file YouTube Notifications Configuration Script
  * @description

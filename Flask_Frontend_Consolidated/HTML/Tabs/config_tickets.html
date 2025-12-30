@@ -1,0 +1,171 @@
+<!-- v4.0.0 -->
+<!-- Ticket System Configuration Tab -->
+<div class="space-y-8">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+        <div>
+            <h2 class="text-2xl font-black flex items-center gap-3">
+                <i class="fas fa-ticket-alt text-cyan-400"></i>
+                Ticket System Configuration
+            </h2>
+            <p class="text-slate-400 text-sm mt-1">
+                Configure support ticket channels, messages, and permissions
+            </p>
+        </div>
+        <a href="/dashboard/tickets/{{ server.id }}" target="_blank"
+            class="px-4 py-2 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/30 rounded-lg text-sm font-bold transition-all hover:scale-105">
+            <i class="fas fa-list mr-2"></i>View Transcripts
+        </a>
+    </div>
+
+    <!-- Configuration Form -->
+    <div class="bg-slate-800/30 rounded-xl p-6 border border-slate-700/50 space-y-6">
+
+        <!-- Ticket Channel -->
+        <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                <i class="fas fa-hashtag mr-1"></i> Ticket Button Channel
+            </label>
+            <select id="ticketChannel"
+                class="w-full bg-brand-dark border border-slate-700 rounded-lg px-4 py-3 focus:border-cyan-500 focus:outline-none transition-colors text-white">
+                <option value="">Select channel where ticket button will be posted...</option>
+            </select>
+            <p class="text-xs text-slate-500 mt-2">
+                <i class="fas fa-info-circle mr-1"></i>Users will click a button in this channel to create tickets
+            </p>
+        </div>
+
+        <!-- Ticket Category -->
+        <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                <i class="fas fa-folder mr-1"></i> Ticket Category
+            </label>
+            <select id="ticketCategory"
+                class="w-full bg-brand-dark border border-slate-700 rounded-lg px-4 py-3 focus:border-cyan-500 focus:outline-none transition-colors text-white">
+                <option value="">Select category for ticket channels...</option>
+            </select>
+            <p class="text-xs text-slate-500 mt-2">
+                <i class="fas fa-info-circle mr-1"></i>New ticket text and voice channels will be created in this
+                category
+            </p>
+        </div>
+
+        <!-- Staff Role -->
+        <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                <i class="fas fa-user-shield mr-1"></i> Staff/Support Role
+            </label>
+            <select id="ticketStaffRole"
+                class="w-full bg-brand-dark border border-slate-700 rounded-lg px-4 py-3 focus:border-cyan-500 focus:outline-none transition-colors text-white">
+                <option value="">Select role that can access all tickets...</option>
+            </select>
+            <p class="text-xs text-slate-500 mt-2">
+                <i class="fas fa-info-circle mr-1"></i>Members with this role will have access to all ticket channels
+            </p>
+        </div>
+
+        <!-- Transcript Channel (Optional) -->
+        <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                <i class="fas fa-file-alt mr-1"></i> Transcript Log Channel (Optional)
+            </label>
+            <select id="ticketTranscriptChannel"
+                class="w-full bg-brand-dark border border-slate-700 rounded-lg px-4 py-3 focus:border-cyan-500 focus:outline-none transition-colors text-white">
+                <option value="">None - Don't log transcripts</option>
+            </select>
+            <p class="text-xs text-slate-500 mt-2">
+                <i class="fas fa-info-circle mr-1"></i>Closed ticket transcripts will be posted to this channel
+            </p>
+        </div>
+
+        <!-- Initial Message (Button Message) -->
+        <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                <i class="fas fa-comment mr-1"></i> Initial Message (Shown with Button)
+            </label>
+            <textarea id="ticketInitialMessage" rows="3"
+                class="w-full bg-brand-dark border border-slate-700 rounded-lg px-4 py-3 focus:border-cyan-500 focus:outline-none transition-colors text-white font-mono text-sm resize-none"
+                placeholder="Click the button below to open a support ticket."></textarea>
+            <p class="text-xs text-slate-500 mt-2">
+                <i class="fas fa-info-circle mr-1"></i>This message appears with the "Create Ticket" button
+            </p>
+        </div>
+
+        <!-- Welcome Message (Ticket Greeting) -->
+        <div>
+            <label class="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                <i class="fas fa-envelope-open-text mr-1"></i> Welcome Message (Shown in Ticket)
+            </label>
+            <textarea id="ticketWelcomeMessage" rows="4"
+                class="w-full bg-brand-dark border border-slate-700 rounded-lg px-4 py-3 focus:border-cyan-500 focus:outline-none transition-colors text-white font-mono text-sm resize-none"
+                placeholder="Hello {user}, support will be with you shortly. Please describe your issue and we'll help you as soon as possible."></textarea>
+            <div class="mt-3 p-3 bg-brand-dark/50 rounded-lg border border-slate-700/50">
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
+                    Available Variables
+                </h4>
+                <div class="flex flex-wrap gap-2">
+                    <span class="var-badge" onclick="insertTicketVar('{user}')">
+                        {user}
+                    </span>
+                    <span class="var-badge" onclick="insertTicketVar('{ticket_id}')">
+                        {ticket_id}
+                    </span>
+                </div>
+                <p class="text-xs text-slate-500 mt-2">
+                    <i class="fas fa-info-circle mr-1"></i>Click a variable to insert it into the message
+                </p>
+            </div>
+        </div>
+
+        <!-- Save Button -->
+        <div class="flex justify-end gap-3 pt-4 border-t border-slate-700/50">
+            <button onclick="loadTicketConfig()"
+                class="px-6 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-700/50 transition-all font-medium">
+                <i class="fas fa-undo mr-2"></i>Reset
+            </button>
+            <button onclick="saveTicketConfig()"
+                class="bg-cyan-500 hover:bg-cyan-600 text-white px-8 py-2 rounded-lg font-bold transition-all shadow-lg hover:shadow-cyan-500/20 active:scale-95">
+                <i class="fas fa-save mr-2"></i>Save Configuration
+            </button>
+        </div>
+    </div>
+
+    <!-- Info Box -->
+    <div class="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+        <div class="flex gap-3">
+            <i class="fas fa-info-circle text-blue-400 text-xl mt-0.5"></i>
+            <div class="text-sm text-blue-200">
+                <p class="font-bold mb-1">How the Ticket System Works:</p>
+                <ul class="list-disc list-inside space-y-1 text-blue-300/80">
+                    <li>Users click the button in the ticket channel to create a support ticket</li>
+                    <li>A private text AND voice channel is created for the user and staff</li>
+                    <li>Tickets automatically close after 6 hours of inactivity</li>
+                    <li>Full conversation transcripts are saved when tickets close</li>
+                    <li>You can also use the <code class="bg-blue-900/30 px-1 rounded">/tt1-setup</code> slash command
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .var-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        background: rgba(34, 211, 238, 0.15);
+        border: 1px solid rgba(34, 211, 238, 0.3);
+        border-radius: 6px;
+        font-family: 'Courier New', monospace;
+        font-size: 12px;
+        color: #22d3ee;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .var-badge:hover {
+        background: rgba(34, 211, 238, 0.25);
+        border-color: rgba(34, 211, 238, 0.5);
+        transform: translateY(-1px);
+    }
+</style>

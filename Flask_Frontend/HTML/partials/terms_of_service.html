@@ -1,127 +1,425 @@
+<!-- v4.0.0 -->
 <!--
-  File: terms_of_service_content.html (partial)
+  File: terms_of_service.html (partial)
   Description:
-    - Reusable content block for the Terms of Service page of Supporter Bot.
-    - Designed to be embedded inside a higher-level layout (e.g., terms_of_service.html)
-      or a legal wrapper template.
-
-  Purpose:
-    - Present the Terms of Service in a clear, readable, and structured format.
-    - Outline usage conditions, license, availability, responsibilities, termination,
-      and contact details for Supporter Bot.
-
-  Layout & Styling:
-    - Root wrapper: .legal-container
-    - Header: .legal-header with gradient main title and "last updated" line.
-    - Body: .legal-content.glass-card with sectioned legal text.
-    - Relies on external CSS (e.g., legal.css / terms.css) for:
-      - Glassmorphism card styling (glass-card)
-      - Gradient typography (gradient-text)
-      - Spacing utilities (p-8, etc.)
-
-  Integration Points:
-    - Typically used inside a Jinja/Flask or other templating engine layout.
-    - Contact link routes to /contact (or equivalent route defined in backend).
+    - Comprehensive Terms of Service for Supporter Bot
+    - Legally binding agreement between service provider and users
+    - Covers all bot features, limitations, and user responsibilities
+  
+  Last Updated: December 30, 2025
 -->
 
 <div class="legal-container">
-  <!-- ========== LEGAL HEADER (TITLE & LAST UPDATED) ========== -->
+  <!-- ========== LEGAL HEADER ========== -->
   <div class="legal-header">
     <h1 class="gradient-text">Terms of Service</h1>
-    <p class="last-updated">Last Updated: December 2025</p>
+    <p class="last-updated">Last Updated: December 30, 2025</p>
   </div>
 
-  <!-- ========== LEGAL CONTENT WRAPPER ========== -->
+  <!-- ========== LEGAL CONTENT ========== -->
   <div class="legal-content glass-card p-8">
+
+    <!-- Introduction -->
+    <section>
+      <h2>Introduction</h2>
+      <p>
+        These Terms of Service ("Terms") govern your access to and use of Supporter Bot ("the Bot," "we," "us," or
+        "our"), including our Discord bot service, web dashboard, and related services. By inviting the Bot to your
+        Discord server or accessing our dashboard, you agree to be bound by these Terms.
+      </p>
+      <p>
+        <strong>IF YOU DO NOT AGREE TO THESE TERMS, DO NOT USE OUR SERVICES.</strong>
+      </p>
+    </section>
+
     <!-- Section 1: Acceptance of Terms -->
     <section>
       <h2>1. Acceptance of Terms</h2>
       <p>
-        By inviting <strong>SupporterBOT</strong> to your Discord server or
-        using its features (including Dashboard, Leveling, Analytics, Time
-        Channels, YouTube Alerts, or Channel Restrictions), you agree to be
-        bound by these Terms of Service.
+        By using Supporter Bot, you represent and warrant that:
+      </p>
+      <ul>
+        <li>You are at least 13 years old (or the minimum age required in your jurisdiction).</li>
+        <li>You have the authority to bind your Discord server to these Terms if acting as a server administrator.</li>
+        <li>You comply with Discord's <a href="https://discord.com/terms" target="_blank"
+            class="text-indigo-400 hover:underline">Terms of Service</a> and <a href="https://discord.com/guidelines"
+            target="_blank" class="text-indigo-400 hover:underline">Community Guidelines</a>.</li>
+        <li>You will use the Bot in accordance with all applicable laws and regulations.</li>
+      </ul>
+    </section>
+
+    <!-- Section 2: License Grant -->
+    <section>
+      <h2>2. License Grant</h2>
+
+      <h3>2.1 Limited License</h3>
+      <p>
+        We grant you a limited, non-exclusive, non-transferable, revocable license to use Supporter Bot for your Discord
+        server management needs, subject to these Terms.
+      </p>
+
+      <h3>2.2 License Restrictions</h3>
+      <p>You agree NOT to:</p>
+      <ul>
+        <li>Reverse engineer, decompile, disassemble, or attempt to derive the source code of the Bot.</li>
+        <li>Modify, adapt, translate, or create derivative works based on the Bot.</li>
+        <li>Remove, alter, or obscure any proprietary notices on the Bot.</li>
+        <li>Use the Bot for any illegal, harmful, or fraudulent purposes.</li>
+        <li>Attempt to gain unauthorized access to our systems, servers, or databases.</li>
+        <li>Use the Bot to violate Discord's Terms of Service or Community Guidelines.</li>
+        <li>Resell, redistribute, or sublicense the Bot to third parties.</li>
+        <li>Use automated scripts or bots to interact with the Bot (e.g., command spamming).</li>
+        <li>Exploit bugs or vulnerabilities for personal gain or to harm others.</li>
+      </ul>
+    </section>
+
+    <!-- Section 3: Service Features & Functionality -->
+    <section>
+      <h2>3. Service Features & Functionality</h2>
+      <p>
+        Supporter Bot provides the following features, subject to availability and modification:
+      </p>
+
+      <h3>3.1 Leveling System</h3>
+      <ul>
+        <li>XP tracking based on message activity and voice participation.</li>
+        <li>Customizable XP rates and level reward roles.</li>
+        <li>Global and server-specific leaderboards.</li>
+      </ul>
+
+      <h3>3.2 Analytics Dashboard</h3>
+      <ul>
+        <li>Server health metrics and engagement scores.</li>
+        <li>Weekly automated reports and on-demand snapshots.</li>
+        <li>Historical trend analysis (90-day retention).</li>
+      </ul>
+
+      <h3>3.3 YouTube Notifications</h3>
+      <ul>
+        <li>Real-time alerts for new video uploads (checked every 15 minutes).</li>
+        <li>Custom notification messages with role mentions.</li>
+        <li>Subject to YouTube Data API quotas and availability.</li>
+      </ul>
+
+      <h3>3.4 Time Channels</h3>
+      <ul>
+        <li>Auto-updating voice channels displaying timezone-specific time.</li>
+        <li>Updates every 10 minutes.</li>
+        <li>Support for all IANA timezones.</li>
+      </ul>
+
+      <h3>3.5 Smart Reminders</h3>
+      <ul>
+        <li>One-time and recurring reminders with timezone support.</li>
+        <li>Customizable intervals and target channels.</li>
+      </ul>
+
+      <h3>3.6 Channel Restrictions</h3>
+      <ul>
+        <li>Media-only, text-only, and link restriction modes.</li>
+        <li>Role-based bypass and immunity systems.</li>
+        <li>Automatic message deletion for non-compliant content.</li>
+      </ul>
+
+      <h3>3.7 Ticket System</h3>
+      <ul>
+        <li>Private text and voice channels for support tickets.</li>
+        <li>Automatic transcript generation and storage.</li>
+        <li>Auto-closure after 6 hours of inactivity.</li>
+        <li>Dashboard access to historical transcripts (1-year retention).</li>
+      </ul>
+
+      <h3>3.8 Voice Channel (Join-to-Create)</h3>
+      <ul>
+        <li>Automatic temporary voice channel creation on demand.</li>
+        <li>Configurable deletion delays and user cooldowns.</li>
+        <li>XP integration for temporary channel participation.</li>
+        <li>Anti-abuse rate limiting (max 5 channels per minute per server).</li>
+      </ul>
+    </section>
+
+    <!-- Section 4: Service Availability & Modifications -->
+    <section>
+      <h2>4. Service Availability & Modifications</h2>
+
+      <h3>4.1 Uptime & Reliability</h3>
+      <p>
+        While we strive for 99.9% uptime, we do NOT guarantee uninterrupted, error-free, or secure access to the Bot.
+        Service may be temporarily unavailable due to:
+      </p>
+      <ul>
+        <li>Scheduled maintenance (announced in advance when possible).</li>
+        <li>Emergency security patches or bug fixes.</li>
+        <li>Third-party service outages (Discord API, YouTube API, hosting providers).</li>
+        <li>Force majeure events beyond our reasonable control.</li>
+      </ul>
+
+      <h3>4.2 Feature Modifications</h3>
+      <p>
+        We reserve the right to modify, suspend, or discontinue any feature at any time without prior notice. We are not
+        liable for any modification, suspension, or discontinuation of services.
+      </p>
+
+      <h3>4.3 API Rate Limits</h3>
+      <p>
+        To ensure fair usage, we implement the following rate limits:
+      </p>
+      <ul>
+        <li>YouTube API: Subject to Google's daily quota limits (may affect notification frequency).</li>
+        <li>Discord API: Subject to Discord's rate limits (may delay command responses).</li>
+        <li>Dashboard API: 100 requests per minute per user.</li>
+      </ul>
+    </section>
+
+    <!-- Section 5: User Responsibilities -->
+    <section>
+      <h2>5. User Responsibilities</h2>
+
+      <h3>5.1 Server Administrator Obligations</h3>
+      <p>
+        As a server administrator, you are responsible for:
+      </p>
+      <ul>
+        <li>Properly configuring the Bot to comply with your server's rules and Discord's Terms.</li>
+        <li>Ensuring your server members are aware of the Bot's data collection practices.</li>
+        <li>Monitoring Bot usage and preventing abuse by server members.</li>
+        <li>Maintaining appropriate permissions for the Bot to function correctly.</li>
+        <li>Regularly reviewing and updating Bot configurations as needed.</li>
+      </ul>
+
+      <h3>5.2 Prohibited Uses</h3>
+      <p>
+        You agree NOT to use the Bot for:
+      </p>
+      <ul>
+        <li>Harassment, bullying, or targeted attacks against individuals or groups.</li>
+        <li>Spamming, flooding, or excessive command usage intended to disrupt service.</li>
+        <li>Distributing malware, viruses, or malicious content.</li>
+        <li>Impersonating others or misrepresenting your affiliation with any person or entity.</li>
+        <li>Collecting or harvesting user data without consent.</li>
+        <li>Circumventing rate limits, cooldowns, or other protective measures.</li>
+        <li>Using analytics data to discriminate, target, or harm server members.</li>
+        <li>Creating fake or misleading time channels or reminders.</li>
+        <li>Abusing the ticket system for non-support purposes.</li>
+      </ul>
+
+      <h3>5.3 Content Responsibility</h3>
+      <p>
+        You are solely responsible for all content generated through the Bot (e.g., custom messages, reminder text,
+        ticket transcripts). We do not endorse, support, or assume liability for user-generated content.
       </p>
     </section>
 
-    <!-- Section 2: Usage License -->
+    <!-- Section 6: Intellectual Property -->
     <section>
-      <h2>2. Usage License</h2>
+      <h2>6. Intellectual Property</h2>
+
+      <h3>6.1 Our Rights</h3>
       <p>
-        We grant you a limited, non-exclusive, non-transferable license to use
-        SupporterBOT for your Discord server management needs, subject to the
-        following restrictions:
+        All rights, title, and interest in and to the Bot, including all intellectual property rights, are and will
+        remain the exclusive property of Supporter Bot and its licensors. These Terms do not grant you any ownership
+        rights.
+      </p>
+
+      <h3>6.2 Trademarks</h3>
+      <p>
+        "Supporter Bot" and associated logos are trademarks. You may not use our trademarks without prior written
+        consent.
+      </p>
+
+      <h3>6.3 Feedback</h3>
+      <p>
+        Any feedback, suggestions, or ideas you provide about the Bot become our property, and we may use them without
+        compensation or attribution.
+      </p>
+    </section>
+
+    <!-- Section 7: Disclaimers & Limitations of Liability -->
+    <section>
+      <h2>7. Disclaimers & Limitations of Liability</h2>
+
+      <h3>7.1 "AS IS" Disclaimer</h3>
+      <p>
+        THE BOT IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED,
+        INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT,
+        OR SECURITY.
+      </p>
+
+      <h3>7.2 No Liability for Data Loss</h3>
+      <p>
+        WE ARE NOT LIABLE FOR ANY DATA LOSS, CORRUPTION, OR DELETION RESULTING FROM:
       </p>
       <ul>
-        <li>
-          You may not use the bot for any illegal purposes or to violate
-          Discord's Terms of Service.
-        </li>
-        <li>
-          You may not attempt to reverse engineer, decompile, or exploit the
-          bot's code or API.
-        </li>
-        <li>
-          Spamming bot commands or intentionally causing lag/crashes is strictly
-          prohibited.
-        </li>
-        <li>
-          Analytics data must not be used to harass, target, or discriminate
-          against server members.
-        </li>
-        <li>
-          Time channels must display accurate information and not be used for
-          spam or misleading content.
+        <li>User error or misconfiguration.</li>
+        <li>Discord API changes or outages.</li>
+        <li>Third-party service failures.</li>
+        <li>Unauthorized access or security breaches.</li>
+        <li>Force majeure events.</li>
+      </ul>
+      <p>
+        <strong>YOU ARE RESPONSIBLE FOR MAINTAINING BACKUPS OF CRITICAL DATA.</strong>
+      </p>
+
+      <h3>7.3 Limitation of Liability</h3>
+      <p>
+        TO THE MAXIMUM EXTENT PERMITTED BY LAW, OUR TOTAL LIABILITY FOR ANY CLAIMS ARISING FROM THESE TERMS OR YOUR USE
+        OF THE BOT SHALL NOT EXCEED $100 USD OR THE AMOUNT YOU PAID US IN THE PAST 12 MONTHS (WHICHEVER IS GREATER).
+      </p>
+      <p>
+        WE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING LOST
+        PROFITS, DATA LOSS, OR BUSINESS INTERRUPTION.
+      </p>
+
+      <h3>7.4 Third-Party Services</h3>
+      <p>
+        We are not responsible for the availability, accuracy, or content of third-party services (Discord, YouTube,
+        Supabase). Your use of these services is governed by their respective terms and policies.
+      </p>
+    </section>
+
+    <!-- Section 8: Indemnification -->
+    <section>
+      <h2>8. Indemnification</h2>
+      <p>
+        You agree to indemnify, defend, and hold harmless Supporter Bot, its developers, and affiliates from any claims,
+        damages, losses, liabilities, and expenses (including legal fees) arising from:
+      </p>
+      <ul>
+        <li>Your violation of these Terms.</li>
+        <li>Your violation of any third-party rights.</li>
+        <li>Your use or misuse of the Bot.</li>
+        <li>Content you generate through the Bot.</li>
+        <li>Your violation of applicable laws or regulations.</li>
+      </ul>
+    </section>
+
+    <!-- Section 9: Termination -->
+    <section>
+      <h2>9. Termination</h2>
+
+      <h3>9.1 Termination by You</h3>
+      <p>
+        You may terminate your use of the Bot at any time by removing it from your Discord server.
+      </p>
+
+      <h3>9.2 Termination by Us</h3>
+      <p>
+        We reserve the right to suspend or terminate your access to the Bot immediately, without notice, for:
+      </p>
+      <ul>
+        <li>Violation of these Terms.</li>
+        <li>Violation of Discord's Terms of Service or Community Guidelines.</li>
+        <li>Fraudulent, abusive, or illegal activity.</li>
+        <li>Excessive resource usage or abuse of service.</li>
+        <li>Non-payment of fees (if applicable in the future).</li>
+      </ul>
+
+      <h3>9.3 Effect of Termination</h3>
+      <p>
+        Upon termination:
+      </p>
+      <ul>
+        <li>Your license to use the Bot immediately ceases.</li>
+        <li>Configuration data will be retained for 30 days, then deleted.</li>
+        <li>You may request immediate data deletion by contacting support.</li>
+        <li>Provisions regarding intellectual property, disclaimers, and limitations of liability survive termination.
         </li>
       </ul>
     </section>
 
-    <!-- Section 3: Service Availability & Schedules -->
+    <!-- Section 10: Dispute Resolution -->
     <section>
-      <h2>3. Service Availability</h2>
+      <h2>10. Dispute Resolution</h2>
+
+      <h3>10.1 Informal Resolution</h3>
       <p>
-        While we strive for 99.9% uptime, we do not guarantee uninterrupted
-        access to SupporterBOT. Features may be modified, updated, or removed at
-        any time without prior notice for maintenance or improvements.
+        Before filing a formal claim, you agree to contact us via our <a href="/contact"
+          class="text-indigo-400 hover:underline">Support Server</a> to attempt informal resolution.
       </p>
+
+      <h3>10.2 Arbitration Agreement</h3>
       <p>
-        <strong>Service Schedules:</strong> Analytics reports are generated
-        weekly and on-demand via slash commands. Time channels update every 10
-        minutes to reflect current time in configured timezones. YouTube
-        notifications are checked every 15 minutes.
+        Any disputes arising from these Terms shall be resolved through binding arbitration in accordance with the rules
+        of the American Arbitration Association (AAA), rather than in court. You waive your right to a jury trial.
+      </p>
+
+      <h3>10.3 Class Action Waiver</h3>
+      <p>
+        You agree to resolve disputes on an individual basis and waive your right to participate in class actions or
+        class arbitrations.
+      </p>
+
+      <h3>10.4 Governing Law</h3>
+      <p>
+        These Terms are governed by the laws of [Your Jurisdiction], without regard to conflict of law principles.
       </p>
     </section>
 
-    <!-- Section 4: User Responsibilities -->
+    <!-- Section 11: Changes to Terms -->
     <section>
-      <h2>4. User Responsibilities</h2>
+      <h2>11. Changes to Terms</h2>
       <p>
-        Server administrators are responsible for the configuration of the bot
-        within their servers. We are not liable for data loss or unintended
-        consequences resulting from improper configuration (e.g., deleted
-        channels via management tools).
+        We may update these Terms from time to time. Changes will be posted on this page with an updated "Last Updated"
+        date. Material changes will be announced in our Support Server.
+      </p>
+      <p>
+        Continued use of the Bot after changes constitutes acceptance of the updated Terms. If you do not agree to the
+        changes, you must stop using the Bot.
       </p>
     </section>
 
-    <!-- Section 5: Termination & Enforcement -->
+    <!-- Section 12: Miscellaneous -->
     <section>
-      <h2>5. Termination</h2>
+      <h2>12. Miscellaneous</h2>
+
+      <h3>12.1 Entire Agreement</h3>
       <p>
-        We reserve the right to ban any user or server from using SupporterBOT
-        if they are found to be in violation of these terms or Discord's
-        Community Guidelines.
+        These Terms, together with our Privacy Policy, constitute the entire agreement between you and Supporter Bot
+        regarding the use of our services.
+      </p>
+
+      <h3>12.2 Severability</h3>
+      <p>
+        If any provision of these Terms is found to be unenforceable, the remaining provisions will remain in full force
+        and effect.
+      </p>
+
+      <h3>12.3 Waiver</h3>
+      <p>
+        Our failure to enforce any right or provision of these Terms does not constitute a waiver of that right or
+        provision.
+      </p>
+
+      <h3>12.4 Assignment</h3>
+      <p>
+        You may not assign or transfer these Terms without our prior written consent. We may assign these Terms at any
+        time without notice.
+      </p>
+
+      <h3>12.5 Force Majeure</h3>
+      <p>
+        We are not liable for any failure or delay in performance due to circumstances beyond our reasonable control,
+        including natural disasters, wars, pandemics, or internet outages.
       </p>
     </section>
 
-    <!-- Section 6: Contact & Support -->
+    <!-- Section 13: Contact Information -->
     <section>
-      <h2>6. Contact</h2>
+      <h2>13. Contact Information</h2>
       <p>
-        For questions regarding these terms, please join our
-        <a href="/contact" class="text-indigo-400 hover:underline"
-          >Support Server</a
-        >.
+        For questions about these Terms, please contact us:
+      </p>
+      <ul>
+        <li><strong>Support Server:</strong> <a href="/contact" class="text-indigo-400 hover:underline">Join our
+            Discord</a></li>
+        <li><strong>Email:</strong> legal@supporterbot.com (if applicable)</li>
+        <li><strong>Legal Department:</strong> Available upon request</li>
+      </ul>
+      <p>
+        <strong>By using Supporter Bot, you acknowledge that you have read, understood, and agree to be bound by these
+          Terms of Service.</strong>
       </p>
     </section>
+
   </div>
 </div>

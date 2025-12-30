@@ -1,3 +1,4 @@
+# v4.0.0
 from pathlib import Path
 
 
@@ -20,6 +21,11 @@ def collect_js_files():
     utils_dir = JS_ROOT / "Utils"
     if utils_dir.exists():
         files.extend(sorted(utils_dir.glob("*.js"), key=lambda p: p.name))
+        
+    # 1.5. Partials (shared components like navbar)
+    partial_dir = JS_ROOT / "partial"
+    if partial_dir.exists():
+        files.extend(sorted(partial_dir.glob("*.js"), key=lambda p: p.name))
 
     # 2. top-level JS files (command.js, contact.js, etc.)
     files.extend(sorted(JS_ROOT.glob("*.js"), key=lambda p: p.name))

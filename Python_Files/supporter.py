@@ -1,3 +1,4 @@
+# v4.0.0
 """
 Main Bot Entry Point.
 
@@ -41,6 +42,8 @@ from level import LevelManager
 from youtube_notification import YouTubeManager
 from reminder import ReminderManager
 from analytics import AnalyticsManager
+from ticket_system import TicketSystem
+from join_to_create import JoinToCreateManager
 
 # ==========================
 # Bot Configuration
@@ -148,6 +151,10 @@ class SupporterBot(commands.Bot):
             await self.youtube_manager.stop()
         if hasattr(self, "analytics_manager"):
             self.analytics_manager.stop()
+        if hasattr(self, "ticket_system"):
+            self.ticket_system.stop()
+        if hasattr(self, "join_to_create_manager"):
+            await self.join_to_create_manager.stop()
 
         if hasattr(self, "update_stats_task") and self.update_stats_task.is_running():
             self.update_stats_task.cancel()
@@ -211,6 +218,8 @@ class SupporterBot(commands.Bot):
         self.youtube_manager = YouTubeManager(self, self.pool)
         self.reminder_manager = ReminderManager(self, self.pool)
         self.analytics_manager = AnalyticsManager(self, self.pool)
+        self.ticket_system = TicketSystem(self, self.pool)
+        self.join_to_create_manager = JoinToCreateManager(self, self.pool)
 
         # --- Start Manager Background Loops ---
         await self.datetime_manager.start()
@@ -219,6 +228,10 @@ class SupporterBot(commands.Bot):
         await self.youtube_manager.start()
         await self.reminder_manager.start()
         await self.analytics_manager.start()
+        await self.join_to_create_manager.start()
+        
+        # --- Link Join-to-Create with LevelManager for XP integration ---
+        self.level_manager.jtc_manager = self.join_to_create_manager
 
         # --- Register Slash Commands for Managers ---
         self.datetime_manager.register_commands()
@@ -229,6 +242,8 @@ class SupporterBot(commands.Bot):
         self.youtube_manager.register_commands()
         self.reminder_manager.register_commands()
         self.analytics_manager.register_commands()
+        self.ticket_system.register_commands()
+        self.join_to_create_manager.register_commands()
 
         # --- Start Global Bot Statistics Task ---
         self.update_stats_task.start()
@@ -461,6 +476,9 @@ async def on_guild_remove(guild: discord.Guild):
                 # Delete reminders and stats
                 await conn.execute("DELETE FROM public.reminders WHERE guild_id = $1", str(guild.id))
                 await conn.execute("DELETE FROM public.guild_stats WHERE guild_id = $1", str(guild.id))
+                
+                # Delete Join-to-Create data (voice_temp_channels will cascade delete)
+                await conn.execute("DELETE FROM public.join_to_create_config WHERE guild_id = $1", str(guild.id))
                 
                 # Finally delete from guild_settings
                 await conn.execute(

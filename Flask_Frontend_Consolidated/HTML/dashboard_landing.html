@@ -1,3 +1,4 @@
+<!-- v4.0.0 -->
 <!DOCTYPE html>
 <!--
   File: dashboard_landing.html
@@ -63,10 +64,10 @@
   </script>
 
   <!-- ========== PAGE-SPECIFIC STYLES ========== -->
-  <link rel="stylesheet" href="{{ url_for('static', filename='app_hcj.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='CSS/dashboard_landing.css') }}" />
 </head>
 
-<body id="page-dashboard-landing" class="bg-brand-dark text-white transition-colors duration-300">
+<body class="bg-brand-dark text-white transition-colors duration-300">
   {% include 'partials/navbar.html' %}
 
   <!-- ========== HERO / OVERVIEW SECTION ========== -->
@@ -142,12 +143,20 @@
                 <span>YouTube</span>
               </div>
               <div class="sidebar-item">
+                <i class="fas fa-clock"></i>
+                <span>Reminders</span>
+              </div>
+              <div class="sidebar-item">
                 <i class="fas fa-shield-alt"></i>
                 <span>Restrictions</span>
               </div>
               <div class="sidebar-item">
-                <i class="fas fa-clock"></i>
-                <span>Reminders</span>
+                <i class="fas fa-ticket-alt"></i>
+                <span>Tickets</span>
+              </div>
+              <div class="sidebar-item">
+                <i class="fas fa-microphone"></i>
+                <span>Voice Channel</span>
               </div>
               <div class="sidebar-item">
                 <i class="fas fa-chart-bar"></i>
@@ -158,18 +167,18 @@
               <div class="stats-grid">
                 <div class="stat-card">
                   <i class="fas fa-users"></i>
-                  <div class="stat-value">...</div>
-                  <div class="stat-label">Members</div>
+                  <div class="stat-value">2,502</div>
+                  <div class="stat-label">MEMBERS</div>
                 </div>
                 <div class="stat-card">
                   <i class="fas fa-chart-line"></i>
-                  <div class="stat-value">...</div>
-                  <div class="stat-label">Growth</div>
+                  <div class="stat-value">+1.2%</div>
+                  <div class="stat-label">GROWTH</div>
                 </div>
                 <div class="stat-card">
                   <i class="fas fa-comments"></i>
-                  <div class="stat-value">...</div>
-                  <div class="stat-label">Messages</div>
+                  <div class="stat-value">15k</div>
+                  <div class="stat-label">MESSAGES</div>
                 </div>
               </div>
               <div class="chart-placeholder">
@@ -445,7 +454,42 @@
   </footer>
 
   <!-- ========== PAGE-SPECIFIC SCRIPT ========== -->
-  <script src="{{ url_for('static', filename='app_hcj.js') }}"></script>
+  <script src="{{ url_for('static', filename='JS/dashboard_landing.js') }}"></script>
+
+  <!-- ========== DYNAMIC STATS LOADER ========== -->
+  <script>
+    // Fetch real-time stats and update the dashboard preview
+    async function loadDashboardStats() {
+      try {
+        const response = await fetch('/api/stats');
+        const data = await response.json();
+
+        // Update stat values in the preview mockup
+        const statValues = document.querySelectorAll('.stat-value');
+        if (statValues.length >= 3) {
+          // Format members count (e.g., 2502 -> 2,502)
+          const membersFormatted = data.total_members ? data.total_members.toLocaleString() : '0';
+          statValues[0].textContent = membersFormatted;
+
+          // Growth percentage (already formatted from API)
+          statValues[1].textContent = data.growth_percentage || '+0%';
+
+          // Format messages count (e.g., 15000 -> 15k)
+          const messages = data.total_messages || 0;
+          const messagesFormatted = messages >= 1000
+            ? (messages / 1000).toFixed(0) + 'k'
+            : messages.toString();
+          statValues[2].textContent = messagesFormatted;
+        }
+      } catch (error) {
+        console.error('Failed to load dashboard stats:', error);
+        // Keep default values if fetch fails
+      }
+    }
+
+    // Load stats when page loads
+    document.addEventListener('DOMContentLoaded', loadDashboardStats);
+  </script>
 </body>
 
 </html>

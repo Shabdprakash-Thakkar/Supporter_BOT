@@ -1,0 +1,335 @@
+/* v4.0.0 */
+/* Voice Channels Dashboard Styles */
+
+.voice-channels-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* Summary Cards */
+.vc-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.vc-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.vc-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+}
+
+.vc-card:nth-child(2) {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.vc-card:nth-child(3) {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.vc-card:nth-child(4) {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.vc-card-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.vc-card-content {
+  flex: 1;
+}
+
+.vc-card-content h3 {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vc-stat {
+  margin: 0;
+  font-size: 32px;
+  font-weight: 700;
+  color: white;
+  line-height: 1.2;
+}
+
+.vc-label {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* Configuration Section */
+.vc-config-section {
+  background: var(--card-bg, #2c2f33);
+  border-radius: 12px;
+  padding: 25px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.vc-config-section h2 {
+  margin: 0 0 20px 0;
+  font-size: 20px;
+  color: var(--text-primary, #ffffff);
+}
+
+.vc-config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.vc-config-item {
+  background: var(--bg-secondary, #23272a);
+  padding: 12px 16px;
+  border-radius: 8px;
+  border-left: 3px solid #667eea;
+}
+
+.vc-config-item strong {
+  display: block;
+  font-size: 12px;
+  color: var(--text-secondary, #b9bbbe);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vc-config-item span {
+  font-size: 16px;
+  color: var(--text-primary, #ffffff);
+  font-weight: 600;
+}
+
+/* Table Section */
+.vc-table-section {
+  background: var(--card-bg, #2c2f33);
+  border-radius: 12px;
+  padding: 25px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.vc-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.vc-table-header h2 {
+  margin: 0;
+  font-size: 20px;
+  color: var(--text-primary, #ffffff);
+}
+
+/* Filters */
+.vc-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.vc-filter-input {
+  padding: 8px 12px;
+  border: 1px solid var(--border-color, #40444b);
+  border-radius: 6px;
+  background: var(--bg-secondary, #23272a);
+  color: var(--text-primary, #ffffff);
+  font-size: 14px;
+  transition: border-color 0.3s ease;
+}
+
+.vc-filter-input:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.vc-filter-input::placeholder {
+  color: var(--text-secondary, #72767d);
+}
+
+.vc-filter-btn {
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vc-filter-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.4);
+}
+
+.vc-filter-btn:active {
+  transform: translateY(0);
+}
+
+.vc-clear-btn {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+/* Table */
+.vc-table-wrapper {
+  overflow-x: auto;
+  margin-bottom: 20px;
+}
+
+.vc-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.vc-table thead {
+  background: var(--bg-secondary, #23272a);
+}
+
+.vc-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-secondary, #b9bbbe);
+  text-transform: uppercase;
+  font-size: 12px;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--border-color, #40444b);
+}
+
+.vc-table tbody tr {
+  border-bottom: 1px solid var(--border-color, #40444b);
+  transition: background-color 0.2s ease;
+}
+
+.vc-table tbody tr:hover {
+  background: var(--bg-hover, #2f3136);
+}
+
+.vc-table td {
+  padding: 12px 16px;
+  color: var(--text-primary, #dcddde);
+}
+
+.vc-loading {
+  text-align: center;
+  padding: 40px 16px !important;
+  color: var(--text-secondary, #72767d);
+  font-style: italic;
+}
+
+.vc-no-data {
+  text-align: center;
+  padding: 40px 16px !important;
+  color: var(--text-secondary, #72767d);
+}
+
+/* Status badges */
+.vc-status-active {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #43e97b;
+  color: #1a1a1a;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.vc-status-deleted {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #f5576c;
+  color: white;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Pagination */
+.vc-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.vc-page-btn {
+  padding: 8px 12px;
+  background: var(--bg-secondary, #23272a);
+  color: var(--text-primary, #ffffff);
+  border: 1px solid var(--border-color, #40444b);
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vc-page-btn:hover:not(:disabled) {
+  background: #667eea;
+  border-color: #667eea;
+}
+
+.vc-page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.vc-page-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  font-weight: 600;
+}
+
+.vc-page-info {
+  color: var(--text-secondary, #b9bbbe);
+  font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .vc-summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .vc-table-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .vc-filters {
+    flex-direction: column;
+  }
+
+  .vc-filter-input,
+  .vc-filter-btn {
+    width: 100%;
+  }
+
+  .vc-config-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,7 +1,8 @@
+-- v4.0.0
 -- =============================================================================
 --  SUPPORTER BOT — COMPLETE DATABASE SCHEMA (CLEAN VERSION)
 --  Run this entire script in Supabase SQL Editor to create all tables.
---  Last Updated: 2025-12-05
+--  Last Updated: 2026-01-01
 -- =============================================================================
 
 
@@ -600,12 +601,109 @@ CREATE TRIGGER trg_reminders_touch_updated_at
 -- Enable Row Level Security
 ALTER TABLE public.reminders ENABLE ROW LEVEL SECURITY;
 
+-- =============================================================================
+-- SECTION 9: TICKET SYSTEM
+-- =============================================================================
+
+CREATE TABLE IF NOT EXISTS public.ticket_system_config (
+    guild_id            TEXT PRIMARY KEY NOT NULL,
+    ticket_channel_id   TEXT,
+    ticket_category_id  TEXT,
+    transcript_channel_id TEXT,
+    admin_role_id       TEXT,
+    ticket_message      TEXT DEFAULT 'Click the button below to open a support ticket.',
+    welcome_message     TEXT DEFAULT 'Hello {user}, support will be with you shortly. Please describe your issue and we''ll help you as soon as possible.',
+    created_at          TIMESTAMPTZ DEFAULT NOW(),
+    updated_at          TIMESTAMPTZ DEFAULT NOW()
+);
+
+COMMENT ON TABLE public.ticket_system_config IS 'Configuration for the ticket system per guild';
+
+-- Trigger: Auto-update updated_at
+DROP TRIGGER IF EXISTS trg_ticket_config_updated_at ON public.ticket_system_config;
+CREATE TRIGGER trg_ticket_config_updated_at
+    BEFORE UPDATE ON public.ticket_system_config
+    FOR EACH ROW EXECUTE FUNCTION public.touch_updated_at();
+
+CREATE TABLE IF NOT EXISTS public.ticket_transcripts (
+    id                  BIGSERIAL PRIMARY KEY,
+    ticket_id           TEXT NOT NULL,
+    guild_id            TEXT NOT NULL,
+    opener_user_id      TEXT NOT NULL,
+    closer_user_id      TEXT,
+    closed_at           TIMESTAMPTZ DEFAULT NOW(),
+    transcript_text     TEXT,
+    transcript_file_url TEXT,
+    status              TEXT DEFAULT 'closed'
+);
+
+COMMENT ON TABLE public.ticket_transcripts IS 'Archived transcripts of closed tickets';
+
+CREATE INDEX IF NOT EXISTS idx_tickets_guild ON public.ticket_transcripts(guild_id);
+CREATE INDEX IF NOT EXISTS idx_tickets_opener ON public.ticket_transcripts(opener_user_id);
 
 -- =============================================================================
--- SECTION 9: ANALYTICS SYSTEM
+-- SECTION 10: JOIN TO CREATE (VOICE CHANNEL)
 -- =============================================================================
 
--- 9.1 Analytics Snapshots (weekly analytics data storage)
+-- 1. Create the Configuration Table
+CREATE TABLE IF NOT EXISTS public.join_to_create_config (
+    guild_id                TEXT PRIMARY KEY NOT NULL,
+    trigger_channel_id      TEXT NOT NULL,
+    category_id             TEXT NOT NULL,
+    enabled                 BOOLEAN NOT NULL DEFAULT TRUE,
+    delete_delay_seconds    INTEGER NOT NULL DEFAULT 20 CHECK (delete_delay_seconds >= 0 AND delete_delay_seconds <= 300),
+    user_cooldown_seconds   INTEGER NOT NULL DEFAULT 10 CHECK (user_cooldown_seconds >= 0 AND user_cooldown_seconds <= 60),
+    min_session_minutes     INTEGER NOT NULL DEFAULT 2 CHECK (min_session_minutes >= 0 AND min_session_minutes <= 30),
+    created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at              TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- 2. Create the Trigger for Auto-Updating Timestamps
+CREATE OR REPLACE FUNCTION public.touch_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+DROP TRIGGER IF EXISTS trg_join_to_create_config_updated_at ON public.join_to_create_config;
+CREATE TRIGGER trg_join_to_create_config_updated_at
+    BEFORE UPDATE ON public.join_to_create_config
+    FOR EACH ROW EXECUTE FUNCTION public.touch_updated_at();
+
+-- 3. Create the Voice Temp Channels Table
+CREATE TABLE IF NOT EXISTS public.voice_temp_channels (
+    id                      BIGSERIAL PRIMARY KEY,
+    guild_id                TEXT NOT NULL,
+    channel_id              TEXT NOT NULL UNIQUE,
+    trigger_channel_id      TEXT NOT NULL,
+    category_id             TEXT NOT NULL,
+    creator_user_id         TEXT NOT NULL,
+    creator_username        TEXT NOT NULL,
+    created_at              TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at              TIMESTAMPTZ,
+    total_lifetime_seconds  INTEGER DEFAULT 0,
+    max_concurrent_users    INTEGER DEFAULT 0,
+    
+    CONSTRAINT voice_temp_channels_guild_fk 
+        FOREIGN KEY (guild_id) 
+        REFERENCES public.join_to_create_config(guild_id) 
+        ON DELETE CASCADE
+);
+
+-- 4. Create Indexes for Performance
+CREATE INDEX IF NOT EXISTS idx_voice_temp_channels_guild ON public.voice_temp_channels(guild_id);
+CREATE INDEX IF NOT EXISTS idx_voice_temp_channels_creator ON public.voice_temp_channels(creator_user_id);
+CREATE INDEX IF NOT EXISTS idx_voice_temp_channels_created ON public.voice_temp_channels(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_voice_temp_channels_active ON public.voice_temp_channels(guild_id, channel_id) WHERE deleted_at IS NULL;
+
+-- =============================================================================
+-- SECTION 11: ANALYTICS SYSTEM
+-- =============================================================================
+
+-- 11.1 Analytics Snapshots (weekly analytics data storage)
 CREATE TABLE IF NOT EXISTS public.analytics_snapshots (
     id                      BIGSERIAL PRIMARY KEY,
     guild_id                TEXT NOT NULL,
@@ -666,7 +764,7 @@ CREATE INDEX IF NOT EXISTS idx_snapshots_date ON public.analytics_snapshots(snap
 CREATE INDEX IF NOT EXISTS idx_snapshots_week ON public.analytics_snapshots(year, week_number);
 CREATE INDEX IF NOT EXISTS idx_snapshots_guild_date ON public.analytics_snapshots(guild_id, snapshot_date DESC);
 
--- 9.2 Analytics Reports (tracks report generation and delivery)
+-- 11.2 Analytics Reports (tracks report generation and delivery)
 CREATE TABLE IF NOT EXISTS public.analytics_reports (
     id                  BIGSERIAL PRIMARY KEY,
     guild_id            TEXT NOT NULL,
@@ -698,7 +796,7 @@ CREATE INDEX IF NOT EXISTS idx_reports_date ON public.analytics_reports(generate
 CREATE INDEX IF NOT EXISTS idx_reports_snapshot ON public.analytics_reports(snapshot_id);
 CREATE INDEX IF NOT EXISTS idx_reports_guild_date ON public.analytics_reports(guild_id, generated_at DESC);
 
--- 9.3 Update guild_settings table with analytics configuration
+-- 11.3 Update guild_settings table with analytics configuration
 DO $$ 
 BEGIN
     -- Add analytics timezone column
@@ -740,9 +838,8 @@ COMMENT ON COLUMN public.guild_settings.weekly_report_enabled IS 'Whether to sen
 COMMENT ON COLUMN public.guild_settings.weekly_report_day IS 'Day of week for reports: 0=Monday, 1=Tuesday, ..., 6=Sunday';
 COMMENT ON COLUMN public.guild_settings.weekly_report_hour IS 'Hour of day for reports (0-23) in server timezone';
 
-
 -- =============================================================================
--- SECTION 10: VERIFICATION QUERIES
+-- SECTION 12: VERIFICATION QUERIES
 -- =============================================================================
 
 -- Show all tables created
@@ -755,7 +852,7 @@ WHERE table_schema = 'public'
 ORDER BY table_name;
 
 -- =============================================================================
--- SECTION 11: MAINTENANCE COMMANDS
+-- SECTION 13: MAINTENANCE COMMANDS
 -- =============================================================================
 
 -- ⚠️ DANGER ZONE: Use these commands with extreme caution!
@@ -771,6 +868,10 @@ ORDER BY table_name;
 /*
 -- Uncomment and run the following block to DROP ALL TABLES IN PUBLIC SCHEMA:
 
+DROP TABLE IF EXISTS public.ticket_transcripts CASCADE;
+DROP TABLE IF EXISTS public.ticket_system_config CASCADE;
+DROP TABLE IF EXISTS public.join_to_create_config
+DROP TABLE IF EXISTS public.voice_temp_channels
 DROP TABLE IF EXISTS public.contact_messages CASCADE;
 DROP TABLE IF EXISTS public.reminders CASCADE;
 DROP TABLE IF EXISTS public.youtube_notification_logs CASCADE;
@@ -798,14 +899,140 @@ $$
 DECLARE
   r RECORD;
 BEGIN
-  -- Drop views
-  FOR r IN (SELECT viewname FROM pg_views WHERE schemaname = 'public') LOOP
-    EXECUTE 'DROP VIEW IF EXISTS public.' || quote_ident(r.viewname) || ' CASCADE';
+  FOR r IN
+    SELECT quote_ident(table_schema) AS schemaname, quote_ident(table_name) AS tablename
+    FROM information_schema.tables
+    WHERE table_type = 'BASE TABLE'
+      AND table_schema = 'public'
+  LOOP
+    EXECUTE format('DROP TABLE IF EXISTS %s.%s CASCADE;', r.schemaname, r.tablename);
   END LOOP;
-  -- Drop functions
-  FOR r IN (SELECT proname, oid FROM pg_proc JOIN pg_namespace ON pg_proc.pronamespace = pg_namespace.oid WHERE pg_namespace.nspname = 'public') LOOP
-    EXECUTE 'DROP FUNCTION IF EXISTS public.' || quote_ident(r.proname) || ' CASCADE';
-  END LOOP;
-END
+END;
 $$;
+
+-- Verification: Show remaining tables (should be empty)
+SELECT table_name FROM information_schema.tables 
+WHERE table_schema = 'public' AND table_type = 'BASE TABLE';
 */
+
+-- -----------------------------------------------------------------------------
+-- COMMAND 2: CLEAR ALL DATA (Keep Tables, Delete All Rows)
+-- -----------------------------------------------------------------------------
+-- This will remove all data from all tables but keep the table structure.
+-- Use this when you want to start fresh but keep the schema intact.
+-- This is safer than dropping tables as you won't need to recreate the schema.
+
+/*
+-- Uncomment and run to TRUNCATE ALL TABLES:
+
+TRUNCATE TABLE public.ticket_transcripts CASCADE;
+TRUNCATE TABLE public.ticket_system_config CASCADE;
+TRUNCATE TABLE public.join_to_create_config
+TRUNCATE TABLE public.voice_temp_channels
+TRUNCATE TABLE public.contact_messages CASCADE;
+TRUNCATE TABLE public.reminders CASCADE;
+TRUNCATE TABLE public.youtube_notification_logs CASCADE;
+TRUNCATE TABLE public.youtube_notification_config CASCADE;
+TRUNCATE TABLE public.server_time_configs CASCADE;
+TRUNCATE TABLE public.bypass_roles CASCADE;
+TRUNCATE TABLE public.channel_restrictions_v2 CASCADE;
+TRUNCATE TABLE public.level_system_config CASCADE;
+TRUNCATE TABLE public.auto_reset CASCADE;
+TRUNCATE TABLE public.last_notified_level CASCADE;
+TRUNCATE TABLE public.level_notify_channel CASCADE;
+TRUNCATE TABLE public.level_roles CASCADE;
+TRUNCATE TABLE public.users CASCADE;
+TRUNCATE TABLE public.banned_guilds CASCADE;
+TRUNCATE TABLE public.guild_stats CASCADE;
+TRUNCATE TABLE public.guild_settings CASCADE;
+TRUNCATE TABLE public.dashboard_activity_log CASCADE;
+TRUNCATE TABLE public.dashboard_user_servers CASCADE;
+TRUNCATE TABLE public.dashboard_users CASCADE;
+TRUNCATE TABLE public.bot_stats CASCADE;
+
+-- Verification: Show row counts (should all be 0)
+SELECT 
+    table_name,
+    (SELECT COUNT(*) FROM information_schema.columns WHERE table_name = t.table_name) as columns,
+    0 as rows
+FROM information_schema.tables t
+WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+ORDER BY table_name;
+*/
+
+-- -----------------------------------------------------------------------------
+-- COMMAND 3: DELETE ALL DATA FROM ALL TABLES (Using DELETE)
+-- -----------------------------------------------------------------------------
+-- This will delete all rows from all tables using DELETE statements.
+-- Use this when you want to remove data but keep table structure.
+-- Note: DELETE is slower than TRUNCATE but allows WHERE clauses.
+
+/*
+-- Uncomment and run to DELETE ALL DATA FROM ALL TABLES:
+
+DELETE FROM public.contact_messages;
+DELETE FROM public.reminders;
+DELETE FROM public.youtube_notification_logs;
+DELETE FROM public.youtube_notification_config;
+DELETE FROM public.server_time_configs;
+DELETE FROM public.bypass_roles;
+DELETE FROM public.channel_restrictions_v2;
+DELETE FROM public.level_system_config;
+DELETE FROM public.auto_reset;
+DELETE FROM public.last_notified_level;
+DELETE FROM public.level_notify_channel;
+DELETE FROM public.level_roles;
+DELETE FROM public.users;
+DELETE FROM public.banned_guilds;
+DELETE FROM public.guild_stats;
+DELETE FROM public.guild_settings;
+DELETE FROM public.dashboard_activity_log;
+DELETE FROM public.dashboard_user_servers;
+DELETE FROM public.dashboard_users;
+DELETE FROM public.bot_stats;
+
+-- Reset sequences after DELETE (if using SERIAL columns)
+ALTER SEQUENCE IF EXISTS public.bot_stats_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.dashboard_users_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.dashboard_user_servers_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.dashboard_activity_log_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.guild_settings_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.banned_guilds_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.guild_stats_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.users_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.level_roles_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.level_notify_channel_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.last_notified_level_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.auto_reset_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.level_system_config_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.channel_restrictions_v2_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.bypass_roles_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.server_time_configs_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.youtube_notification_config_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.youtube_notification_logs_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.contact_messages_id_seq RESTART WITH 1;
+ALTER SEQUENCE IF EXISTS public.reminders_id_seq RESTART WITH 1;
+
+-- Verification: Show row counts (should all be 0)
+SELECT 
+    table_name,
+    (SELECT COUNT(*) FROM information_schema.columns WHERE table_name = t.table_name) as columns,
+    0 as rows
+FROM information_schema.tables t
+WHERE table_schema = 'public' AND table_type = 'BASE TABLE'
+ORDER BY table_name;
+*/
+
+-- =============================================================================
+-- NOTES:
+-- =============================================================================
+-- 1. CASCADE: Automatically handles foreign key dependencies
+-- 2. TRUNCATE is faster than DELETE for removing all rows
+-- 3. TRUNCATE resets auto-increment sequences (SERIAL columns)
+-- 4. Always backup your data before running destructive commands
+-- 5. Test in development environment first before production
+-- =============================================================================
+
+-- =============================================================================
+-- END OF SCHEMA
+-- =============================================================================

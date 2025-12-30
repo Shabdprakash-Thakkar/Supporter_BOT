@@ -1,3 +1,4 @@
+// v4.0.0
 /**
  * @file Analytics History JavaScript
  * @description
@@ -179,11 +180,11 @@
   }
 
   /**
-   * Get an emoji representing the trend direction.
-   *
-   * @param {string} trend - "up" | "down" | "stable" | other.
-   * @returns {string} Emoji representing trend.
-   */
+ * Get an emoji representing the trend direction.
+ *
+ * @param {string} trend - "up" | "down" | "stable" | "insufficient_data" | other.
+ * @returns {string} Emoji representing trend.
+ */
   function getTrendEmoji(trend) {
     switch (trend) {
       case "up":
@@ -192,6 +193,8 @@
         return "📉";
       case "stable":
         return "➡️";
+      case "insufficient_data":
+        return "❓";
       default:
         return "➡️";
     }

@@ -1,7 +1,8 @@
+<!-- v4.0.0 -->
 <!--
   Page: Analytics Logic Guide
   Purpose:
-    - Explain how SupperBOT's analytics pipeline works.
+    - Explain how Supporter BOT's analytics pipeline works.
     - Document how server health, engagement tiers, and growth metrics are calculated.
     - Clarify what data is stored and how member privacy is handled.
 
@@ -31,7 +32,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Analytics Guide - SupperBOT</title>
+  <title>Analytics Guide - Supporter BOT</title>
 
   <link rel="stylesheet" href="/CSS/Tabs/SubTabsAnalytics/config_analytics_guide.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
@@ -49,7 +50,7 @@
         </div>
         <div class="text-content">
           <h1>Analytics Logic Guide</h1>
-          <p>Understanding how SupperBOT evaluates your community</p>
+          <p>Understanding how Supporter BOT evaluates your community</p>
         </div>
       </div>
       <button onclick="window.close()" class="close-btn">
@@ -63,9 +64,9 @@
       <section class="card intro-card">
         <h2><i class="fas fa-info-circle"></i> How It Works</h2>
         <p>
-          SupperBOT Analytics processes real-time events from your server to
+          Supporter BOT Analytics processes real-time events from your server to
           generate actionable insights. Data is collected continuously and
-          aggregated into weekly snapshots every Monday at 00:00 UTC.
+          aggregated into weekly snapshots based on your server's configured timezone.
         </p>
         <div class="data-points">
           <div class="point">
@@ -114,12 +115,23 @@
           </div>
 
           <div class="formula-item">
-            <div class="score-badge growth">30%</div>
+            <div class="score-badge growth">20%</div>
             <div class="details">
               <h3>Growth & Retention</h3>
               <p>
-                New member joins minus leaves. Positive growth boosts this
+                New member joins relative to server size. Positive growth boosts this
                 score significantly.
+              </p>
+            </div>
+          </div>
+
+          <div class="formula-item">
+            <div class="score-badge tools">10%</div>
+            <div class="details">
+              <h3>Feature Adoption</h3>
+              <p>
+                Usage of Supporter BOT features like level roles, YouTube feeds,
+                and custom restrictions.
               </p>
             </div>
           </div>

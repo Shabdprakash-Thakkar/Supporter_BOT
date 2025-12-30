@@ -1,3 +1,4 @@
+# v4.0.0
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
@@ -101,9 +102,14 @@ class YouTubeManager:
         try:
             async with self.session.get(rss_url, timeout=10) as response:
                 if response.status != 200:
-                    log.error(
-                        f"RSS feed returned status {response.status} for channel {yt_channel_id}"
-                    )
+                    if response.status in (404, 429, 500, 502, 503, 504):
+                        log.warning(
+                            f"YouTube RSS temporary failure ({response.status}) for {yt_channel_id}"
+                        )
+                    else:
+                        log.error(
+                            f"YouTube RSS unexpected status ({response.status}) for {yt_channel_id}"
+                        )
                     return None
                 xml_content = await response.text()
                 feed = await self.bot.loop.run_in_executor(

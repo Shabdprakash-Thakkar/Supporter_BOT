@@ -1,3 +1,4 @@
+# v4.0.0
 """
 Help System Manager.
 
@@ -161,6 +162,27 @@ class HelpManager:
                 inline=False,
             )
 
+            # Command categories: Ticket System
+            embed.add_field(
+                name="🎫 Ticket System (2 commands)",
+                value=(
+                    "`/tt1-setup` → Setup the ticket system\n"
+                    "`/tt2-transcript` → List recent ticket transcripts"
+                ),
+                inline=False,
+            )
+
+            # Command categories: Join-to-Create Voice
+            embed.add_field(
+                name="🎙️ Join-to-Create Voice (3 commands)",
+                value=(
+                    "`/v1-setup` → Configure Join-to-Create voice channel system\n"
+                    "`/v2-disable` → Disable the Join-to-Create system\n"
+                    "`/v3-status` → Show Join-to-Create system status and statistics"
+                ),
+                inline=False,
+            )
+
             # Owner-only section (visible only to bot owner)
             if await self.bot.is_owner(interaction.user):
                 embed.add_field(
@@ -190,7 +212,7 @@ class HelpManager:
             )
 
             embed.set_footer(
-                text=f"Server: {interaction.guild.name} • Total Commands: 35",
+                text=f"Server: {interaction.guild.name} • Total Commands: 40",
                 icon_url=interaction.guild.icon.url if interaction.guild.icon else None,
             )
 

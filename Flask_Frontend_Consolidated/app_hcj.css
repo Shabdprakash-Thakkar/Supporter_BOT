@@ -1,3 +1,4 @@
+/* v4.0.0 */
 /* AUTO-GENERATED MERGED CSS FILE */
 
 /* ===== IMPORTS ===== */
@@ -17,7 +18,6 @@
 /* ==========================================================================
    Font Imports
    ========================================================================== */
-
 
 /* ==========================================================================
    Global Design Tokens (Light Theme Defaults)
@@ -602,7 +602,6 @@ body {
    - Responsive layout and theme (dark/light) adjustments
    ========================================================================== */
 
-
 /* ==========================================================================
    Hero Section & Background Blobs
    ========================================================================== */
@@ -1129,7 +1128,6 @@ body:not(.dark) .search-results {
    - Contact info cards and icons
    ========================================================================== */
 
-
 /* ==========================================================================
    Glass Navigation Bar
    ========================================================================== */
@@ -1276,7 +1274,6 @@ button[type="submit"]:active::after {
    - Empty state presentation
    - Responsive behavior
    ========================================================================== */
-
 
 /* ==========================================================================
    Server Card Layout & Hover Accent
@@ -1504,7 +1501,6 @@ button[type="submit"]:active::after {
    - Final call-to-action section
    - Responsive behavior & theme (dark/light) adjustments
    ========================================================================== */
-
 
 /* ==========================================================================
    Hero Section & Animated Background Blobs
@@ -2185,7 +2181,6 @@ body:not(.dark) .step-card {
    - Dark / light mode visual adjustments
    ========================================================================== */
 
-
 /* ==========================================================================
    Hero Section & Background Blobs
    ========================================================================== */
@@ -2498,7 +2493,6 @@ body:not(.dark) .highlight-item:hover {
    Base Imports
    ========================================================================== */
 
-
 /* ==========================================================================
    Global Animation Utilities
    ========================================================================== */
@@ -2665,7 +2659,6 @@ body:not(.dark) .highlight-item:hover {
    - Feature grid and command preview window
    - Footer layout, navigation links, and social icons
    ========================================================================== */
-
 
 /* ==========================================================================
    Hero Section Layout & Animated Background Blobs
@@ -3207,7 +3200,6 @@ body:not(.dark) .highlight-item:hover {
    Base Imports
    ========================================================================== */
 
-
 /* ==========================================================================
    Profile Header & Avatar
    ========================================================================== */
@@ -3413,7 +3405,6 @@ body:not(.dark) .highlight-item:hover {
    - Select2 dark theme overrides
    - Analytics configuration section
    ========================================================================== */
-
 
 /* ==========================================================================
    Navigation Items
@@ -7174,7 +7165,109 @@ body {
    Dark Mode Overrides
    ========================================================================== */
 
-.dark .legal-content h2 {
-  border-color: var(--glass-border);
+.vc-table td {
+  padding: 12px 16px;
+  color: var(--text-primary, #dcddde);
 }
 
+.vc-loading {
+  text-align: center;
+  padding: 40px 16px !important;
+  color: var(--text-secondary, #72767d);
+  font-style: italic;
+}
+
+.vc-no-data {
+  text-align: center;
+  padding: 40px 16px !important;
+  color: var(--text-secondary, #72767d);
+}
+
+/* Status badges */
+.vc-status-active {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #43e97b;
+  color: #1a1a1a;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.vc-status-deleted {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #f5576c;
+  color: white;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Pagination */
+.vc-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.vc-page-btn {
+  padding: 8px 12px;
+  background: var(--bg-secondary, #23272a);
+  color: var(--text-primary, #ffffff);
+  border: 1px solid var(--border-color, #40444b);
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vc-page-btn:hover:not(:disabled) {
+  background: #667eea;
+  border-color: #667eea;
+}
+
+.vc-page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.vc-page-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  font-weight: 600;
+}
+
+.vc-page-info {
+  color: var(--text-secondary, #b9bbbe);
+  font-size: 14px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .vc-summary-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .vc-table-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .vc-filters {
+    flex-direction: column;
+  }
+
+  .vc-filter-input,
+  .vc-filter-btn {
+    width: 100%;
+  }
+
+  .vc-config-grid {
+    grid-template-columns: 1fr;
+  }
+}

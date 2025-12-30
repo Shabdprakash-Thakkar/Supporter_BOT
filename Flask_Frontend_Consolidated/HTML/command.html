@@ -1,3 +1,4 @@
+<!-- v4.0.0 -->
 <!DOCTYPE html>
 <!--
   File: commands.html
@@ -108,14 +109,15 @@
   <!-- ========== MAIN COMMAND CATALOG ========== -->
   <section class="py-20 relative">
     <div class="max-w-7xl mx-auto px-6">
-      <!-- ===== GENERAL COMMANDS ===== -->
+
+      <!-- 1. GENERAL SETTINGS -->
       <div class="command-category animate-fade-in-up">
         <div class="category-header">
           <div class="category-icon bg-gradient-to-br from-blue-500 to-indigo-500">
-            <i class="fas fa-info-circle"></i>
+            <i class="fas fa-cogs"></i>
           </div>
           <div>
-            <h2 class="category-title">General Commands</h2>
+            <h2 class="category-title">General Settings</h2>
             <p class="category-description">
               Basic bot information and server configuration
             </p>
@@ -135,8 +137,8 @@
         </div>
       </div>
 
-      <!-- ===== LEVELING SYSTEM COMMANDS ===== -->
-      <div class="command-category animate-fade-in-up animation-delay-200">
+      <!-- 2. LEVELING SYSTEM -->
+      <div class="command-category animate-fade-in-up animation-delay-100">
         <div class="category-header">
           <div class="category-icon bg-gradient-to-br from-yellow-500 to-orange-500">
             <i class="fas fa-trophy"></i>
@@ -244,63 +246,69 @@
         </div>
       </div>
 
-      <!-- ===== ANALYTICS COMMANDS ===== -->
-      <div class="command-category animate-fade-in-up animation-delay-300">
+      <!-- 3. TIME CHANNELS -->
+      <div class="command-category animate-fade-in-up animation-delay-200">
         <div class="category-header">
-          <div class="category-icon bg-gradient-to-br from-cyan-500 to-blue-500">
-            <i class="fas fa-chart-bar"></i>
+          <div class="category-icon bg-gradient-to-br from-blue-500 to-indigo-500">
+            <i class="fas fa-globe"></i>
           </div>
           <div>
-            <h2 class="category-title">Analytics</h2>
+            <h2 class="category-title">Time Channels</h2>
             <p class="category-description">
-              Server health metrics and engagement tracking
+              Dynamic timezone clocks and time channels
             </p>
           </div>
         </div>
 
         <div class="commands-grid">
-          <div class="command-card" data-command="/a1-dashboard">
+          <div class="command-card" data-command="/t1-setup-clock">
             <div class="command-header">
-              <code class="command-name">/a1-dashboard</code>
+              <code class="command-name">/t1-setup-clock</code>
               <button class="copy-btn" title="Copy command">
                 <i class="fas fa-copy"></i>
               </button>
             </div>
-            <p class="command-desc">View your server's analytics dashboard</p>
+            <p class="command-desc">Create a timezone clock channel</p>
+            <div class="command-params">
+              <span class="param-required">timezone</span> - IANA timezone
+              (e.g., America/New_York)
+              <span class="param-required">format</span> - Time or Date format
+            </div>
           </div>
 
-          <div class="command-card" data-command="/a2-history">
+          <div class="command-card" data-command="/t2-list-clocks">
             <div class="command-header">
-              <code class="command-name">/a2-history</code>
+              <code class="command-name">/t2-list-clocks</code>
               <button class="copy-btn" title="Copy command">
                 <i class="fas fa-copy"></i>
               </button>
             </div>
-            <p class="command-desc">View past weekly analytics reports</p>
+            <p class="command-desc">List all configured time channels</p>
           </div>
 
-          <div class="command-card" data-command="/a3-generate-snapshot">
+          <div class="command-card" data-command="/t3-remove-clock">
             <div class="command-header">
-              <code class="command-name">/a3-generate-snapshot</code>
+              <code class="command-name">/t3-remove-clock</code>
               <button class="copy-btn" title="Copy command">
                 <i class="fas fa-copy"></i>
               </button>
             </div>
-            <p class="command-desc">
-              Generate an on-demand analytics snapshot
-            </p>
+            <p class="command-desc">Remove a time channel configuration</p>
+            <div class="command-params">
+              <span class="param-required">channel</span> - Channel to remove
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- ===== YOUTUBE NOTIFICATION COMMANDS ===== -->
-      <div class="command-category animate-fade-in-up animation-delay-400">
+      <!-- 4. YOUTUBE ALERTS -->
+      <div class="command-category animate-fade-in-up animation-delay-300">
         <div class="category-header">
           <div class="category-icon bg-gradient-to-br from-red-500 to-pink-500">
             <i class="fab fa-youtube"></i>
           </div>
           <div>
-            <h2 class="category-title">YouTube Notifications</h2>
+            <h2 class="category-title">YouTube Alerts</h2>
             <p class="category-description">
               Monitor YouTube channels for new uploads
             </p>
@@ -382,63 +390,90 @@
         </div>
       </div>
 
-      <!-- ===== TIME / CLOCK COMMANDS ===== -->
-      <div class="command-category animate-fade-in-up animation-delay-500">
+      <!-- 5. SMART REMINDERS -->
+      <div class="command-category animate-fade-in-up animation-delay-400">
         <div class="category-header">
-          <div class="category-icon bg-gradient-to-br from-blue-500 to-indigo-500">
-            <i class="fas fa-clock"></i>
+          <div class="category-icon bg-gradient-to-br from-green-500 to-teal-500">
+            <i class="fas fa-bell"></i>
           </div>
           <div>
-            <h2 class="category-title">Time & Clocks</h2>
+            <h2 class="category-title">Smart Reminders</h2>
             <p class="category-description">
-              Dynamic timezone clocks and time channels
+              Schedule reminders and manage timezones
             </p>
           </div>
         </div>
 
         <div class="commands-grid">
-          <div class="command-card" data-command="/t1-setup-clock">
+          <div class="command-card" data-command="/t1-set-timezone">
             <div class="command-header">
-              <code class="command-name">/t1-setup-clock</code>
+              <code class="command-name">/t1-set-timezone</code>
               <button class="copy-btn" title="Copy command">
                 <i class="fas fa-copy"></i>
               </button>
             </div>
-            <p class="command-desc">Create a timezone clock channel</p>
+            <p class="command-desc">
+              Set the server's timezone for time-based features
+            </p>
             <div class="command-params">
-              <span class="param-required">timezone</span> - IANA timezone
-              (e.g., America/New_York)
-              <span class="param-required">format</span> - Time or Date format
+              <span class="param-required">timezone</span> - Timezone (e.g.,
+              America/New_York)
             </div>
           </div>
 
-          <div class="command-card" data-command="/t2-list-clocks">
+          <div class="command-card" data-command="/t2-current-time">
             <div class="command-header">
-              <code class="command-name">/t2-list-clocks</code>
+              <code class="command-name">/t2-current-time</code>
               <button class="copy-btn" title="Copy command">
                 <i class="fas fa-copy"></i>
               </button>
             </div>
-            <p class="command-desc">List all configured time channels</p>
+            <p class="command-desc">
+              Display the current time in the server's timezone
+            </p>
           </div>
 
-          <div class="command-card" data-command="/t3-remove-clock">
+          <div class="command-card" data-command="/r1-list">
             <div class="command-header">
-              <code class="command-name">/t3-remove-clock</code>
+              <code class="command-name">/r1-list</code>
               <button class="copy-btn" title="Copy command">
                 <i class="fas fa-copy"></i>
               </button>
             </div>
-            <p class="command-desc">Remove a time channel configuration</p>
-            <div class="command-params">
-              <span class="param-required">channel</span> - Channel to remove
+            <p class="command-desc">
+              View all active reminders for this server
+            </p>
+          </div>
+
+          <div class="command-card" data-command="/r2-delete">
+            <div class="command-header">
+              <code class="command-name">/r2-delete</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
             </div>
+            <p class="command-desc">
+              Delete a specific reminder by ID
+            </p>
+            <div class="command-params">
+              <span class="param-required">id</span> - Reminder ID from list
+            </div>
+          </div>
+
+          <div class="command-card" data-command="/r3-delete-reminder">
+            <div class="command-header">
+              <code class="command-name">/r3-delete-reminder</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">Alias for delete reminder</p>
           </div>
         </div>
       </div>
 
-      <!-- ===== CHANNEL RESTRICTION COMMANDS ===== -->
-      <div class="command-category animate-fade-in-up animation-delay-600">
+      <!-- 6. CHANNEL RESTRICTIONS -->
+      <div class="command-category animate-fade-in-up animation-delay-500">
         <div class="category-header">
           <div class="category-icon bg-gradient-to-br from-orange-500 to-red-500">
             <i class="fas fa-shield-alt"></i>
@@ -556,91 +591,151 @@
         </div>
       </div>
 
-      <!-- ===== REMINDERS & TIME COMMANDS ===== -->
-      <div class="command-category animate-fade-in-up animation-delay-800">
+      <!-- 7. TICKET SYSTEM -->
+      <div class="command-category animate-fade-in-up animation-delay-600">
         <div class="category-header">
-          <div class="category-icon bg-gradient-to-br from-green-500 to-teal-500">
-            <i class="fas fa-clock"></i>
+          <div class="category-icon bg-gradient-to-br from-cyan-400 to-blue-500">
+            <i class="fas fa-ticket-alt"></i>
           </div>
           <div>
-            <h2 class="category-title">Reminders & Time</h2>
+            <h2 class="category-title">Ticket System</h2>
             <p class="category-description">
-              Schedule reminders and manage timezones
+              Setup and manage support tickets
             </p>
           </div>
         </div>
 
         <div class="commands-grid">
-          <div class="command-card" data-command="/t1-set-timezone">
+          <div class="command-card" data-command="/tt1-setup">
             <div class="command-header">
-              <code class="command-name">/t1-set-timezone</code>
+              <code class="command-name">/tt1-setup</code>
               <button class="copy-btn" title="Copy command">
                 <i class="fas fa-copy"></i>
               </button>
             </div>
-            <p class="command-desc">
-              Set the server's timezone for time-based features
-            </p>
+            <p class="command-desc">Setup the ticket system button and category</p>
             <div class="command-params">
-              <span class="param-required">timezone</span> - Timezone (e.g.,
-              America/New_York)
+              <span class="param-required">channel</span>, <span class="param-required">category</span>,
+              <span class="param-required">admin_role</span>
             </div>
           </div>
 
-          <div class="command-card" data-command="/t2-current-time">
+          <div class="command-card" data-command="/tt2-transcript">
             <div class="command-header">
-              <code class="command-name">/t2-current-time</code>
+              <code class="command-name">/tt2-transcript</code>
               <button class="copy-btn" title="Copy command">
                 <i class="fas fa-copy"></i>
               </button>
             </div>
-            <p class="command-desc">
-              Display the current time in the server's timezone
-            </p>
-          </div>
-
-          <div class="command-card" data-command="/r1-list">
-            <div class="command-header">
-              <code class="command-name">/r1-list</code>
-              <button class="copy-btn" title="Copy command">
-                <i class="fas fa-copy"></i>
-              </button>
-            </div>
-            <p class="command-desc">
-              View all active reminders for this server
-            </p>
-          </div>
-
-          <div class="command-card" data-command="/r2-delete">
-            <div class="command-header">
-              <code class="command-name">/r2-delete</code>
-              <button class="copy-btn" title="Copy command">
-                <i class="fas fa-copy"></i>
-              </button>
-            </div>
-            <p class="command-desc">
-              View all active reminders for this server
-            </p>
-          </div>
-
-          <div class="command-card" data-command="/r3-delete-reminder">
-            <div class="command-header">
-              <code class="command-name">/r3-delete-reminder</code>
-              <button class="copy-btn" title="Copy command">
-                <i class="fas fa-copy"></i>
-              </button>
-            </div>
-            <p class="command-desc">Delete a specific reminder</p>
-            <div class="command-params">
-              <span class="param-required">reminder_id</span> - ID of the
-              reminder to delete
-            </div>
+            <p class="command-desc">List recently closed ticket transcripts</p>
           </div>
         </div>
       </div>
 
-      <!-- ===== OWNER / ADMIN COMMANDS ===== -->
-      <div class="command-category animate-fade-in-up animation-delay-1000">
+      <!-- 8. VOICE CHANNEL (JTC) -->
+      <div class="command-category animate-fade-in-up animation-delay-700">
+        <div class="category-header">
+          <div class="category-icon bg-gradient-to-br from-purple-500 to-indigo-500">
+            <i class="fas fa-microphone"></i>
+          </div>
+          <div>
+            <h2 class="category-title">Voice Channel (JTC)</h2>
+            <p class="category-description">
+              Dynamic temporary voice channel system
+            </p>
+          </div>
+        </div>
+
+        <div class="commands-grid">
+          <div class="command-card" data-command="/v1-setup">
+            <div class="command-header">
+              <code class="command-name">/v1-setup</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">Configure Join-to-Create voice channel system</p>
+            <div class="command-params">
+              <span class="param-required">trigger_channel</span> - Voice channel that triggers creation
+              <span class="param-required">category</span> - Category for temp channels
+              <span class="param-optional">delete_delay (optional)</span> - Seconds before deletion (default: 20)
+              <span class="param-optional">user_cooldown (optional)</span> - User cooldown in seconds (default: 10)
+            </div>
+          </div>
+
+          <div class="command-card" data-command="/v2-disable">
+            <div class="command-header">
+              <code class="command-name">/v2-disable</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">Disable the Join-to-Create system for this server</p>
+          </div>
+
+          <div class="command-card" data-command="/v3-status">
+            <div class="command-header">
+              <code class="command-name">/v3-status</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">Show Join-to-Create system status and statistics</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 9. ANALYTICS -->
+      <div class="command-category animate-fade-in-up animation-delay-800">
+        <div class="category-header">
+          <div class="category-icon bg-gradient-to-br from-cyan-500 to-blue-500">
+            <i class="fas fa-chart-bar"></i>
+          </div>
+          <div>
+            <h2 class="category-title">Analytics</h2>
+            <p class="category-description">
+              Server health metrics and engagement tracking
+            </p>
+          </div>
+        </div>
+
+        <div class="commands-grid">
+          <div class="command-card" data-command="/a1-dashboard">
+            <div class="command-header">
+              <code class="command-name">/a1-dashboard</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">View your server's analytics dashboard</p>
+          </div>
+
+          <div class="command-card" data-command="/a2-history">
+            <div class="command-header">
+              <code class="command-name">/a2-history</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">View past weekly analytics reports</p>
+          </div>
+
+          <div class="command-card" data-command="/a3-generate-snapshot">
+            <div class="command-header">
+              <code class="command-name">/a3-generate-snapshot</code>
+              <button class="copy-btn" title="Copy command">
+                <i class="fas fa-copy"></i>
+              </button>
+            </div>
+            <p class="command-desc">
+              Generate an on-demand analytics snapshot
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 10. OWNER & ADMIN -->
+      <div class="command-category animate-fade-in-up animation-delay-900">
         <div class="category-header">
           <div class="category-icon bg-gradient-to-br from-purple-500 to-pink-500">
             <i class="fas fa-crown"></i>
@@ -698,6 +793,7 @@
           </div>
         </div>
       </div>
+
     </div>
   </section>
 

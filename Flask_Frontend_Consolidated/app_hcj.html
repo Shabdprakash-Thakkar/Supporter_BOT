@@ -1,3 +1,4 @@
+<!-- v4.0.0 -->
 <!-- AUTO-GENERATED MERGED HTML FILE (REFERENCE ONLY) -->
 
 <!-- ===== Tabs\SubTabsAnalytics\config_analytics_guide.html ===== -->
@@ -5369,19 +5370,11 @@
         SupporterBOT uses the YouTube Data API to fetch video information. By
         using the YouTube notification feature, you also agree to be bound by
         the
-        <a
-          href="https://www.youtube.com/t/terms"
-          target="_blank"
-          class="text-indigo-400 hover:underline"
-          >YouTube Terms of Service</a
-        >
+        <a href="https://www.youtube.com/t/terms" target="_blank" class="text-indigo-400 hover:underline">YouTube Terms
+          of Service</a>
         and
-        <a
-          href="http://www.google.com/policies/privacy"
-          target="_blank"
-          class="text-indigo-400 hover:underline"
-          >Google Privacy Policy</a
-        >.
+        <a href="http://www.google.com/policies/privacy" target="_blank" class="text-indigo-400 hover:underline">Google
+          Privacy Policy</a>.
       </p>
     </section>
 
@@ -5406,7 +5399,7 @@
   </div>
 </div>
 
-    <script src="{{ url_for('static', filename='app_hcj.js') }}"></script>
+<script src="{{ url_for('static', filename='app_hcj.js') }}"></script>
 
 
 <!-- ===== partials\terms_of_service.html ===== -->
@@ -5530,15 +5523,13 @@
       <h2>6. Contact</h2>
       <p>
         For questions regarding these terms, please join our
-        <a href="/contact" class="text-indigo-400 hover:underline"
-          >Support Server</a
-        >.
+        <a href="/contact" class="text-indigo-400 hover:underline">Support Server</a>.
       </p>
     </section>
   </div>
 </div>
 
-    <script src="{{ url_for('static', filename='app_hcj.js') }}"></script>
+<script src="{{ url_for('static', filename='app_hcj.js') }}"></script>
 
 
 <!-- ===== privacy_policy.html ===== -->
@@ -6233,6 +6224,11 @@
         <i class="fas fa-trophy text-yellow-400"></i>
         <span>Leveling System</span>
       </button>
+      <button class="nav-item {% if current_tab == 'voice_channels' %}active{% endif %}"
+        onclick="switchTab('voice_channels', this)" data-tab="voice_channels">
+        <i class="fas fa-microphone-alt text-teal-400"></i>
+        <span>Voice Channels</span>
+      </button>
 
       <button class="nav-item" onclick="switchTab('time', this)" data-tab="time">
         <i class="fas fa-clock text-blue-400"></i>
@@ -6414,6 +6410,96 @@
 
         <div id="tab-reminder" class="content-tab hidden">
           {% include 'Tabs/config_reminder.html' %}
+        </div>
+
+        <div id="tab-tickets" class="content-tab hidden">
+          {% include 'Tabs/config_tickets.html' %}
+        </div>
+
+        <div id="tab-voice_channels" class="content-tab hidden">
+          <div class="voice-channels-container">
+            <!-- Summary Cards -->
+            <div class="vc-summary-cards">
+              <div class="vc-card">
+                <div class="vc-card-icon">📊</div>
+                <div class="vc-card-content">
+                  <h3>Total Channels</h3>
+                  <p class="vc-stat" id="total-channels">-</p>
+                  <span class="vc-label">All time</span>
+                </div>
+              </div>
+              <div class="vc-card">
+                <div class="vc-card-icon">🎙️</div>
+                <div class="vc-card-content">
+                  <h3>Active Channels</h3>
+                  <p class="vc-stat" id="active-channels">-</p>
+                  <span class="vc-label">Currently active</span>
+                </div>
+              </div>
+              <div class="vc-card">
+                <div class="vc-card-icon">⏱️</div>
+                <div class="vc-card-content">
+                  <h3>Total Voice Time</h3>
+                  <p class="vc-stat" id="total-voice-time">-</p>
+                  <span class="vc-label">All channels</span>
+                </div>
+              </div>
+              <div class="vc-card">
+                <div class="vc-card-icon">📈</div>
+                <div class="vc-card-content">
+                  <h3>Avg Lifetime</h3>
+                  <p class="vc-stat" id="avg-lifetime">-</p>
+                  <span class="vc-label">Per channel</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Configuration Info -->
+            <div class="vc-config-section">
+              <h2>⚙️ Configuration</h2>
+              <div class="vc-config-grid" id="config-info">
+                <p>Loading configuration...</p>
+              </div>
+            </div>
+
+            <!-- Channel History Table -->
+            <div class="vc-table-section">
+              <div class="vc-table-header">
+                <h2>📜 Channel History</h2>
+                <div class="vc-filters">
+                  <input type="text" id="filter-creator" placeholder="Filter by Creator ID" class="vc-filter-input">
+                  <input type="date" id="filter-start-date" class="vc-filter-input">
+                  <input type="date" id="filter-end-date" class="vc-filter-input">
+                  <button onclick="applyFilters()" class="vc-filter-btn">Apply Filters</button>
+                  <button onclick="clearFilters()" class="vc-filter-btn vc-clear-btn">Clear</button>
+                </div>
+              </div>
+
+              <div class="vc-table-wrapper">
+                <table class="vc-table" id="channels-table">
+                  <thead>
+                    <tr>
+                      <th>Channel ID</th>
+                      <th>Creator</th>
+                      <th>Created At</th>
+                      <th>Deleted At</th>
+                      <th>Lifetime</th>
+                      <th>Max Users</th>
+                    </tr>
+                  </thead>
+                  <tbody id="channels-tbody">
+                    <tr>
+                      <td colspan="6" class="vc-loading">Loading channel history...</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="vc-pagination" id="pagination">
+                <!-- Pagination will be inserted here -->
+              </div>
+            </div>
+          </div>
         </div>
 
         <div id="tab-analytics" class="content-tab hidden">
@@ -6755,7 +6841,7 @@
 
   <!-- Shared Utilities -->
   <script src="{{ url_for('static', filename='JS/Utils/populateChannelDropdownWithCategories.js') }}"></script>
-  
+
   <!-- ========== APPLICATION SCRIPTS ========== -->
   <!-- Global server config logic -->
   <script src="{{ url_for('static', filename='JS/server_config.js') }}"></script>
@@ -6907,3 +6993,102 @@
 
 </html>
 
+
+<!-- ===== HTML/voice_channels.html ===== -->
+{% extends "server_config.html" %}
+
+{% block tab_content %}
+<div class="voice-channels-container">
+  <!-- Summary Cards -->
+  <div class="vc-summary-cards">
+    <div class="vc-card">
+      <div class="vc-card-icon">📊</div>
+      <div class="vc-card-content">
+        <h3>Total Channels</h3>
+        <p class="vc-stat" id="total-channels">-</p>
+        <span class="vc-label">All time</span>
+      </div>
+    </div>
+    <div class="vc-card">
+      <div class="vc-card-icon">🎙️</div>
+      <div class="vc-card-content">
+        <h3>Active Channels</h3>
+        <p class="vc-stat" id="active-channels">-</p>
+        <span class="vc-label">Currently active</span>
+      </div>
+    </div>
+    <div class="vc-card">
+      <div class="vc-card-icon">⏱️</div>
+      <div class="vc-card-content">
+        <h3>Total Voice Time</h3>
+        <p class="vc-stat" id="total-voice-time">-</p>
+        <span class="vc-label">All channels</span>
+      </div>
+    </div>
+    <div class="vc-card">
+      <div class="vc-card-icon">📈</div>
+      <div class="vc-card-content">
+        <h3>Avg Lifetime</h3>
+        <p class="vc-stat" id="avg-lifetime">-</p>
+        <span class="vc-label">Per channel</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Configuration Info -->
+  <div class="vc-config-section">
+    <h2>⚙️ Configuration</h2>
+    <div class="vc-config-grid" id="config-info">
+      <p>Loading configuration...</p>
+    </div>
+  </div>
+
+  <!-- Channel History Table -->
+  <div class="vc-table-section">
+    <div class="vc-table-header">
+      <h2>📜 Channel History</h2>
+      <div class="vc-filters">
+        <input type="text" id="filter-creator" placeholder="Filter by Creator ID" class="vc-filter-input">
+        <input type="date" id="filter-start-date" class="vc-filter-input">
+        <input type="date" id="filter-end-date" class="vc-filter-input">
+        <button onclick="applyFilters()" class="vc-filter-btn">Apply Filters</button>
+        <button onclick="clearFilters()" class="vc-filter-btn vc-clear-btn">Clear</button>
+      </div>
+    </div>
+
+    <div class="vc-table-wrapper">
+      <table class="vc-table" id="channels-table">
+        <thead>
+          <tr>
+            <th>Channel ID</th>
+            <th>Creator</th>
+            <th>Created At</th>
+            <th>Deleted At</th>
+            <th>Lifetime</th>
+            <th>Max Users</th>
+          </tr>
+        </thead>
+        <tbody id="channels-tbody">
+          <tr>
+            <td colspan="6" class="vc-loading">Loading channel history...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="vc-pagination" id="pagination">
+      <!-- Pagination will be inserted here -->
+    </div>
+  </div>
+</div>
+
+<script>
+  // Initialize with guild ID from template
+  const GUILD_ID = "{{ guild_id }}";
+
+  // Load data when page loads
+  document.addEventListener('DOMContentLoaded', function () {
+    loadVoiceChannelData();
+  });
+</script>
+{% endblock %}

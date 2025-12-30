@@ -1,3 +1,4 @@
+# v4.0.0
 """
 Runner to start the Flask frontend (CONSOLIDATED VERSION) and Discord bot within a single process.
 

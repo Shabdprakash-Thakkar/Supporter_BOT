@@ -1,3 +1,4 @@
+# v4.0.0
 import discord
 from discord import app_commands
 from discord.ext import commands, tasks
@@ -42,10 +43,11 @@ class LevelManager:
         """
         self.bot = bot
         self.pool = pool
-        self.voice_sessions = {}  # (guild_id, user_id) -> datetime of voice join
+        self.voice_sessions = {}  # (guild_id, user_id) -> (datetime, channel_id)
         self.user_cache = {}  # (guild_id, user_id) -> user row dict
         self.message_cooldowns = {}  # (guild_id, user_id) -> datetime of last XP grant
         self.settings_cache = {}  # guild_id -> (settings_dict, timestamp)
+        self.jtc_manager = None  # Will be set by supporter.py after JoinToCreateManager initialization
 
     async def start(self):
         """
@@ -460,10 +462,13 @@ class LevelManager:
         is_active_after = after.channel and not after.afk and not after.self_deaf
 
         if is_active_before and not is_active_after:
-            if start_time := self.voice_sessions.pop(key, None):
-                await self._award_voice_xp(member, start_time)
+            if session_data := self.voice_sessions.pop(key, None):
+                # session_data is (start_time, channel_id)
+                start_time, channel_id = session_data
+                await self._award_voice_xp(member, start_time, channel_id)
         elif not is_active_before and is_active_after:
-            self.voice_sessions[key] = now
+            # Store both start time and channel ID
+            self.voice_sessions[key] = (now, after.channel.id)
 
     async def on_member_join(self, member: discord.Member):
         """
@@ -480,11 +485,16 @@ class LevelManager:
     # ==========================
     # Core Leveling & Roles
     # ==========================
-    async def _award_voice_xp(self, member: discord.Member, start_time: datetime):
+    async def _award_voice_xp(self, member: discord.Member, start_time: datetime, channel_id: int):
         """
         Calculate and award XP for time spent in voice channels.
 
         Respects per-period `voice_xp_limit` to avoid excessive gains.
+        
+        **Join-to-Create Integration:**
+        - Only awards XP for temp voice channels created by Join-to-Create
+        - No XP for trigger channels
+        - No XP for regular voice channels (unless Join-to-Create is not configured)
 
         Parameters
         ----------
@@ -492,7 +502,22 @@ class LevelManager:
             Member who left active voice.
         start_time : datetime
             Timestamp when the member started the eligible voice session.
+        channel_id : int
+            The ID of the voice channel they were in.
         """
+        # NEW: Check channel type if Join-to-Create is enabled
+        if self.jtc_manager:
+            # Check if it's a trigger channel (no XP)
+            if await self.jtc_manager.is_trigger_channel(channel_id):
+                log.info(f"⏭️ Skipping XP for {member.name} - was in trigger channel")
+                return
+            
+            # Check if it's a temp channel (award XP)
+            if not await self.jtc_manager.is_temp_channel(channel_id):
+                log.info(f"⏭️ Skipping XP for {member.name} - not in temp channel")
+                return
+        
+        # Existing XP calculation logic
         settings = await self.get_guild_settings(member.guild.id)
         voice_xp_limit = settings.get("voice_xp_limit", 1500)
         xp_per_minute = settings.get("xp_per_minute_in_voice", 4)

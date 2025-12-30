@@ -1,3 +1,4 @@
+// v4.0.0
 // AUTO-GENERATED MERGED FILE
 
 // ===== Utils\populateChannelDropdownWithCategories.js =====
@@ -30,117 +31,152 @@
  * @param {boolean} options.sortChannels - Whether to sort channels within modifiers (default: true)
  */
 function populateChannelDropdownWithCategories(selectElement, channels, options = {}) {
-    // Default options
-    const config = {
-        channelTypes: options.channelTypes || [0, 5], // 0 = text, 5 = announcement
-        placeholder: options.placeholder || "Select a channel...",
-        includeHash: options.includeHash !== undefined ? options.includeHash : true,
-        showCategory: options.showCategory !== undefined ? options.showCategory : true,
-        categorySeparator: options.categorySeparator || " -> ",
-        sortCategories: options.sortCategories !== undefined ? options.sortCategories : true,
-        sortChannels: options.sortChannels !== undefined ? options.sortChannels : true,
+  // Default options
+  const config = {
+    channelTypes: options.channelTypes || [0, 5], // 0 = text, 5 = announcement
+    placeholder: options.placeholder || "Select a channel...",
+    includeHash: options.includeHash !== undefined ? options.includeHash : true,
+    showCategory: options.showCategory !== undefined ? options.showCategory : true,
+    categorySeparator: options.categorySeparator || " -> ",
+    sortCategories: options.sortCategories !== undefined ? options.sortCategories : true,
+    sortChannels: options.sortChannels !== undefined ? options.sortChannels : true,
+  };
+
+  // Clear existing options
+  selectElement.innerHTML = "";
+
+  // Add placeholder
+  if (config.placeholder) {
+    const placeholderOption = document.createElement("option");
+    placeholderOption.value = "";
+    placeholderOption.disabled = true;
+    placeholderOption.selected = true;
+    placeholderOption.textContent = config.placeholder;
+    selectElement.appendChild(placeholderOption);
+  }
+
+  // 1. Map all channels by ID for easy lookup (to find category names)
+  const channelMap = new Map();
+  channels.forEach(ch => channelMap.set(ch.id, ch));
+
+  // 2. Filter target channels
+  const targetChannels = channels.filter((ch) =>
+    config.channelTypes.includes(ch.type)
+  );
+
+  console.log(`[PopulateDropdown] Total channels: ${channels.length}, Target channels: ${targetChannels.length}`);
+
+
+  if (targetChannels.length === 0) {
+    const noChannelsOption = document.createElement("option");
+    noChannelsOption.disabled = true;
+    noChannelsOption.textContent = "No channels available";
+    selectElement.appendChild(noChannelsOption);
+    return;
+  }
+
+  // 3. Enrich with category info and handle missing categories
+  const enrichedChannels = targetChannels.map(ch => {
+    let categoryName = "No Category"; // Default literal for sorting
+    let hasCategory = false;
+
+    if (ch.parent_id && channelMap.has(ch.parent_id)) {
+      categoryName = channelMap.get(ch.parent_id).name;
+      hasCategory = true;
+    } else if (ch.parent_id) {
+      console.warn(`[PopulateDropdown] Channel ${ch.name} has parent_id ${ch.parent_id} but parent not found in map.`);
+    }
+
+    return {
+      ...ch,
+      categoryName,
+      hasCategory
     };
+  });
 
-    // Clear existing options
-    selectElement.innerHTML = "";
-
-    // Add placeholder
-    if (config.placeholder) {
-        const placeholderOption = document.createElement("option");
-        placeholderOption.value = "";
-        placeholderOption.disabled = true;
-        placeholderOption.selected = true;
-        placeholderOption.textContent = config.placeholder;
-        selectElement.appendChild(placeholderOption);
+  // 4. Sort channels
+  enrichedChannels.sort((a, b) => {
+    // Primary sort: Category
+    if (config.sortCategories) {
+      // "No Category" should often come last or first? 
+      // Alphabetical sort usually puts it in middle. 
+      // Let's standard alphabetical.
+      const catCompare = a.categoryName.localeCompare(b.categoryName);
+      if (catCompare !== 0) return catCompare;
     }
 
-    // 1. Map all channels by ID for easy lookup (to find category names)
-    const channelMap = new Map();
-    channels.forEach(ch => channelMap.set(ch.id, ch));
+    // Secondary sort: Channel Name
+    if (config.sortChannels) {
+      return a.name.localeCompare(b.name);
+    }
+    return 0;
+  });
 
-    // 2. Filter target channels
-    const targetChannels = channels.filter((ch) =>
-        config.channelTypes.includes(ch.type)
-    );
+  // 5. Render
+  enrichedChannels.forEach(ch => {
+    const opt = document.createElement("option");
+    opt.value = ch.id;
 
-    console.log(`[PopulateDropdown] Total channels: ${channels.length}, Target channels: ${targetChannels.length}`);
+    // Prefix (# or 🔊 etc - caller might handle icon via emoji in name, but includeHash handles text hash)
+    // If includeHash is true and it's a text/announcement channel, add #.
+    // For voice, we might want speaker icon if it's not already there?
+    // The previous usage in config_time.js handled icons manually? 
+    // No, current implementation of this function uses `includeHash`.
+    // config_time calls it with `includeHash: false`.
+    // So we stick to config.includeHash.
 
+    const prefix = config.includeHash ? "# " : "";
 
-    if (targetChannels.length === 0) {
-        const noChannelsOption = document.createElement("option");
-        noChannelsOption.disabled = true;
-        noChannelsOption.textContent = "No channels available";
-        selectElement.appendChild(noChannelsOption);
-        return;
+    let label = `${prefix}${ch.name}`;
+
+    if (config.showCategory && ch.hasCategory) {
+      label += `${config.categorySeparator}${ch.categoryName}`;
     }
 
-    // 3. Enrich with category info and handle missing categories
-    const enrichedChannels = targetChannels.map(ch => {
-        let categoryName = "No Category"; // Default literal for sorting
-        let hasCategory = false;
-
-        if (ch.parent_id && channelMap.has(ch.parent_id)) {
-            categoryName = channelMap.get(ch.parent_id).name;
-            hasCategory = true;
-        } else if (ch.parent_id) {
-            console.warn(`[PopulateDropdown] Channel ${ch.name} has parent_id ${ch.parent_id} but parent not found in map.`);
-        }
-
-        return {
-            ...ch,
-            categoryName,
-            hasCategory
-        };
-    });
-
-    // 4. Sort channels
-    enrichedChannels.sort((a, b) => {
-        // Primary sort: Category
-        if (config.sortCategories) {
-            // "No Category" should often come last or first? 
-            // Alphabetical sort usually puts it in middle. 
-            // Let's standard alphabetical.
-            const catCompare = a.categoryName.localeCompare(b.categoryName);
-            if (catCompare !== 0) return catCompare;
-        }
-
-        // Secondary sort: Channel Name
-        if (config.sortChannels) {
-            return a.name.localeCompare(b.name);
-        }
-        return 0;
-    });
-
-    // 5. Render
-    enrichedChannels.forEach(ch => {
-        const opt = document.createElement("option");
-        opt.value = ch.id;
-
-        // Prefix (# or 🔊 etc - caller might handle icon via emoji in name, but includeHash handles text hash)
-        // If includeHash is true and it's a text/announcement channel, add #.
-        // For voice, we might want speaker icon if it's not already there?
-        // The previous usage in config_time.js handled icons manually? 
-        // No, current implementation of this function uses `includeHash`.
-        // config_time calls it with `includeHash: false`.
-        // So we stick to config.includeHash.
-
-        const prefix = config.includeHash ? "# " : "";
-
-        let label = `${prefix}${ch.name}`;
-
-        if (config.showCategory && ch.hasCategory) {
-            label += `${config.categorySeparator}${ch.categoryName}`;
-        }
-
-        opt.textContent = label;
-        selectElement.appendChild(opt);
-    });
+    opt.textContent = label;
+    selectElement.appendChild(opt);
+  });
 }
 
 // Export for use in other modules
 if (typeof window !== "undefined") {
-    window.populateChannelDropdownWithCategories = populateChannelDropdownWithCategories;
+  window.populateChannelDropdownWithCategories = populateChannelDropdownWithCategories;
 }
+
+
+// ===== partial\global_navbar.js =====
+// ===== global_navbar.js =====
+(function () {
+  if (!document.getElementById('component-navbar')) return;
+  document.addEventListener("DOMContentLoaded", function () {
+    const btn = document.getElementById("mobile-menu-btn");
+    const menu = document.getElementById("mobile-menu");
+
+    if (btn && menu) {
+      // Remove any existing event listeners to be safe
+      const newBtn = btn.cloneNode(true);
+      btn.parentNode.replaceChild(newBtn, btn);
+
+      newBtn.addEventListener("click", function (e) {
+        e.stopPropagation();
+        menu.classList.toggle("hidden");
+
+        // Icon Swap
+        const icon = newBtn.querySelector("i");
+        if (icon) {
+          if (menu.classList.contains("hidden")) {
+            icon.classList.remove("fa-times");
+            icon.classList.add("fa-bars");
+          } else {
+            icon.classList.remove("fa-bars");
+            icon.classList.add("fa-times");
+          }
+        }
+      });
+    }
+  });
+})();
+// ===== End of global_navbar.js =====
 
 
 // ===== command.js =====
@@ -2567,6 +2603,18 @@ function loadTabData(tabName, force = false) {
         loadAnalyticsDashboard();
       }
       break;
+
+    case "tickets":
+      if (typeof initTicketTab === "function") {
+        initTicketTab();
+      }
+      break;
+
+    case "voice_channels":
+      if (typeof loadVoiceChannelData === "function") {
+        loadVoiceChannelData();
+      }
+      break;
   }
 }
 
@@ -2982,6 +3030,435 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 
+// ===== transcript.js =====
+document.addEventListener('DOMContentLoaded', () => {
+  const rawDataElement = document.getElementById('raw-data');
+  if (!rawDataElement) return;
+
+  const raw = rawDataElement.textContent;
+  const container = document.getElementById('container');
+
+  if (!raw) {
+    container.innerHTML = '<div class="text-center text-gray-500 mt-10">Empty transcript.</div>';
+    return;
+  }
+
+  const lines = raw.split('\n');
+  let lastUser = null;
+  let currentGroup = null;
+
+  lines.forEach(line => {
+    line = line.trim();
+    if (!line) return;
+
+    // Check for attachment
+    if (line.startsWith('[Attachment]')) {
+      if (currentGroup) {
+        const url = line.replace('[Attachment]', '').trim();
+        const isImage = url.match(/\.(jpeg|jpg|gif|png|webp)$/i);
+
+        const attDiv = document.createElement('div');
+        attDiv.className = 'attachment';
+        if (isImage) {
+          attDiv.innerHTML = `<a href="${url}" target="_blank"><img src="${url}" alt="Attachment"></a>`;
+        } else {
+          attDiv.innerHTML = `<a href="${url}" target="_blank" class="attachment-link"><i class="fas fa-file-download mr-1"></i> ${url.split('/').pop()}</a>`;
+        }
+        currentGroup.querySelector('.msg-content').appendChild(attDiv);
+      }
+      return;
+    }
+
+    // Check for message: [TIMESTAMP] USERNAME: MESSAGE
+    const match = line.match(/^\[(.*?)\] (.*?): (.*)$/);
+    if (match) {
+      const [_, timestamp, username, content] = match;
+
+      // Create new message group
+      lastUser = username;
+
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'discord-msg';
+
+      const avatarDiv = document.createElement('div');
+      avatarDiv.className = 'discord-avatar';
+      avatarDiv.textContent = username.substring(0, 1).toUpperCase();
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'msg-content';
+
+      const headerDiv = document.createElement('div');
+      headerDiv.className = 'msg-header';
+      headerDiv.innerHTML = `<span class="msg-username">${username}</span><span class="msg-timestamp">${timestamp}</span>`;
+
+      const bodyDiv = document.createElement('div');
+      bodyDiv.className = 'msg-body';
+      bodyDiv.textContent = content; // Safe text to prevent XSS
+
+      contentDiv.appendChild(headerDiv);
+      contentDiv.appendChild(bodyDiv);
+
+      msgDiv.appendChild(avatarDiv);
+      msgDiv.appendChild(contentDiv);
+
+      container.appendChild(msgDiv);
+      currentGroup = msgDiv;
+    } else {
+      // Continuation of previous message? Or system message?
+      // For now, append to previous body if it exists, otherwise ignore
+      if (currentGroup) {
+        const body = currentGroup.querySelector('.msg-body');
+        body.textContent += '\n' + line;
+      }
+    }
+  });
+});
+
+
+// ===== Tabs/config_voice_channels.js =====
+(function () {
+  // Global variables (will use getGuildIdFromUrl() from app_hcj.js context)
+  let vcCurrentPage = 1;
+  const vcItemsPerPage = 20;
+  let vcAllChannels = [];
+  let vcFilteredChannels = [];
+
+  /**
+   * Load all voice channel data (stats, config, and history)
+   */
+  async function loadVoiceChannelData(force = false) {
+    // If force is true, we might want to clear cache or show loading state again
+    // For now, just load the data.
+    try {
+      await Promise.all([
+        loadStats(),
+        loadConfig(),
+        loadChannelHistory()
+      ]);
+      console.log("Voice channel data loaded successfully");
+    } catch (error) {
+      console.error('Error loading voice channel data:', error);
+      // We don't have a global showError here, but individual functions handle errors
+    }
+  }
+
+  /**
+   * Load summary statistics
+   */
+  async function loadStats() {
+    const guildId = getGuildIdFromUrl();
+    try {
+      const response = await fetch(`/api/voice-stats/${guildId}`);
+      if (!response.ok) throw new Error('Failed to fetch stats');
+
+      const data = await response.json();
+
+      // Update summary cards
+      const elTotal = document.getElementById('total-channels');
+      if (elTotal) elTotal.textContent = data.total_channels || 0;
+
+      const elActive = document.getElementById('active-channels');
+      if (elActive) elActive.textContent = data.active_channels || 0;
+
+      const elTime = document.getElementById('total-voice-time');
+      if (elTime) elTime.textContent = formatDuration(data.total_voice_time || 0);
+
+      const elAvg = document.getElementById('avg-lifetime');
+      if (elAvg) elAvg.textContent = formatDuration(data.avg_lifetime || 0);
+
+    } catch (error) {
+      console.error('Error loading stats:', error);
+      if (document.getElementById('total-channels')) document.getElementById('total-channels').textContent = '--';
+    }
+  }
+
+  /**
+   * Load configuration info
+   */
+  async function loadConfig() {
+    const guildId = getGuildIdFromUrl();
+    const configInfo = document.getElementById('config-info');
+    if (!configInfo) return;
+
+    try {
+      const response = await fetch(`/api/voice-config/${guildId}`);
+      if (!response.ok) {
+        configInfo.innerHTML = '<p class="vc-no-data">⚠️ Join-to-Create system is not configured for this server.</p>';
+        return;
+      }
+
+      const config = await response.json();
+
+      // Build config display
+      const configHTML = `
+            <div class="vc-config-item">
+                <span class="vc-config-label">Trigger Channel</span>
+                <span class="vc-config-value">${config.trigger_channel_name || config.trigger_channel_id}</span>
+            </div>
+            <div class="vc-config-item">
+                <span class="vc-config-label">Category</span>
+                <span class="vc-config-value">${config.category_name || config.category_id}</span>
+            </div>
+            <div class="vc-config-item">
+                <span class="vc-config-label">Delete Delay</span>
+                <span class="vc-config-value">${config.delete_delay_seconds}s</span>
+            </div>
+            <div class="vc-config-item">
+                <span class="vc-config-label">User Cooldown</span>
+                <span class="vc-config-value">${config.user_cooldown_seconds}s</span>
+            </div>
+            <div class="vc-config-item">
+                <span class="vc-config-label">XP Check</span>
+                <span class="vc-config-value">${config.min_session_minutes} min</span>
+            </div>
+            <div class="vc-config-item">
+                <span class="vc-config-label">Status</span>
+                <span class="vc-config-value">${config.enabled ? '<span class="status-badge-active">Enabled</span>' : '<span class="status-badge-closed">Disabled</span>'}</span>
+            </div>
+        `;
+
+      configInfo.innerHTML = configHTML;
+    } catch (error) {
+      console.error('Error loading config:', error);
+      configInfo.innerHTML = '<p class="vc-no-data">⚠️ Failed to load configuration</p>';
+    }
+  }
+
+  /**
+   * Load channel history
+   */
+  async function loadChannelHistory() {
+    const guildId = getGuildIdFromUrl();
+    const tbody = document.getElementById('channels-tbody');
+    if (!tbody) return;
+
+    try {
+      const response = await fetch(`/api/voice-channels/${guildId}`);
+      if (!response.ok) throw new Error('Failed to fetch channel history');
+
+      const data = await response.json();
+      vcAllChannels = data.channels || [];
+      vcFilteredChannels = [...vcAllChannels];
+
+      renderChannelTable();
+    } catch (error) {
+      console.error('Error loading channel history:', error);
+      tbody.innerHTML = '<tr><td colspan="6" class="vc-no-data">❌ Failed to load channel history</td></tr>';
+    }
+  }
+
+  /**
+   * Render the channel table with current filters and pagination
+   */
+  function renderChannelTable() {
+    const tbody = document.getElementById('channels-tbody');
+    if (!tbody) return;
+
+    if (vcFilteredChannels.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="vc-no-data">No channels found matching your filters.</td></tr>';
+      const paginationDiv = document.getElementById('pagination');
+      if (paginationDiv) paginationDiv.innerHTML = '';
+      return;
+    }
+
+    // Calculate pagination
+    const totalPages = Math.ceil(vcFilteredChannels.length / vcItemsPerPage);
+    const startIndex = (vcCurrentPage - 1) * vcItemsPerPage;
+    const endIndex = startIndex + vcItemsPerPage;
+    const pageChannels = vcFilteredChannels.slice(startIndex, endIndex);
+
+    // Render table rows
+    tbody.innerHTML = pageChannels.map(channel => `
+        <tr class="hover:bg-slate-800/30 transition-colors border-b border-slate-700/30 last:border-0 text-xs sm:text-sm">
+            <td class="px-4 py-3 sm:px-8 sm:py-4">
+               <div class="font-mono text-[10px] sm:text-xs text-slate-400 select-all truncate max-w-[100px] sm:max-w-none" title="${channel.channel_id}">${channel.channel_id}</div>
+            </td>
+            <td class="px-4 py-3 sm:px-6 sm:py-4">
+                <div class="font-bold text-white text-xs sm:text-sm truncate max-w-[100px] sm:max-w-[150px]" title="${channel.creator_username || 'Unknown'}">${channel.creator_username || 'Unknown'}</div>
+                <div class="text-[10px] text-slate-500 font-mono hidden sm:block">${channel.creator_user_id}</div>
+            </td>
+            <td class="px-4 py-3 sm:px-6 sm:py-4">
+               <span class="font-mono text-indigo-300 bg-indigo-500/10 rounded px-2 py-0.5 whitespace-nowrap">
+                   ${formatDuration(channel.total_lifetime_seconds || 0)}
+               </span>
+            </td>
+             <td class="px-4 py-3 sm:px-6 sm:py-4">
+                <div class="flex items-center gap-2">
+                   <i class="fas fa-users text-slate-600 text-xs"></i>
+                   <span class="font-bold text-white">${channel.max_concurrent_users || 0}</span>
+                </div>
+            </td>
+            <td class="px-4 py-3 sm:px-8 sm:py-4 text-slate-400 whitespace-nowrap">
+               ${formatDateTime(channel.created_at)}
+            </td>
+        </tr>
+    `).join('');
+
+    // Render pagination
+    renderPagination(totalPages);
+  }
+
+  /**
+   * Render pagination controls
+   */
+  function renderPagination(totalPages) {
+    const paginationDiv = document.getElementById('pagination');
+    if (!paginationDiv) return;
+
+    if (totalPages <= 1) {
+      paginationDiv.innerHTML = '';
+      return;
+    }
+
+    let paginationHTML = `
+        <button class="px-3 py-1 bg-slate-800 border border-slate-700 rounded-lg text-xs hover:bg-slate-700 transition" 
+                onclick="goToPage(1)" ${vcCurrentPage === 1 ? 'disabled style="opacity:0.5;pointer-events:none;"' : ''}>
+            First
+        </button>
+        <button class="px-3 py-1 bg-slate-800 border border-slate-700 rounded-lg text-xs hover:bg-slate-700 transition" 
+                onclick="goToPage(${vcCurrentPage - 1})" ${vcCurrentPage === 1 ? 'disabled style="opacity:0.5;pointer-events:none;"' : ''}>
+            Prev
+        </button>
+        <span class="text-xs font-bold text-slate-400">Page ${vcCurrentPage} of ${totalPages}</span>
+        <button class="px-3 py-1 bg-slate-800 border border-slate-700 rounded-lg text-xs hover:bg-slate-700 transition" 
+                onclick="goToPage(${vcCurrentPage + 1})" ${vcCurrentPage === totalPages ? 'disabled style="opacity:0.5;pointer-events:none;"' : ''}>
+            Next
+        </button>
+        <button class="px-3 py-1 bg-slate-800 border border-slate-700 rounded-lg text-xs hover:bg-slate-700 transition" 
+                onclick="goToPage(${totalPages})" ${vcCurrentPage === totalPages ? 'disabled style="opacity:0.5;pointer-events:none;"' : ''}>
+            Last
+        </button>
+    `;
+
+    paginationDiv.innerHTML = paginationHTML;
+  }
+
+  /**
+   * Navigate to a specific page
+   */
+  function goToPage(page) {
+    vcCurrentPage = page;
+    renderChannelTable();
+  }
+
+  /**
+   * Apply filters to channel list
+   */
+  function applyFilters() {
+    const creatorFilter = document.getElementById('filter-creator').value.trim().toLowerCase();
+    const startDate = document.getElementById('filter-start-date').value;
+
+    vcFilteredChannels = vcAllChannels.filter(channel => {
+      // Filter by creator
+      if (creatorFilter) {
+        const cId = (channel.creator_user_id || '').toLowerCase();
+        const cName = (channel.creator_username || '').toLowerCase();
+        if (!cId.includes(creatorFilter) && !cName.includes(creatorFilter)) {
+          return false;
+        }
+      }
+
+      // Filter by start date
+      if (startDate) {
+        const channelDate = new Date(channel.created_at);
+        const filterDate = new Date(startDate);
+        // Compare just the date parts if simple comparison needed, or just standard > comparison
+        // Assuming strict after 00:00 of selected date
+        if (channelDate < filterDate) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+
+    vcCurrentPage = 1; // Reset to first page
+    renderChannelTable();
+  }
+
+  /**
+   * Clear all filters
+   */
+  function clearFilters() {
+    const elCreator = document.getElementById('filter-creator');
+    if (elCreator) elCreator.value = '';
+
+    const elDate = document.getElementById('filter-start-date');
+    if (elDate) elDate.value = '';
+
+    vcFilteredChannels = [...vcAllChannels];
+    vcCurrentPage = 1;
+    renderChannelTable();
+  }
+
+  /**
+   * Format duration in seconds to human-readable string
+   */
+  function formatDuration(seconds) {
+    if (!seconds || seconds === 0) return '0m';
+
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    } else if (minutes > 0) {
+      return `${minutes}m ${secs}s`;
+    } else {
+      return `${secs}s`;
+    }
+  }
+
+  /**
+   * Format datetime to readable string
+   */
+  function formatDateTime(dateString) {
+    if (!dateString) return '-';
+
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    // Relative time for recent dates
+    if (diffMins < 1) {
+      return 'Just now';
+    } else if (diffMins < 60) {
+      return `${diffMins} min ago`;
+    } else if (diffHours < 24) {
+      return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    } else if (diffDays < 7) {
+      return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    }
+
+    // Absolute time for older dates
+    const options = {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+
+    return date.toLocaleDateString('en-US', options);
+  }
+
+  // Export GLOBAL functions for inline onclick handlers
+  window.loadVoiceChannelData = loadVoiceChannelData;
+  window.loadStats = loadStats;
+  window.loadConfig = loadConfig;
+  window.loadChannelHistory = loadChannelHistory;
+  window.applyFilters = applyFilters;
+  window.clearFilters = clearFilters;
+  window.goToPage = goToPage;
+
+})();
+
+
+
 // ===== Tabs\SubTabsAnalytics\config_analytics_history.js =====
 /**
  * @file Analytics History JavaScript
@@ -3164,11 +3641,11 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 
   /**
-   * Get an emoji representing the trend direction.
-   *
-   * @param {string} trend - "up" | "down" | "stable" | other.
-   * @returns {string} Emoji representing trend.
-   */
+ * Get an emoji representing the trend direction.
+ *
+ * @param {string} trend - "up" | "down" | "stable" | "insufficient_data" | other.
+ * @returns {string} Emoji representing trend.
+ */
   function getTrendEmoji(trend) {
     switch (trend) {
       case "up":
@@ -3177,6 +3654,8 @@ document.addEventListener("DOMContentLoaded", function () {
         return "📉";
       case "stable":
         return "➡️";
+      case "insufficient_data":
+        return "❓";
       default:
         return "➡️";
     }
@@ -6453,6 +6932,204 @@ const restrictionTab = document.getElementById("tab-restriction");
 if (restrictionTab) {
   restrictionTab.addEventListener("click", initRestrictionTab);
 }
+
+
+// ===== Tabs\config_tickets.js =====
+/**
+ * Ticket System Configuration
+ * Handles loading and saving ticket system settings via dashboard
+ */
+
+
+/**
+ * Load ticket configuration from API
+ */
+async function loadTicketConfig() {
+  const guildId = window.guildId || window.location.pathname.split('/').pop();
+  try {
+    const response = await fetch(`/api/server/${guildId}/ticket-config`);
+    const data = await response.json();
+
+    if (data.success && data.config) {
+      const config = data.config;
+
+      // Populate channel dropdowns first
+      await populateTicketDropdowns();
+
+      // Set values
+      document.getElementById('ticketChannel').value = config.ticket_channel_id || '';
+      document.getElementById('ticketCategory').value = config.ticket_category_id || '';
+      document.getElementById('ticketStaffRole').value = config.admin_role_id || '';
+      document.getElementById('ticketTranscriptChannel').value = config.transcript_channel_id || '';
+      document.getElementById('ticketInitialMessage').value = config.ticket_message || 'Click the button below to open a support ticket.';
+      document.getElementById('ticketWelcomeMessage').value = config.welcome_message || 'Hello {user}, support will be with you shortly. Please describe your issue and we\'ll help you as soon as possible.';
+    }
+  } catch (error) {
+    console.error('Error loading ticket config:', error);
+    showNotification('Failed to load ticket configuration', 'error');
+  }
+}
+
+/**
+ * Save ticket configuration to API
+ */
+async function saveTicketConfig() {
+  try {
+    const ticketChannel = document.getElementById('ticketChannel').value;
+    const ticketCategory = document.getElementById('ticketCategory').value;
+    const staffRole = document.getElementById('ticketStaffRole').value;
+    const transcriptChannel = document.getElementById('ticketTranscriptChannel').value;
+    const initialMessage = document.getElementById('ticketInitialMessage').value;
+    const welcomeMessage = document.getElementById('ticketWelcomeMessage').value;
+
+    // Validation
+    if (!ticketChannel) {
+      showNotification('Please select a ticket button channel', 'error');
+      return;
+    }
+    if (!ticketCategory) {
+      showNotification('Please select a ticket category', 'error');
+      return;
+    }
+    if (!staffRole) {
+      showNotification('Please select a staff/support role', 'error');
+      return;
+    }
+
+    const payload = {
+      ticket_channel_id: ticketChannel,
+      ticket_category_id: ticketCategory,
+      admin_role_id: staffRole,
+      transcript_channel_id: transcriptChannel || null,
+      ticket_message: initialMessage || 'Click the button below to open a support ticket.',
+      welcome_message: welcomeMessage || 'Hello {user}, support will be with you shortly. Please describe your issue and we\'ll help you as soon as possible.'
+    };
+
+    const guildId = window.guildId || window.location.pathname.split('/').pop();
+    const response = await fetch(`/api/server/${guildId}/ticket-config`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      showNotification('Ticket configuration saved successfully!', 'success');
+    } else {
+      showNotification(data.error || 'Failed to save configuration', 'error');
+    }
+  } catch (error) {
+    console.error('Error saving ticket config:', error);
+    showNotification('Failed to save ticket configuration', 'error');
+  }
+}
+
+/**
+ * Populate all ticket-related dropdowns
+ */
+async function populateTicketDropdowns() {
+  try {
+    const guildId = window.guildId || window.location.pathname.split('/').pop();
+    const response = await fetch(`/api/server/${guildId}/discord-data`);
+    const data = await response.json();
+
+    if (data.roles && data.channels) {
+      // 1. Ticket Channel
+      const ticketChannelSelect = document.getElementById('ticketChannel');
+      if (typeof populateChannelDropdownWithCategories === 'function') {
+        populateChannelDropdownWithCategories(ticketChannelSelect, data.channels, {
+          channelTypes: [0, 5],
+          placeholder: "Select channel...",
+          showCategory: true
+        });
+      } else {
+        console.warn("populateChannelDropdownWithCategories not found, using basic fallback");
+        ticketChannelSelect.innerHTML = '<option value="">Select channel...</option>';
+        data.channels.filter(ch => ch.type === 0).forEach(channel => {
+          const option = document.createElement('option');
+          option.value = channel.id;
+          option.textContent = `#${channel.name}`;
+          ticketChannelSelect.appendChild(option);
+        });
+      }
+
+      // 2. Ticket Category
+      const categorySelect = document.getElementById('ticketCategory');
+      categorySelect.innerHTML = '<option value="">Select category...</option>';
+      data.channels.filter(ch => ch.type === 4).forEach(category => {
+        const option = document.createElement('option');
+        option.value = category.id;
+        option.textContent = category.name;
+        categorySelect.appendChild(option);
+      });
+
+      // 3. Staff Role
+      const staffRoleSelect = document.getElementById('ticketStaffRole');
+      staffRoleSelect.innerHTML = '<option value="">Select role...</option>';
+      data.roles.forEach(role => {
+        const option = document.createElement('option');
+        option.value = role.id;
+        option.textContent = role.name;
+        staffRoleSelect.appendChild(option);
+      });
+
+      // 4. Transcript Channel
+      const transcriptChannelSelect = document.getElementById('ticketTranscriptChannel');
+      if (typeof populateChannelDropdownWithCategories === 'function') {
+        populateChannelDropdownWithCategories(transcriptChannelSelect, data.channels, {
+          channelTypes: [0, 5],
+          placeholder: "Select transcript channel...",
+          showCategory: true
+        });
+
+        const noneOption = document.createElement('option');
+        noneOption.value = "";
+        noneOption.textContent = "None - Don't log transcripts";
+        transcriptChannelSelect.insertBefore(noneOption, transcriptChannelSelect.firstChild);
+      } else {
+        transcriptChannelSelect.innerHTML = '<option value="">None - Don\'t log transcripts</option>';
+        data.channels.filter(ch => ch.type === 0).forEach(channel => {
+          const option = document.createElement('option');
+          option.value = channel.id;
+          option.textContent = `#${channel.name}`;
+          transcriptChannelSelect.appendChild(option);
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Error populating ticket dropdowns:', error);
+  }
+}
+
+/**
+ * Insert variable into welcome message textarea
+ */
+function insertTicketVar(variable) {
+  const textarea = document.getElementById('ticketWelcomeMessage');
+  const cursorPos = textarea.selectionStart;
+  const textBefore = textarea.value.substring(0, cursorPos);
+  const textAfter = textarea.value.substring(cursorPos);
+
+  textarea.value = textBefore + variable + textAfter;
+  textarea.focus();
+  textarea.selectionStart = textarea.selectionEnd = cursorPos + variable.length;
+}
+
+/**
+ * Initialize ticket tab when switched to
+ */
+function initTicketTab() {
+  loadTicketConfig();
+}
+
+// Make functions globally available
+window.loadTicketConfig = loadTicketConfig;
+window.saveTicketConfig = saveTicketConfig;
+window.insertTicketVar = insertTicketVar;
+window.initTicketTab = initTicketTab;
 
 
 // ===== Tabs\config_time.js =====
