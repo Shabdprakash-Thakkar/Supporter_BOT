@@ -1,24 +1,25 @@
-```
-Supporter_BOT is a full-stack Discord bot with a Flask dashboard, modular frontend assets, and a production-ready consolidation pipeline — 232 files, built as a real system, not a demo.
-```
+<!-- v5.0.0 -->
+<!-- v4.0.0 -->
+
+Supporter_BOT is a full-stack Discord bot with a Flask dashboard, modular frontend assets, and a production-ready consolidation pipeline — 235 files, built as a real system, not a demo.
 
 ---
 
-``` TOTAL FILES
+```TOTAL FILES
 Root files:                       6
 Consolidate/:                     3
 Data_Files/:                      5
 Flask_Frontend (dev):           100
-Flask_Frontend_Consolidated:    102
-Python_Files/:                  12
+Flask_Frontend_Consolidated:    103
+Python_Files/:                  14
 Runner_Files/:                   4
 -----------------------------------
-TOTAL FILES =                  232
+TOTAL FILES =                  235
 ```
 
 ---
 
-``` FILE STRUCTURE
+```FILE STRUCTURE
 Supporter_BOT/
 ├── .gitignore                                   # Git ignore rules
 ├── LICENSE.txt                                  # License
@@ -114,12 +115,17 @@ Supporter_BOT/
 │   │       ├── config_restriction.html
 │   │       ├── config_tickets.html
 │   │       ├── config_time.html
+│   │       ├── config_transcript_list.html
+│   │       ├── config_transcript_view.html
 │   │       ├── config_voice_channels.html
 │   │       ├── config_youtube.html
 │   │       ├── SubTabsAnalytics/
 │   │       │   ├── config_analytics_guide.html
 │   │       │   ├── config_analytics_history.html
 │   │       │   └── config_analytics_snapshot.html
+│   │       ├── SubTabsJTC/
+│   │       │   ├── config_jtc_settings.html
+│   │       │   └── config_jtc_stats.html
 │   │       └── SubTabsLevel/
 │   │           ├── config_level_leaderboard.html
 │   │           ├── config_level_leaderboard_full.html
@@ -152,7 +158,7 @@ Supporter_BOT/
 │       │   ├── SubTabsAnalytics/
 │       │   │   ├── config_analytics_history.js
 │       │   │   ├── config_analytics_settings.js
-│       │   │   └── config_analytics_snapshot.js
+│       │   │   ├── config_analytics_snapshot.js
 │       │   └── SubTabsLevel/
 │       │       ├── config_level_leaderboard.js
 │       │       ├── config_level_leaderboard_full.js
@@ -239,12 +245,17 @@ Supporter_BOT/
 │   │       ├── config_restriction.html
 │   │       ├── config_tickets.html
 │   │       ├── config_time.html
+│   │       ├── config_transcript_list.html
+│   │       ├── config_transcript_view.html
 │   │       ├── config_voice_channels.html
 │   │       ├── config_youtube.html
 │   │       ├── SubTabsAnalytics/
 │   │       │   ├── config_analytics_guide.html
 │   │       │   ├── config_analytics_history.html
 │   │       │   └── config_analytics_snapshot.html
+│   │       ├── SubTabsJTC/
+│   │       │   ├── config_jtc_settings.html
+│   │       │   └── config_jtc_stats.html
 │   │       └── SubTabsLevel/
 │   │           ├── config_level_leaderboard.html
 │   │           ├── config_level_leaderboard_full.html
@@ -277,7 +288,7 @@ Supporter_BOT/
 │       │   ├── SubTabsAnalytics/
 │       │   │   ├── config_analytics_history.js
 │       │   │   ├── config_analytics_settings.js
-│       │   │   └── config_analytics_snapshot.js
+│       │   │   ├── config_analytics_snapshot.js
 │       │   └── SubTabsLevel/
 │       │       ├── config_level_leaderboard.js
 │       │       ├── config_level_leaderboard_full.js
@@ -289,6 +300,7 @@ Supporter_BOT/
 ├── Python_Files/                                # Bot backend
 │   ├── __init__.py
 │   ├── analytics.py
+│   ├── app_version_comment.py
 │   ├── date_and_time.py
 │   ├── help.py
 │   ├── join_to_create.py
@@ -298,6 +310,7 @@ Supporter_BOT/
 │   ├── reminder.py
 │   ├── supporter.py
 │   ├── ticket_system.py
+│   ├── voice_control.py
 │   └── youtube_notification.py
 │
 └── Runner_Files/                                # Run scripts

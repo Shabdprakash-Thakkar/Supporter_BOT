@@ -1,3 +1,4 @@
+// v5.0.0
 // v4.0.0
 /**
  * @file Dashboard Landing Page Script
@@ -46,9 +47,8 @@ function initScrollAnimations() {
   animatedElements.forEach((element, index) => {
     element.style.opacity = "0";
     element.style.transform = "translateY(30px)";
-    element.style.transition = `opacity 0.6s ease ${
-      index * 0.1
-    }s, transform 0.6s ease ${index * 0.1}s`;
+    element.style.transition = `opacity 0.6s ease ${index * 0.1
+      }s, transform 0.6s ease ${index * 0.1}s`;
 
     observer.observe(element);
   });
@@ -86,16 +86,33 @@ function initDashboardPreview() {
   });
 
   const sidebarItems = document.querySelectorAll(".sidebar-item");
-  sidebarItems.forEach((item, index) => {
+  const tabContents = document.querySelectorAll(".preview-tab-content");
+
+  sidebarItems.forEach((item) => {
     item.addEventListener("click", function () {
+      const targetTab = this.getAttribute("data-tab") || "overview";
+
+      // Update active sidebar item
       sidebarItems.forEach((i) => i.classList.remove("active"));
       this.classList.add("active");
 
+      // Update active tab content
+      tabContents.forEach((tab) => tab.classList.remove("active"));
+
+      const content = document.getElementById(`tab-${targetTab}`);
+      if (content) {
+        content.classList.add("active");
+      } else {
+        const generic = document.getElementById("tab-generic");
+        if (generic) generic.classList.add("active");
+      }
+
+      // Add ripple effect
       const ripple = document.createElement("div");
       ripple.style.cssText = `
         position: absolute;
         border-radius: 50%;
-        background: rgba(99, 102, 241, 0.3);
+        background: rgba(124, 58, 237, 0.3);
         width: 100px;
         height: 100px;
         margin-left: -50px;

@@ -1,3 +1,4 @@
+// v5.0.0
 // v4.0.0
 /**
  * @file YouTube Notifications Configuration Script
@@ -60,17 +61,26 @@ async function loadYTData(guildId) {
 
     data.configs.forEach((cfg) => {
       const div = document.createElement("div");
-      div.className = "yt-card";
+      div.className = "config-card";
       div.setAttribute("data-yt-id", cfg.yt_id);
       div.innerHTML = `
-                <div class="yt-icon-wrapper"><i class="fab fa-youtube"></i></div>
-                <div class="flex-grow">
-                    <h4 class="font-bold text-lg">${cfg.name}</h4>
-                    <p class="text-xs text-slate-500 font-mono">ID: ${cfg.yt_id}</p>
+                <div class="config-icon-wrapper bg-gradient-to-br from-red-500 to-rose-700">
+                    <i class="fab fa-youtube text-white"></i>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="editYT('${cfg.yt_id}')" class="text-slate-400 hover:text-indigo-500 transition-colors p-2" title="Edit"><i class="fas fa-edit"></i></button>
-                    <button onclick="deleteYT('${cfg.yt_id}')" class="text-slate-400 hover:text-red-500 transition-colors p-2" title="Delete"><i class="fas fa-trash"></i></button>
+                <div class="config-info">
+                    <div class="config-title">${cfg.name}</div>
+                    <div class="config-subtitle">
+                        <i class="fas fa-video"></i>
+                        ID: ${cfg.yt_id}
+                    </div>
+                </div>
+                <div class="config-actions">
+                    <button onclick="editYT('${cfg.yt_id}')" class="action-btn edit" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteYT('${cfg.yt_id}')" class="action-btn delete" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
             `;
       container.appendChild(div);

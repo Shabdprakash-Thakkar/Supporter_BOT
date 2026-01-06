@@ -1,3 +1,4 @@
+// v5.0.0
 // v4.0.0
 /**
  * @file Level Rewards Management
@@ -122,26 +123,27 @@ async function saveLevelReward() {
       }
 
       const newCard = document.createElement("div");
-      newCard.className = "reward-card animate-popIn";
+      newCard.className = "config-card animate-popIn";
       newCard.id = `reward-card-${level}`;
       newCard.innerHTML = `
-        <div class="reward-level">
-          <span class="text-2xl font-black text-indigo-400">${level}</span>
-          <span class="text-xs text-slate-500 uppercase">Level</span>
+        <div class="config-icon-wrapper bg-gradient-to-br from-amber-400 to-orange-600">
+          <i class="fas fa-trophy text-white"></i>
         </div>
-        <div class="reward-arrow text-slate-600">
-          <i class="fas fa-arrow-right"></i>
-        </div>
-        <div class="reward-role flex items-center gap-3">
-          <div class="w-4 h-4 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500"></div>
-          <div>
-            <span class="font-bold">${roleName}</span>
-            <span class="text-xs text-slate-500 block">Role Reward</span>
+        <div class="config-info">
+          <div class="config-title">
+            Level ${level}
+            <span class="config-badge bg-indigo-500/10 text-indigo-400 ml-2">Progress Reward</span>
+          </div>
+          <div class="config-subtitle">
+            <i class="fas fa-user-shield"></i>
+            Role: ${roleName}
           </div>
         </div>
-        <button class="reward-delete-btn" onclick="deleteLevelReward(${level})" title="Delete reward">
-          <i class="fas fa-times"></i>
-        </button>
+        <div class="config-actions">
+          <button class="action-btn delete reward-delete-btn" onclick="deleteLevelReward(${level})" title="Delete reward">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
       `;
 
       const existingCards = Array.from(

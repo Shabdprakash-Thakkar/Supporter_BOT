@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 
 # Configuration
-VERSION_COMMENT = "v4.0.0"  # Change this version for future updates
+VERSION_COMMENT = "v5.0.0"  # Change this version for future updates
 
 # Define the root of the project relative to this script
 # Assuming this script is in Python_Files/, the root is one level up.
@@ -45,34 +45,27 @@ def process_file(filepath):
 
     lines = content.splitlines(keepends=True)
     
-    # Avoid adding the same comment again at the top
-    if lines and comment.strip() in lines[0]:
-        print(f"Skipping {filepath.relative_to(ROOT_DIR)}: Already tagged.")
-        return
-    if len(lines) > 1 and lines[0].startswith("#!") and comment.strip() in lines[1]:
-        print(f"Skipping {filepath.relative_to(ROOT_DIR)}: Already tagged.")
+# Avoid adding the same comment again at the top
+    # We check if the version tag is already present in a robust way
+    search_lines = lines[:2] if lines and lines[0].startswith("#!") else lines[:1]
+    is_tagged = any(comment.strip() in (L.strip() for L in search_lines if L.strip()) for L in search_lines)
+    
+    if is_tagged:
+        print(f"Skipping {filepath.relative_to(ROOT_DIR)}: Already tagged with {VERSION_COMMENT}.")
         return
 
-    new_lines = []
-    inserted = False
-
+    new_content = ""
     # Handle Shebang
     if lines and lines[0].startswith("#!"):
-        new_lines.append(lines[0])
-        new_lines.append(comment + "\n")
-        new_lines.extend(lines[1:])
-        inserted = True
+        new_content = lines[0] + comment + "\n" + "".join(lines[1:])
     else:
-        new_lines.append(comment + "\n")
-        new_lines.extend(lines)
-        inserted = True
+        new_content = comment + "\n" + "".join(lines)
 
-    if inserted:
-        try:
-            filepath.write_text("".join(new_lines), encoding='utf-8')
-            print(f"Updated: {filepath.relative_to(ROOT_DIR)}")
-        except Exception as e:
-            print(f"Error writing {filepath.name}: {e}")
+    try:
+        filepath.write_text(new_content, encoding='utf-8')
+        print(f"Updated: {filepath.relative_to(ROOT_DIR)}")
+    except Exception as e:
+        print(f"Error writing {filepath.name}: {e}")
 
 def main():
     print(f"Applying version '{VERSION_COMMENT}' to files in {ROOT_DIR}...")

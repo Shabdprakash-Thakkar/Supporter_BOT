@@ -1,3 +1,5 @@
+<!-- v5.0.0 -->
+<!-- v4.0.0 -->
 # 🤖 Supporter Bot - Open Source Discord Management Solution
 
 > **A professional, high-performance Discord bot with a robust web dashboard, built for scalablity and ease of use.**

@@ -1,3 +1,4 @@
+// v5.0.0
 // v4.0.0
 document.addEventListener('DOMContentLoaded', () => {
     const raw = document.getElementById('raw-data').textContent;

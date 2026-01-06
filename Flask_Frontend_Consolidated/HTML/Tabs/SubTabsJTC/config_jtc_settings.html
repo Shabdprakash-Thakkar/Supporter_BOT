@@ -1,0 +1,116 @@
+<!-- v5.0.0 -->
+<!-- v4.0.0 -->
+<div class="vc-config-section">
+    <div class="vc-section-header">
+        <h2 class="text-xl font-bold">⚙️ Join-to-Create Configuration</h2>
+        <p class="text-sm text-slate-400">Configure how the automated voice channel system behaves on your server.</p>
+    </div>
+
+    <!-- Configuration Loading State / Not Found -->
+    <div id="jtc-config-status" class="p-4 mb-4 rounded-lg bg-slate-800/50 hidden">
+        <div class="flex items-center gap-3">
+            <i class="fas fa-info-circle text-blue-400"></i>
+            <span id="jtc-status-message">Loading configuration details...</span>
+        </div>
+    </div>
+
+    <!-- Main Configuration Form -->
+    <div class="vc-config-form-wrapper bg-slate-800/30 p-6 rounded-xl border border-slate-700/50 mt-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+            <!-- Left Column: Core Setup -->
+            <div class="space-y-6">
+                <div class="vc-form-group">
+                    <label class="block text-sm font-medium mb-2">Trigger Channel</label>
+                    <select id="edit-trigger-channel"
+                        class="vc-filter-input w-full bg-slate-900 border-slate-700 rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
+                        <option value="">Loading channels...</option>
+                    </select>
+                    <p class="mt-1 text-xs text-slate-500 italic">User joins this channel to create a new one.</p>
+                </div>
+
+                <div class="vc-form-group">
+                    <label class="block text-sm font-medium mb-2">Target Category</label>
+                    <select id="edit-category"
+                        class="vc-filter-input w-full bg-slate-900 border-slate-700 rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
+                        <option value="">Loading categories...</option>
+                    </select>
+                    <p class="mt-1 text-xs text-slate-500 italic">New channels will be created under this category.</p>
+                </div>
+
+                <div class="vc-form-group">
+                    <label class="block text-sm font-medium mb-2">Private VC Role</label>
+                    <select id="edit-private-role"
+                        class="vc-filter-input w-full bg-slate-900 border-slate-700 rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
+                        <option value="">Loading roles...</option>
+                    </select>
+                    <p class="mt-1 text-xs text-slate-500 italic">Users with this role will create Private VCs instead
+                        of Public ones.</p>
+                </div>
+
+                <div class="vc-form-group flex items-center justify-between p-4 bg-slate-900/50 rounded-lg border border-slate-700/50">
+                    <div>
+                        <label class="block text-sm font-medium">Force Private All</label>
+                        <p class="text-xs text-slate-500 italic">If enabled, every channel created will be private regardless of roles.</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="edit-force-private" class="sr-only peer">
+                        <div class="w-11 h-6 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Right Column: Settings & Limits -->
+            <div class="space-y-6">
+                <div class="vc-form-group">
+                    <label class="block text-sm font-medium mb-2">User Cooldown (Seconds)</label>
+                    <input type="number" id="edit-cooldown" min="0" max="3600"
+                        class="vc-filter-input w-full bg-slate-900 border-slate-700 rounded-lg p-2.5" placeholder="10">
+                    <p class="mt-1 text-xs text-slate-500 italic">Prevents users from spam-creating channels.</p>
+                </div>
+
+                <div class="vc-form-group">
+                    <label class="block text-sm font-medium mb-2">Delete Delay (Seconds)</label>
+                    <input type="number" id="edit-delete-delay" min="0" max="86400"
+                        class="vc-filter-input w-full bg-slate-900 border-slate-700 rounded-lg p-2.5" placeholder="5">
+                    <p class="mt-1 text-xs text-slate-500 italic">Wait time before deleting an empty channel.</p>
+                </div>
+
+                <div class="vc-form-group">
+                    <label class="block text-sm font-medium mb-2">Minimum Session (Minutes)</label>
+                    <input type="number" id="edit-min-session" min="0" max="1440"
+                        class="vc-filter-input w-full bg-slate-900 border-slate-700 rounded-lg p-2.5" placeholder="0">
+                    <p class="mt-1 text-xs text-slate-500 italic">Filter out very short sessions from analytics.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-8 pt-6 border-t border-slate-700/50 flex items-center justify-between">
+            <div id="save-status" class="text-sm italic text-slate-400"></div>
+            <div class="flex gap-3">
+                <button onclick="saveVoiceConfig()" id="save-config-btn"
+                    class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg transition-all flex items-center gap-2">
+                    <i class="fas fa-save"></i> Save Changes
+                </button>
+                <button onclick="resetVoiceConfigForm()"
+                    class="px-6 py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-medium rounded-lg transition-all">
+                    Reset
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Instruction Note -->
+    <div class="mt-6 p-4 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
+        <div class="flex gap-3">
+            <i class="fas fa-lightbulb text-indigo-400 mt-1"></i>
+            <div>
+                <h4 class="text-indigo-300 font-bold text-sm">Pro Tip</h4>
+                <p class="text-indigo-200/70 text-sm leading-relaxed">
+                    Make sure the bot has **Manage Channels** and **Move Members** permissions to function correctly.
+                    If you change the Trigger Channel, admins will see the new configuration updated in real-time.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>

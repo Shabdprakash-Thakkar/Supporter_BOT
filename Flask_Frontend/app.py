@@ -1,3 +1,4 @@
+# v5.0.0
 # v4.0.0
 """
 Flask Frontend for Supporter Discord Bot
@@ -50,6 +51,8 @@ from supporter import bot
 logging.basicConfig(
     level=logging.INFO, format="[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
 )
+# Silence Werkzeug request logs
+logging.getLogger("werkzeug").setLevel(logging.WARNING)
 log = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -585,7 +588,7 @@ def dashboard_tickets(guild_id):
         log.error(f"Error fetching tickets: {e}")
         return "Error loading tickets", 500
 
-    return render_template('transcript_list.html', guild_id=guild_id, guild_name=guild_name, tickets=tickets)
+    return render_template('Tabs/config_transcript_list.html', guild_id=guild_id, guild_name=guild_name, tickets=tickets)
 
 
 @app.route("/transcript/<int:transcript_id>")
@@ -599,7 +602,7 @@ def view_transcript(transcript_id):
             return "Transcript not found", 404
         
         transcript = res.data
-        return render_template('transcript_view.html', transcript=transcript)
+        return render_template('Tabs/config_transcript_view.html', transcript=transcript)
     except Exception as e:
         return "Error loading transcript", 500
 
@@ -656,7 +659,7 @@ def dashboard_voice_channels(guild_id):
             settings[key] = value
 
     return render_template(
-        'voice_channels.html',
+        'server_config.html',
         server=server,
         current_user=current_user,
         total_members=0,
@@ -709,9 +712,12 @@ def api_voice_config(guild_id):
     try:
         config_res = supabase.table('join_to_create_config').select('*').eq('guild_id', guild_id).single().execute()
         if not config_res.data:
-            return jsonify({"error": "Not configured"}), 404
+            return jsonify({"error": "Configuration not found"}), 404
         
-        config = config_res.data
+        config = config_res.data[0] if isinstance(config_res.data, list) else config_res.data
+        
+        # Ensure force_private is a boolean
+        config['force_private'] = bool(config.get('force_private', False))
         
         # Try to get channel and category names from Discord
         try:
@@ -731,6 +737,63 @@ def api_voice_config(guild_id):
     except Exception as e:
         log.error(f"Error fetching voice config: {e}")
         return jsonify({"error": "Failed to fetch configuration"}), 500
+
+
+@app.route("/api/voice-config/<guild_id>", methods=["POST"])
+@login_required
+def api_update_voice_config(guild_id):
+    """
+    Update Join-to-Create configuration. Supports all configuration fields.
+    """
+    if not user_has_access(current_user.id, guild_id):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    try:
+        data = request.get_json()
+        
+        updates = {
+            'guild_id': str(guild_id),
+            'updated_at': datetime.now().isoformat()
+        }
+
+        # Essential identification fields
+        if 'trigger_channel_id' in data:
+            updates['trigger_channel_id'] = str(data['trigger_channel_id'])
+        
+        if 'category_id' in data:
+            updates['category_id'] = str(data['category_id'])
+
+        # Optional settings fields
+        if 'private_vc_role_id' in data:
+            updates['private_vc_role_id'] = str(data['private_vc_role_id']) if data['private_vc_role_id'] else None
+        
+        if 'user_cooldown_seconds' in data:
+            try:
+                updates['user_cooldown_seconds'] = int(data['user_cooldown_seconds'])
+            except: pass
+            
+        if 'delete_delay_seconds' in data:
+            try:
+                updates['delete_delay_seconds'] = int(data['delete_delay_seconds'])
+            except: pass
+            
+        if 'min_session_minutes' in data:
+            try:
+                updates['min_session_minutes'] = int(data['min_session_minutes'])
+            except: pass
+            
+        if 'force_private' in data:
+            updates['force_private'] = bool(data['force_private'])
+
+        # Perform upsert so we can create the config if it doesn't exist
+        supabase.table('join_to_create_config').upsert(updates).execute()
+        
+        log_dashboard_activity(guild_id, "voice_config_update", f"Updated JTC settings: {list(updates.keys())}")
+        
+        return jsonify({"success": True, "message": "Configuration saved successfully"})
+    except Exception as e:
+        log.error(f"Error updating voice config for {guild_id}: {e}")
+        return jsonify({"error": f"Failed to save configuration: {str(e)}"}), 500
 
 
 @app.route("/api/voice-channels/<guild_id>")
@@ -2197,6 +2260,9 @@ def manage_clocks(guild_id):
             if not timezone or not channel_id:
                 return jsonify({"error": "Missing fields"}), 400
 
+            if not date_channel_id:
+                date_channel_id = None
+
             # Upsert clock
             supabase.table('server_time_configs').upsert({
                 'guild_id': guild_id,
@@ -2718,18 +2784,23 @@ def toggle_reminder_status(guild_id, reminder_id):
     if not user_has_access(current_user.id, guild_id):
         return jsonify({"error": "Access denied"}), 403
     try:
-        data = request.get_json()
-        reminder_id = data.get("id")
-        
         # Toggle: fetch current, flip, update
-        res = supabase.table('reminders').select('status').eq('id', reminder_id).single().execute()
+        res = supabase.table('reminders').select('status').eq('reminder_id', reminder_id).eq('guild_id', guild_id).limit(1).execute()
         if not res.data:
-            return jsonify({"error": "Reminder not found"}), 404
+            # Fallback check for old ID format if needed, or just error
+            res = supabase.table('reminders').select('status').eq('id', reminder_id).eq('guild_id', guild_id).limit(1).execute()
+            if not res.data:
+                return jsonify({"error": "Reminder not found"}), 404
 
-        current_status = res.data['status']
-        new_status = 'paused' if current_status == 'pending' else 'pending'
+        current_status = res.data[0]['status']
+        new_status = 'paused' if current_status == 'active' else 'active'
         
-        supabase.table('reminders').update({'status': new_status}).eq('id', reminder_id).execute()
+        # Update using the same ID column we successfull matched (prefer reminder_id)
+        # We'll just try updating by reminder_id first
+        u_res = supabase.table('reminders').update({'status': new_status}).eq('reminder_id', reminder_id).eq('guild_id', guild_id).execute()
+        # If no rows updated (maybe matched by 'id' above?), try 'id'
+        if not u_res.data:
+             supabase.table('reminders').update({'status': new_status}).eq('id', reminder_id).eq('guild_id', guild_id).execute()
         
         return jsonify({"success": True, "new_status": new_status})
 

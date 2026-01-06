@@ -1,84 +1,73 @@
+<!-- v5.0.0 -->
 <!-- v4.0.0 -->
 <div class="voice-channels-container">
-    <!-- Summary Cards -->
-    <div class="vc-summary-cards">
-        <div class="vc-card">
-            <div class="vc-card-icon">📊</div>
-            <div class="vc-card-content">
-                <h3>Total Channels</h3>
-                <p class="vc-stat" id="total-channels">-</p>
-                <span class="vc-label">All time</span>
-            </div>
-        </div>
-        <div class="vc-card">
-            <div class="vc-card-icon">🎙️</div>
-            <div class="vc-card-content">
-                <h3>Active Channels</h3>
-                <p class="vc-stat" id="active-channels">-</p>
-                <span class="vc-label">Currently active</span>
-            </div>
-        </div>
-        <div class="vc-card">
-            <div class="vc-card-icon">⏱️</div>
-            <div class="vc-card-content">
-                <h3>Total Voice Time</h3>
-                <p class="vc-stat" id="total-voice-time">-</p>
-                <span class="vc-label">All channels</span>
-            </div>
-        </div>
-        <div class="vc-card">
-            <div class="vc-card-icon">📈</div>
-            <div class="vc-card-content">
-                <h3>Avg Lifetime</h3>
-                <p class="vc-stat" id="avg-lifetime">-</p>
-                <span class="vc-label">Per channel</span>
-            </div>
-        </div>
+    <!-- Sub-tab Navigation -->
+    <div class="voice-sub-tabs mb-6 flex gap-2 border-b border-slate-700/50 pb-px">
+        <button id="jtc-tab-stats-btn"
+            class="jtc-sub-tab-btn px-6 py-3 font-medium transition-all active border-b-2 border-indigo-500 text-indigo-400"
+            onclick="switchJTCSubTab('stats', this)">
+            <i class="fas fa-chart-line mr-2"></i> Stats & History
+        </button>
+        <button id="jtc-tab-settings-btn"
+            class="jtc-sub-tab-btn px-6 py-3 font-medium transition-all text-slate-400 hover:text-slate-200"
+            onclick="switchJTCSubTab('settings', this)">
+            <i class="fas fa-cog mr-2"></i> Configure JTC
+        </button>
     </div>
 
-    <!-- Configuration Info -->
-    <div class="vc-config-section">
-        <h2>⚙️ Configuration</h2>
-        <div class="vc-config-grid" id="config-info">
-            <p>Loading configuration...</p>
-        </div>
+    <!-- Tab Content: Stats -->
+    <div id="jtc-sub-stats" class="jtc-sub-content">
+        <!-- Dashboard Instructions -->
+        <p class="mb-4 text-sm text-slate-400 bg-slate-800/50 p-3 rounded-lg border border-slate-700/50">
+            <i class="fas fa-info-circle mr-2 text-indigo-400"></i>
+            To configure and manage voice channels, please use the provided <strong>slash commands</strong> in Discord
+            or switch to the <strong>Configure JTC</strong> tab.
+        </p>
+        {% include 'Tabs/SubTabsJTC/config_jtc_stats.html' %}
     </div>
 
-    <!-- Channel History Table -->
-    <div class="vc-table-section">
-        <div class="vc-table-header">
-            <h2>📜 Channel History</h2>
-            <div class="vc-filters">
-                <input type="text" id="filter-creator" placeholder="Filter by Creator ID" class="vc-filter-input">
-                <input type="date" id="filter-start-date" class="vc-filter-input">
-                <input type="date" id="filter-end-date" class="vc-filter-input">
-                <button onclick="applyFilters()" class="vc-filter-btn">Apply Filters</button>
-                <button onclick="clearFilters()" class="vc-filter-btn vc-clear-btn">Clear</button>
-            </div>
-        </div>
-
-        <div class="vc-table-wrapper">
-            <table class="vc-table" id="channels-table">
-                <thead>
-                    <tr>
-                        <th>Channel ID</th>
-                        <th>Creator</th>
-                        <th>Created At</th>
-                        <th>Deleted At</th>
-                        <th>Lifetime</th>
-                        <th>Max Users</th>
-                    </tr>
-                </thead>
-                <tbody id="channels-tbody">
-                    <tr>
-                        <td colspan="6" class="vc-loading">Loading channel history...</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div class="vc-pagination" id="pagination">
-            <!-- Pagination will be inserted here -->
-        </div>
+    <!-- Tab Content: Settings -->
+    <div id="jtc-sub-settings" class="jtc-sub-content hidden">
+        {% include 'Tabs/SubTabsJTC/config_jtc_settings.html' %}
     </div>
 </div>
+
+<script>
+    // Initialize with guild ID from template
+    const GUILD_ID = "{{ server.id }}";
+
+    /**
+     * Switch between JTC sub-tabs.
+     */
+    function switchJTCSubTab(tab, btn) {
+        // Hide all sub-tabs
+        document.querySelectorAll('.jtc-sub-content').forEach(el => el.classList.add('hidden'));
+
+        // Reset button styles
+        document.querySelectorAll('.jtc-sub-tab-btn').forEach(el => {
+            el.classList.remove('active', 'border-b-2', 'border-indigo-500', 'text-indigo-400');
+            el.classList.add('text-slate-400');
+        });
+
+        // Show selected tab
+        document.getElementById('jtc-sub-' + tab).classList.remove('hidden');
+
+        // Highlight active button
+        btn.classList.add('active', 'border-b-2', 'border-indigo-500', 'text-indigo-400');
+        btn.classList.remove('text-slate-400');
+
+        // Load data if switching to settings
+        if (tab === 'settings') {
+            if (typeof window.loadJTCDiscordData === 'function') {
+                window.loadJTCDiscordData(GUILD_ID);
+            }
+        }
+    }
+
+    // Load data when page loads
+    document.addEventListener('DOMContentLoaded', function () {
+        if (typeof loadVoiceChannelData === 'function') {
+            loadVoiceChannelData();
+        }
+    });
+</script>

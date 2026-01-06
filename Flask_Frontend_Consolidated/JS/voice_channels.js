@@ -1,3 +1,4 @@
+// v5.0.0
 // v4.0.0
 /**
  * Voice Channels Dashboard JavaScript
@@ -52,50 +53,184 @@ async function loadStats() {
 }
 
 /**
- * Load configuration info
+ * Load configuration info and populate settings form
  */
 async function loadConfig() {
+    const statusEl = document.getElementById('jtc-config-status');
+    const statusMsg = document.getElementById('jtc-status-message');
+
     try {
         const response = await fetch(`/api/voice-config/${GUILD_ID}`);
+
         if (!response.ok) {
-            document.getElementById('config-info').innerHTML = '<p class="vc-no-data">⚠️ Join-to-Create system is not configured for this server.</p>';
+            if (response.status === 404) {
+                if (statusEl) {
+                    statusEl.classList.remove('hidden');
+                    statusEl.classList.add('bg-yellow-500/10', 'border-yellow-500/20');
+                    statusMsg.innerHTML = '<strong class="text-yellow-400">Not Configured:</strong> The Join-to-Create system hasn\'t been set up yet. Please configure the trigger channel and category below.';
+                }
+            }
             return;
         }
 
         const config = await response.json();
 
-        // Build config display
-        const configHTML = `
-            <div class="vc-config-item">
-                <strong>Trigger Channel</strong>
-                <span>${config.trigger_channel_name || config.trigger_channel_id}</span>
-            </div>
-            <div class="vc-config-item">
-                <strong>Category</strong>
-                <span>${config.category_name || config.category_id}</span>
-            </div>
-            <div class="vc-config-item">
-                <strong>Delete Delay</strong>
-                <span>${config.delete_delay_seconds}s</span>
-            </div>
-            <div class="vc-config-item">
-                <strong>User Cooldown</strong>
-                <span>${config.user_cooldown_seconds}s</span>
-            </div>
-            <div class="vc-config-item">
-                <strong>Min Session for XP</strong>
-                <span>${config.min_session_minutes} min</span>
-            </div>
-            <div class="vc-config-item">
-                <strong>Status</strong>
-                <span>${config.enabled ? '✅ Enabled' : '❌ Disabled'}</span>
-            </div>
-        `;
+        if (statusEl) {
+            statusEl.classList.remove('hidden');
+            statusEl.classList.remove('bg-yellow-500/10', 'border-yellow-500/20');
+            statusEl.classList.add('bg-green-500/10', 'border-green-500/20');
+            statusMsg.innerHTML = `<strong class="text-green-400">Active:</strong> System is running with trigger <code class="bg-slate-900 px-1 rounded">#${config.trigger_channel_name || config.trigger_channel_id}</code>`;
+        }
 
-        document.getElementById('config-info').innerHTML = configHTML;
+        // Populate settings form fields
+        if (document.getElementById('edit-trigger-channel')) {
+            // We store the values to select them AFTER the dropdowns are populated from Discord API
+            window.latestJTCConfig = config;
+
+            document.getElementById('edit-trigger-channel').value = config.trigger_channel_id || '';
+            document.getElementById('edit-category').value = config.category_id || '';
+            document.getElementById('edit-private-role').value = config.private_vc_role_id || '';
+            document.getElementById('edit-force-private').checked = !!config.force_private;
+
+            document.getElementById('edit-cooldown').value = config.user_cooldown_seconds || 10;
+            document.getElementById('edit-delete-delay').value = config.delete_delay_seconds || 5;
+            document.getElementById('edit-min-session').value = config.min_session_minutes || 0;
+        }
+
     } catch (error) {
         console.error('Error loading config:', error);
-        document.getElementById('config-info').innerHTML = '<p class="vc-no-data">⚠️ Failed to load configuration</p>';
+        if (statusEl) {
+            statusEl.classList.remove('hidden');
+            statusMsg.textContent = '⚠️ Failed to connect to configuration API.';
+        }
+    }
+}
+
+/**
+ * Load Discord roles and channels to populate dropdowns
+ */
+async function loadJTCDiscordData(guildId) {
+    const triggerSel = document.getElementById('edit-trigger-channel');
+    const categorySel = document.getElementById('edit-category');
+    const roleSel = document.getElementById('edit-private-role');
+
+    if (!triggerSel) return;
+
+    try {
+        const res = await fetch(`/api/server/${guildId}/discord-data`);
+        const data = await res.json();
+
+        // 1. Populate Trigger Channel (Voice Only)
+        if (typeof window.populateChannelDropdownWithCategories === "function") {
+            window.populateChannelDropdownWithCategories(triggerSel, data.channels, {
+                channelTypes: [2], // Voice channels only
+                placeholder: "Select trigger channel...",
+                includeHash: false
+            });
+        }
+
+        // 2. Populate Categories
+        categorySel.innerHTML = '<option value="">Select a category...</option>';
+        const categories = data.channels.filter(c => c.type === 4);
+        categories.sort((a, b) => a.position - b.position);
+        categories.forEach(cat => {
+            const opt = document.createElement("option");
+            opt.value = cat.id;
+            opt.text = cat.name;
+            categorySel.appendChild(opt);
+        });
+
+        // 3. Populate Roles
+        roleSel.innerHTML = '<option value="">No Private VC Role (Public Only)</option>';
+        data.roles.sort((a, b) => b.position - a.position);
+        data.roles.forEach(role => {
+            const opt = document.createElement("option");
+            opt.value = role.id;
+            opt.text = `@ ${role.name}`;
+            roleSel.appendChild(opt);
+        });
+
+        // 4. Re-apply saved values if we have them
+        if (window.latestJTCConfig) {
+            const config = window.latestJTCConfig;
+            if (config.trigger_channel_id) triggerSel.value = config.trigger_channel_id;
+            if (config.category_id) categorySel.value = config.category_id;
+            if (config.private_vc_role_id) roleSel.value = config.private_vc_role_id;
+            if (config.hasOwnProperty('force_private')) {
+                document.getElementById('edit-force-private').checked = !!config.force_private;
+            }
+        }
+
+    } catch (e) {
+        console.error("Error loading Discord data for JTC:", e);
+    }
+}
+
+/**
+ * Save full JTC configuration
+ */
+async function saveVoiceConfig() {
+    const btn = document.getElementById('save-config-btn');
+    const status = document.getElementById('save-status');
+
+    const triggerId = document.getElementById('edit-trigger-channel').value;
+    const categoryId = document.getElementById('edit-category').value;
+    const privateRole = document.getElementById('edit-private-role').value;
+    const forcePrivate = document.getElementById('edit-force-private').checked;
+    const cooldown = document.getElementById('edit-cooldown').value;
+    const deleteDelay = document.getElementById('edit-delete-delay').value;
+    const minSession = document.getElementById('edit-min-session').value;
+
+    if (!triggerId || !categoryId) {
+        alert("Please select both a Trigger Channel and a Target Category.");
+        return;
+    }
+
+    try {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
+        status.textContent = 'Saving changes...';
+
+        const response = await fetch(`/api/voice-config/${GUILD_ID}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                trigger_channel_id: triggerId,
+                category_id: categoryId,
+                private_vc_role_id: privateRole || null,
+                force_private: forcePrivate,
+                user_cooldown_seconds: parseInt(cooldown) || 10,
+                delete_delay_seconds: parseInt(deleteDelay) || 5,
+                min_session_minutes: parseInt(minSession) || 0
+            })
+        });
+
+        const res = await response.json();
+
+        if (res.success) {
+            status.innerHTML = '<span class="text-green-400"><i class="fas fa-check-circle"></i> Saved successfully!</span>';
+            setTimeout(() => { status.textContent = ''; }, 3000);
+            loadConfig(); // Reload status indicator
+        } else {
+            alert("Error saving: " + (res.error || "Unknown error"));
+            status.textContent = 'Failed to save.';
+        }
+    } catch (e) {
+        alert("Network error saving configuration");
+        console.error(e);
+        status.textContent = 'Network error.';
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Changes';
+    }
+}
+
+/**
+ * Reset form to last loaded values
+ */
+function resetVoiceConfigForm() {
+    if (confirm("Reset form to saved settings?")) {
+        loadConfig();
     }
 }
 

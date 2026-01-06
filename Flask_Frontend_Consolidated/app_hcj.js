@@ -1,3 +1,4 @@
+// v5.0.0
 // v4.0.0
 // AUTO-GENERATED MERGED FILE
 
@@ -3210,6 +3211,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="vc-config-item">
                 <span class="vc-config-label">XP Check</span>
                 <span class="vc-config-value">${config.min_session_minutes} min</span>
+            </div>
+            <div class="vc-config-item">
+                <span class="vc-config-label">Force Private</span>
+                <span class="vc-config-value">${config.force_private ? '<span class="text-blue-400">Yes</span>' : 'No'}</span>
             </div>
             <div class="vc-config-item">
                 <span class="vc-config-label">Status</span>
@@ -6425,6 +6430,18 @@ window.loadRestrictions = async function (guildId) {
                             <span class="mx-1">•</span>
                             ${r.immune_roles.length} Immune Roles
                         </div>
+                        
+                        <!-- Added Details Section -->
+                        <div class="mt-2 text-[11px] grid grid-cols-2 gap-x-4 gap-y-1">
+                            <div class="text-emerald-500/80 leading-tight">
+                                <span class="font-bold uppercase tracking-wider text-[10px]">Allowed:</span><br>
+                                ${decodeContentFlags(r.allowed_content_types).join(", ") || "None"}
+                            </div>
+                            <div class="text-red-500/80 leading-tight">
+                                <span class="font-bold uppercase tracking-wider text-[10px]">Blocked:</span><br>
+                                ${decodeContentFlags(r.blocked_content_types).join(", ") || "None"}
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="flex gap-2">
@@ -6442,6 +6459,24 @@ window.loadRestrictions = async function (guildId) {
     container.innerHTML = `<div class="text-red-500">Error loading restrictions.</div>`;
   }
 };
+
+/**
+ * Helper to decode bitmask into readable labels
+ * @param {number} mask - Bitmask value
+ * @returns {string[]} Array of readable content type names
+ */
+function decodeContentFlags(mask) {
+  const labels = [];
+  if ((mask & FLAGS.TEXT) === FLAGS.TEXT) labels.push("Text");
+  if ((mask & FLAGS.DISCORD) === FLAGS.DISCORD) labels.push("Invites");
+  if ((mask & FLAGS.MEDIA_LINK) === FLAGS.MEDIA_LINK) labels.push("Media Links");
+  if ((mask & FLAGS.ALL_LINKS) === FLAGS.ALL_LINKS) labels.push("Links");
+  if ((mask & FLAGS.MEDIA_FILES) === FLAGS.MEDIA_FILES) labels.push("Images/Video");
+  if ((mask & FLAGS.FILE) === FLAGS.FILE) labels.push("Files");
+  if ((mask & FLAGS.EMBED) === FLAGS.EMBED) labels.push("Embeds");
+  if ((mask & FLAGS.SOCIAL_MEDIA) === FLAGS.SOCIAL_MEDIA) labels.push("Social");
+  return labels;
+}
 
 /**
  * Load Discord channels and roles for restriction configuration.
@@ -8217,3 +8252,218 @@ if (addBtn) {
 }
 
 
+
+// ==================== GENERAL SETTINGS ====================
+
+/**
+ * Save general leveling settings for the current guild.
+ * Reads values from the General Settings form and syncs them via API.
+ */
+async function saveGeneralSettings() {
+  const btn = document.getElementById("saveGeneralBtn");
+  const originalContent = btn.innerHTML;
+
+  // Collect form field references
+  const xpMsg = document.getElementById("xpPerMessage");
+  const xpImg = document.getElementById("xpPerImage");
+  const xpVoice = document.getElementById("xpPerVoice");
+  const xpLimit = document.getElementById("voiceXpLimit");
+  const xpCooldown = document.getElementById("xpCooldown");
+
+  // Basic numeric validation for required XP-related fields
+  let isValid = true;
+  [xpMsg, xpImg, xpVoice, xpLimit].forEach((input) => {
+    if (input.value < 0 || input.value === "") {
+      input.classList.add("input-error");
+      isValid = false;
+      setTimeout(() => input.classList.remove("input-error"), 500);
+    }
+  });
+
+  if (!isValid) return;
+
+  // Enter loading state
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
+
+  const guildId = window.location.pathname.split("/").pop();
+
+  try {
+    const response = await fetch(`/api/server/${guildId}/settings`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        xp_per_message: parseInt(xpMsg.value),
+        xp_per_image: parseInt(xpImg.value),
+        xp_per_minute_in_voice: parseInt(xpVoice.value),
+        voice_xp_limit: parseInt(xpLimit.value),
+        xp_cooldown: parseInt(xpCooldown.value),
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      // Success state styling and reset
+      btn.innerHTML = '<i class="fas fa-check mr-2"></i> Saved!';
+      btn.style.background = "linear-gradient(135deg, #10b981, #059669)";
+
+      setTimeout(() => {
+        btn.innerHTML = originalContent;
+        btn.style.background = "";
+        btn.disabled = false;
+      }, 2000);
+    } else {
+      throw new Error(data.error || "Failed to save");
+    }
+  } catch (error) {
+    console.error("Save Error:", error);
+    btn.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i> Error';
+    btn.style.background = "linear-gradient(135deg, #ef4444, #dc2626)";
+
+    setTimeout(() => {
+      btn.innerHTML = originalContent;
+      btn.style.background = "";
+      btn.disabled = false;
+    }, 2000);
+  }
+}
+
+// ==================== ANALYTICS SETTINGS ====================
+
+let currentGuildIdForAnalytics = null;
+
+/**
+ * Initialize analytics settings for a specific guild.
+ *
+ * @param {string} guildId - Discord guild (server) ID.
+ */
+function initAnalyticsSettings(guildId) {
+  currentGuildIdForAnalytics = guildId;
+  loadAnalyticsSettings();
+}
+
+/**
+ * Load analytics settings for the current guild and populate the UI form.
+ * Uses the guild_id parsed from the current URL if not explicitly initialized.
+ */
+async function loadAnalyticsSettings() {
+  try {
+    const guildId = currentGuildIdForAnalytics || window.location.pathname.split("/").pop();
+
+    if (!guildId || guildId === "null") {
+      console.error("Invalid guild_id for loading settings:", guildId);
+      return;
+    }
+
+    const response = await fetch(`/api/analytics/${guildId}/settings`);
+
+    if (!response.ok) {
+      throw new Error("Failed to load analytics settings");
+    }
+
+    const settings = await response.json();
+
+    const weeklyReportCheckbox = document.getElementById("weeklyReportEnabled");
+    if (weeklyReportCheckbox) weeklyReportCheckbox.checked = settings.weekly_report_enabled;
+
+    const analyticsTimezone = document.getElementById("analyticsTimezone");
+    if (analyticsTimezone) analyticsTimezone.value = settings.analytics_timezone;
+
+    const resetTimezone = document.getElementById("resetTimezone");
+    if (resetTimezone) resetTimezone.value = settings.weekly_reset_timezone;
+
+  } catch (error) {
+    console.error("Error loading analytics settings:", error);
+  }
+}
+
+/**
+ * Save analytics configuration (weekly report and timezones) for the current guild.
+ * Uses the analytics settings form and posts to the analytics API endpoint.
+ */
+async function saveAnalyticsSettings() {
+  const btn = document.querySelector('button[onclick="saveAnalyticsSettings()"]');
+  const originalHtml = btn ? btn.innerHTML : "Save Settings";
+
+  // Read analytics settings values
+  const weeklyReportEnabled = document.getElementById("weeklyReportEnabled").checked;
+  const analyticsTimezone = document.getElementById("analyticsTimezone").value;
+  const resetTimezone = document.getElementById("resetTimezone").value;
+
+  // Enter loading state
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
+  }
+
+  const guildId = window.location.pathname.split("/").pop();
+
+  try {
+    const settings = {
+      weekly_report_enabled: weeklyReportEnabled,
+      analytics_timezone: analyticsTimezone,
+      weekly_reset_timezone: resetTimezone,
+      weekly_report_day: 0, // Monday
+      weekly_report_hour: 9, // 9 AM
+    };
+
+    const response = await fetch(`/api/analytics/${guildId}/settings`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(settings),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      if (btn) {
+        btn.innerHTML = '<i class="fas fa-check mr-2"></i> Saved!';
+        btn.classList.remove("btn-primary");
+        btn.classList.add("bg-green-600", "hover:bg-green-500", "text-white");
+
+        setTimeout(() => {
+          btn.innerHTML = originalHtml;
+          btn.classList.remove("bg-green-600", "hover:bg-green-500", "text-white");
+          btn.classList.add("btn-primary");
+          btn.disabled = false;
+        }, 2000);
+      }
+    } else {
+      throw new Error(data.error || "Failed to save settings");
+    }
+  } catch (error) {
+    console.error("Save Error:", error);
+    if (btn) {
+      btn.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i> Error';
+      btn.classList.add("bg-red-600", "text-white");
+
+      setTimeout(() => {
+        btn.innerHTML = originalHtml;
+        btn.classList.remove("bg-red-600", "text-white");
+        btn.disabled = false;
+      }, 2000);
+    }
+  }
+}
+
+// Auto-init logic if on analytics page
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", () => {
+    if (document.getElementById("analyticsTimezone")) loadAnalyticsSettings();
+  });
+} else {
+  if (document.getElementById("analyticsTimezone")) loadAnalyticsSettings();
+}
+
+// Export functions to global scope
+if (typeof window !== "undefined") {
+  window.saveGeneralSettings = saveGeneralSettings;
+  window.saveAnalyticsSettings = saveAnalyticsSettings;
+  window.loadAnalyticsSettings = loadAnalyticsSettings;
+  window.initAnalyticsSettings = initAnalyticsSettings;
+}

@@ -1,3 +1,4 @@
+// v5.0.0
 // v4.0.0
 /**
  * @file Smart Reminders Tab Script
@@ -221,7 +222,7 @@ async function loadReminderData(guildId) {
 
     currentReminders.forEach((reminder, index) => {
       const div = document.createElement("div");
-      div.className = "rem-card";
+      div.className = "config-card";
 
       const nextRun = new Date(reminder.next_run);
       const timeString = nextRun.toLocaleString(undefined, {
@@ -233,9 +234,10 @@ async function loadReminderData(guildId) {
         timeZoneName: "short",
       });
 
-      const statusClass = reminder.status === "active" ? "active" : "paused";
-      const statusText =
-        reminder.status.charAt(0).toUpperCase() + reminder.status.slice(1);
+      const iconColor = reminder.status === "active" ? "from-indigo-500 to-purple-600" : "from-slate-500 to-slate-700";
+      const statusBadge = reminder.status === "active"
+        ? `<span class="config-badge bg-emerald-500/10 text-emerald-400 ml-2">Active</span>`
+        : `<span class="config-badge bg-rose-500/10 text-rose-400 ml-2">Paused</span>`;
 
       const intervalMap = {
         once: "One-time",
@@ -257,44 +259,33 @@ async function loadReminderData(guildId) {
       }
 
       div.innerHTML = `
-        <div class="flex items-center gap-4">
-          <div class="rem-icon">
-            <i class="fas fa-bell"></i>
-          </div>
-          <div class="flex-grow min-w-0">
-            <div class="flex items-center gap-2 mb-1">
-              <h4 class="font-bold truncate" title="${escapeHtml(
-        reminder.message
-      )}">${escapeHtml(reminder.message.substring(0, 50))}${reminder.message.length > 50 ? "..." : ""
-        }</h4>
-              <span class="rem-status ${statusClass}">${statusText}</span>
-            </div>
-            <p class="text-xs text-slate-500 truncate">Next: ${timeString}</p>
-          </div>
-          <div class="text-right">
-            <div class="text-xs text-slate-400">${reminder.timezone}</div>
-            <span class="rem-interval">${intervalDisplay}</span>
-          </div>
-          <div class="flex gap-2 ml-2">
-            <button class="text-slate-500 hover:text-blue-400 transition-colors" 
-                    title="Edit"
-                    onclick="editReminder(${index})">
-              <i class="fas fa-edit"></i>
-            </button>
-            <button class="text-slate-500 hover:text-yellow-400 transition-colors" 
-                    title="${reminder.status === "active" ? "Pause" : "Resume"}"
-                    onclick="toggleReminderStatus('${reminder.reminder_id}')">
-              <i class="fas fa-${reminder.status === "active" ? "pause" : "play"
-        }"></i>
-            </button>
-            <button class="text-slate-500 hover:text-red-400 transition-colors" 
-                    title="Delete"
-                    onclick="deleteReminder('${reminder.reminder_id}')">
-              <i class="fas fa-trash"></i>
-            </button>
-          </div>
-        </div>
-      `;
+                <div class="config-icon-wrapper bg-gradient-to-br ${iconColor}">
+                    <i class="fas fa-bell text-white"></i>
+                </div>
+                <div class="config-info">
+                    <div class="config-title">
+                        ${escapeHtml(reminder.message.substring(0, 40))}${reminder.message.length > 40 ? "..." : ""}
+                        ${statusBadge}
+                    </div>
+                    <div class="config-subtitle">
+                        <i class="fas fa-clock"></i> Next: ${timeString}
+                        <span class="mx-1">•</span>
+                        <i class="fas fa-repeat"></i> ${intervalDisplay}
+                    </div>
+                </div>
+                <div class="config-actions">
+                    <button class="action-btn edit" title="Edit" onclick="editReminder(${index})">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="action-btn" title="${reminder.status === "active" ? "Pause" : "Resume"}" 
+                            onclick="toggleReminderStatus('${reminder.reminder_id}')">
+                        <i class="fas fa-${reminder.status === "active" ? "pause" : "play"}"></i>
+                    </button>
+                    <button class="action-btn delete" title="Delete" onclick="deleteReminder('${reminder.reminder_id}')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
       container.appendChild(div);
     });
   } catch (e) {

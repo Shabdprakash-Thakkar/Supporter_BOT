@@ -1,5 +1,7 @@
+# v5.0.0
 # v4.0.0
 import discord
+import os
 from discord import app_commands
 from discord.ext import commands
 from datetime import datetime, timezone
@@ -87,6 +89,9 @@ class OwnerActionsManager:
 
             Used as a reusable check for all owner-only commands.
             """
+            env_owner_id = os.getenv("DISCORD_BOT_OWNER_ID")
+            if env_owner_id:
+                return str(interaction.user.id) == str(env_owner_id)
             return await self.bot.is_owner(interaction.user)
 
         @self.bot.tree.command(

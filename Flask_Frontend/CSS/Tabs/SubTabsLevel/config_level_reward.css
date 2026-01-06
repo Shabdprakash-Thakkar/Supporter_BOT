@@ -1,3 +1,4 @@
+/* v5.0.0 */
 /* v4.0.0 */
 /* ==========================================================================
    Supporter Bot - Leveling Rewards & Modal Styles
@@ -40,72 +41,13 @@
    Reward Cards (Layout, Level & Role Display)
    ========================================================================== */
 
-.reward-card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: rgba(30, 41, 59, 0.5);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 1rem;
-  padding: 1rem 1.25rem;
-  transition: all 0.3s ease;
-  position: relative;
-}
-
-.reward-card:hover {
-  background: rgba(30, 41, 59, 0.7);
-  border-color: rgba(99, 102, 241, 0.3);
-  transform: translateY(-4px);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-}
-
-.reward-level {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 4rem;
-}
-
-.reward-arrow {
-  flex-shrink: 0;
-}
-
-.reward-role {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  min-width: 0;
-}
+/* Handled by .config-card in server_config.css */
 
 /* ==========================================================================
    Reward Delete Button (Inline Control)
    ========================================================================== */
 
-.reward-delete-btn {
-  position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
-  width: 1.75rem;
-  height: 1.75rem;
-  background: rgba(239, 68, 68, 0.1);
-  border: none;
-  border-radius: 0.375rem;
-  color: #f87171;
-  font-size: 0.75rem;
-  cursor: pointer;
-  opacity: 0;
-  transition: all 0.3s ease;
-}
-
-.reward-card:hover .reward-delete-btn {
-  opacity: 1;
-}
-
-.reward-delete-btn:hover {
-  background: #ef4444;
-  color: white;
-}
+/* Handled by .action-btn in server_config.css */
 
 /* ==========================================================================
    Modal Shell, Overlay & Content Panel

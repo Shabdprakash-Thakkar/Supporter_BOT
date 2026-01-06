@@ -1,3 +1,4 @@
+# v5.0.0
 # v4.0.0
 """
 Join-to-Create Voice Channel System
@@ -29,6 +30,7 @@ import logging
 from datetime import datetime, timedelta, timezone
 import asyncio
 from typing import Optional, Dict, Tuple
+from voice_control import VoiceControlView
 
 log = logging.getLogger(__name__)
 
@@ -96,6 +98,9 @@ class JoinToCreateManager:
         """
         self.bot.add_listener(self.on_voice_state_update, "on_voice_state_update")
         self.bot.add_listener(self.on_guild_channel_delete, "on_guild_channel_delete")
+        
+        # Schema check
+        await self.ensure_schema()
         
         # Cleanup orphaned channels on startup
         await self.cleanup_orphaned_channels()
@@ -342,18 +347,12 @@ class JoinToCreateManager:
             if before.channel.id in self.temp_channels:
                 await self.handle_temp_channel_leave(before.channel)
     
+
     async def handle_trigger_join(self, member: discord.Member, config: dict):
         """
         Handle a user joining the trigger channel.
         
-        Creates a temporary voice channel and moves the user into it.
-        
-        Parameters
-        ----------
-        member : discord.Member
-            The member who joined the trigger channel.
-        config : dict
-            Guild configuration dictionary.
+        Creates a temporary voice channel (Private or Public) and moves the user into it.
         """
         guild = member.guild
         
@@ -361,6 +360,7 @@ class JoinToCreateManager:
         cooldown_seconds = config.get('user_cooldown_seconds', 10)
         if not self.check_user_cooldown(member.id, guild.id, cooldown_seconds):
             log.info(f"⏳ User {member.name} on cooldown in {guild.name}")
+            # Optional: Move user out if they spam join? For now just ignore.
             return
         
         # Check guild rate limit
@@ -368,7 +368,19 @@ class JoinToCreateManager:
             log.warning(f"⚠️ Guild {guild.name} exceeded rate limit for temp channel creation")
             return
         
-        # Create temp channel
+        # Determine Channel Type (Private vs Public)
+        private_role_id = config.get('private_vc_role_id')
+        force_private = config.get('force_private', False)
+        is_private = force_private
+        
+        if not is_private and private_role_id:
+            try:
+                role = guild.get_role(int(private_role_id))
+                if role and role in member.roles:
+                    is_private = True
+            except (ValueError, TypeError):
+                pass
+        
         try:
             category_id = int(config['category_id'])
             category = guild.get_channel(category_id)
@@ -379,10 +391,25 @@ class JoinToCreateManager:
             
             # Create the channel
             channel_name = f"{member.display_name}'s Channel"
+            
+            overwrites = {
+                guild.default_role: discord.PermissionOverwrite(connect=True, view_channel=True),
+                guild.me: discord.PermissionOverwrite(connect=True, manage_channels=True, move_members=True)
+            }
+            
+            if is_private:
+                # Private VC overrides
+                # @everyone: View=True, Connect=False
+                overwrites[guild.default_role] = discord.PermissionOverwrite(connect=False, view_channel=True)
+                # Owner: Connect=True, Speak=True, Manage=True (Proxied via Bot mostly, but give connect)
+                overwrites[member] = discord.PermissionOverwrite(connect=True, speak=True, move_members=True, mute_members=True)
+                channel_name = f"🔒 {member.display_name}'s Private"
+
             temp_channel = await guild.create_voice_channel(
                 name=channel_name,
                 category=category,
-                reason=f"Join-to-Create: {member.name} joined trigger channel"
+                overwrites=overwrites,
+                reason=f"Join-to-Create: {member.name} joined trigger channel ({'Private' if is_private else 'Public'})"
             )
             
             log.info(f"✅ Created temp channel '{channel_name}' in {guild.name}")
@@ -394,22 +421,36 @@ class JoinToCreateManager:
             async with self.pool.acquire() as conn:
                 await conn.execute(
                     """INSERT INTO public.voice_temp_channels 
-                       (guild_id, channel_id, trigger_channel_id, category_id, creator_user_id, creator_username, created_at)
-                       VALUES ($1, $2, $3, $4, $5, $6, NOW())""",
+                       (guild_id, channel_id, trigger_channel_id, category_id, creator_user_id, creator_username, created_at, is_private, owner_user_id, owner_username)
+                       VALUES ($1, $2, $3, $4, $5, $6, NOW(), $7, $8, $9)""",
                     str(guild.id),
                     str(temp_channel.id),
                     config['trigger_channel_id'],
                     config['category_id'],
                     str(member.id),
-                    member.name
+                    member.name,
+                    is_private,
+                    str(member.id) if is_private else None,
+                    member.name if is_private else None
                 )
             
             # Move user to temp channel
             try:
                 await member.move_to(temp_channel, reason="Join-to-Create: Moving to temp channel")
+                
+                # If Private, send Control Panel
+                if is_private:
+                    # VoiceControlView is now imported globally
+                    view = VoiceControlView(self.bot, self.pool, member.id)
+                    embed = discord.Embed(
+                        title="🔒 Private Voice Controls",
+                        description=f"Welcome {member.mention}! You are the owner of this channel.\nUse the buttons below to manage permissions.",
+                        color=discord.Color.gold()
+                    )
+                    await temp_channel.send(member.mention, embed=embed, view=view)
+
             except discord.HTTPException as e:
                 log.error(f"❌ Failed to move {member.name} to temp channel: {e}")
-                # Clean up the channel if we can't move the user
                 await temp_channel.delete(reason="Failed to move user")
                 del self.temp_channels[temp_channel.id]
         
@@ -417,6 +458,45 @@ class JoinToCreateManager:
             log.error(f"❌ Missing permissions to create voice channel in {guild.name}")
         except Exception as e:
             log.error(f"❌ Error creating temp channel: {e}")
+
+    async def ensure_schema(self):
+        """
+        Auto-migrate database schema to support Private VCs.
+        """
+        log.info("🛠️ Checking database schema for Private VC extensions...")
+        async with self.pool.acquire() as conn:
+            # 1. voice_temp_channels extensions
+            await conn.execute("""
+                ALTER TABLE public.voice_temp_channels 
+                ADD COLUMN IF NOT EXISTS is_private BOOLEAN DEFAULT FALSE,
+                ADD COLUMN IF NOT EXISTS owner_user_id TEXT,
+                ADD COLUMN IF NOT EXISTS owner_username TEXT,
+                ADD COLUMN IF NOT EXISTS max_concurrent_users INT DEFAULT 0;
+            """)
+            
+            # 2. config extensions
+            await conn.execute("""
+                ALTER TABLE public.join_to_create_config
+                ADD COLUMN IF NOT EXISTS private_vc_role_id TEXT,
+                ADD COLUMN IF NOT EXISTS force_private BOOLEAN DEFAULT FALSE,
+                ADD COLUMN IF NOT EXISTS min_session_minutes INT DEFAULT 0;
+            """)
+            
+            # 3. Create permission table
+            await conn.execute("""
+                 CREATE TABLE IF NOT EXISTS public.voice_channel_permissions (
+                    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                    guild_id TEXT NOT NULL,
+                    channel_id TEXT NOT NULL,
+                    target_type TEXT NOT NULL CHECK (target_type IN ('user', 'role')),
+                    target_id TEXT NOT NULL,
+                    permission TEXT NOT NULL CHECK (permission IN ('connect', 'view', 'speak')),
+                    granted_by TEXT NOT NULL,
+                    granted_at TIMESTAMPTZ DEFAULT NOW(),
+                    UNIQUE(channel_id, target_id, permission)
+                );
+            """)
+        log.info("✅ Database schema verified.")
     
     async def handle_temp_channel_leave(self, channel: discord.VoiceChannel):
         """
@@ -533,7 +613,7 @@ class JoinToCreateManager:
                 )
             
             # Clean up tracking
-            del self.temp_channels[channel.id]
+            self.temp_channels.pop(channel.id, None)
             if channel.id in self.deletion_tasks:
                 task = self.deletion_tasks[channel.id]
                 if not task.done():
@@ -638,7 +718,9 @@ class JoinToCreateManager:
             category="Category where temp channels will be created",
             delete_delay="Seconds to wait before deleting empty channels (default: 20)",
             user_cooldown="Cooldown per user in seconds (default: 10)",
-            min_session_minutes="Minimum minutes in voice to earn XP (default: 2)"
+            private_role="Optional role that automatically creates private voice channels",
+            force_private="If True, all created voice channels will be private",
+            min_session="Minimum session duration in minutes for analytics tracking"
         )
         @app_commands.checks.has_permissions(administrator=True)
         async def jtc_setup(
@@ -647,7 +729,9 @@ class JoinToCreateManager:
             category: discord.CategoryChannel,
             delete_delay: int = 20,
             user_cooldown: int = 10,
-            min_session_minutes: int = 2
+            private_role: Optional[discord.Role] = None,
+            force_private: bool = False,
+            min_session: int = 0
         ):
             """Configure the Join-to-Create system for this server."""
             await interaction.response.defer(ephemeral=True)
@@ -662,16 +746,14 @@ class JoinToCreateManager:
                     await interaction.followup.send("❌ User cooldown must be between 0 and 60 seconds.", ephemeral=True)
                     return
                 
-                if not (0 <= min_session_minutes <= 30):
-                    await interaction.followup.send("❌ Minimum session minutes must be between 0 and 30.", ephemeral=True)
-                    return
+
                 
                 # Save configuration
                 async with self.pool.acquire() as conn:
                     await conn.execute(
                         """INSERT INTO public.join_to_create_config 
-                           (guild_id, trigger_channel_id, category_id, enabled, delete_delay_seconds, user_cooldown_seconds, min_session_minutes)
-                           VALUES ($1, $2, $3, TRUE, $4, $5, $6)
+                           (guild_id, trigger_channel_id, category_id, enabled, delete_delay_seconds, user_cooldown_seconds, private_vc_role_id, force_private, min_session_minutes)
+                           VALUES ($1, $2, $3, TRUE, $4, $5, $6, $7, $8)
                            ON CONFLICT (guild_id) 
                            DO UPDATE SET 
                                trigger_channel_id = $2,
@@ -679,14 +761,18 @@ class JoinToCreateManager:
                                enabled = TRUE,
                                delete_delay_seconds = $4,
                                user_cooldown_seconds = $5,
-                               min_session_minutes = $6,
+                               private_vc_role_id = $6,
+                               force_private = $7,
+                               min_session_minutes = $8,
                                updated_at = NOW()""",
                         str(interaction.guild.id),
                         str(trigger_channel.id),
                         str(category.id),
                         delete_delay,
                         user_cooldown,
-                        min_session_minutes
+                        str(private_role.id) if private_role else None,
+                        force_private,
+                        min_session
                     )
                 
                 # Invalidate cache
@@ -702,7 +788,9 @@ class JoinToCreateManager:
                 embed.add_field(name="Category", value=category.name, inline=False)
                 embed.add_field(name="Delete Delay", value=f"{delete_delay} seconds", inline=True)
                 embed.add_field(name="User Cooldown", value=f"{user_cooldown} seconds", inline=True)
-                embed.add_field(name="Min Session for XP", value=f"{min_session_minutes} minutes", inline=True)
+                embed.add_field(name="Private Role", value=private_role.mention if private_role else "None", inline=True)
+                embed.add_field(name="Force Private?", value="Yes" if force_private else "No", inline=True)
+                embed.add_field(name="Min Session", value=f"{min_session} minutes", inline=True)
                 
                 await interaction.followup.send(embed=embed, ephemeral=True)
                 log.info(f"⚙️ Join-to-Create configured for {interaction.guild.name}")
@@ -786,8 +874,7 @@ class JoinToCreateManager:
                     value=f"**Trigger Channel:** {trigger_channel.mention if trigger_channel else 'Not found'}\n"
                           f"**Category:** {category.name if category else 'Not found'}\n"
                           f"**Delete Delay:** {config['delete_delay_seconds']}s\n"
-                          f"**User Cooldown:** {config['user_cooldown_seconds']}s\n"
-                          f"**Min Session for XP:** {config['min_session_minutes']} min",
+                          f"**User Cooldown:** {config['user_cooldown_seconds']}s",
                     inline=False
                 )
                 

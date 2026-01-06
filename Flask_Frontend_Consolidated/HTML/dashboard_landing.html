@@ -1,3 +1,4 @@
+<!-- v5.0.0 -->
 <!-- v4.0.0 -->
 <!DOCTYPE html>
 <!--
@@ -126,69 +127,307 @@
           </div>
           <div class="preview-content">
             <div class="preview-sidebar">
-              <div class="sidebar-item active">
+              <div class="sidebar-item active" data-tab="overview">
                 <i class="fas fa-home"></i>
                 <span>Overview</span>
               </div>
-              <div class="sidebar-item">
+              <div class="sidebar-item" data-tab="leveling">
                 <i class="fas fa-trophy"></i>
                 <span>Leveling</span>
               </div>
-              <div class="sidebar-item">
+              <div class="sidebar-item" data-tab="time">
                 <i class="fas fa-globe"></i>
                 <span>Time/Clock</span>
               </div>
-              <div class="sidebar-item">
+              <div class="sidebar-item" data-tab="youtube">
                 <i class="fab fa-youtube"></i>
                 <span>YouTube</span>
               </div>
-              <div class="sidebar-item">
+              <div class="sidebar-item" data-tab="reminders">
                 <i class="fas fa-clock"></i>
                 <span>Reminders</span>
               </div>
-              <div class="sidebar-item">
+              <div class="sidebar-item" data-tab="restrictions">
                 <i class="fas fa-shield-alt"></i>
                 <span>Restrictions</span>
               </div>
-              <div class="sidebar-item">
+              <div class="sidebar-item" data-tab="tickets">
                 <i class="fas fa-ticket-alt"></i>
                 <span>Tickets</span>
               </div>
-              <div class="sidebar-item">
+              <div class="sidebar-item" data-tab="voice">
                 <i class="fas fa-microphone"></i>
                 <span>Voice Channel</span>
               </div>
-              <div class="sidebar-item">
+              <div class="sidebar-item" data-tab="analytics">
                 <i class="fas fa-chart-bar"></i>
                 <span>Analytics</span>
               </div>
             </div>
-            <div class="preview-main">
-              <div class="stats-grid">
-                <div class="stat-card">
-                  <i class="fas fa-users"></i>
-                  <div class="stat-value">2,502</div>
-                  <div class="stat-label">MEMBERS</div>
+            <div class="preview-main" id="preview-tab-container">
+              <!-- Overview Tab (Active by Default) -->
+              <div class="preview-tab-content active" id="tab-overview">
+                <div class="stats-grid">
+                  <div class="stat-card">
+                    <i class="fas fa-users"></i>
+                    <div class="stat-value" id="preview-members">2,502</div>
+                    <div class="stat-label">MEMBERS</div>
+                  </div>
+                  <div class="stat-card">
+                    <i class="fas fa-chart-line"></i>
+                    <div class="stat-value" id="preview-growth">+1.2%</div>
+                    <div class="stat-label">GROWTH</div>
+                  </div>
+                  <div class="stat-card">
+                    <i class="fas fa-comments"></i>
+                    <div class="stat-value" id="preview-messages">15k</div>
+                    <div class="stat-label">MESSAGES</div>
+                  </div>
                 </div>
-                <div class="stat-card">
-                  <i class="fas fa-chart-line"></i>
-                  <div class="stat-value">+1.2%</div>
-                  <div class="stat-label">GROWTH</div>
-                </div>
-                <div class="stat-card">
-                  <i class="fas fa-comments"></i>
-                  <div class="stat-value">15k</div>
-                  <div class="stat-label">MESSAGES</div>
+                <div class="chart-placeholder">
+                  <div class="chart-bar" style="height: 60%"></div>
+                  <div class="chart-bar" style="height: 80%"></div>
+                  <div class="chart-bar" style="height: 45%"></div>
+                  <div class="chart-bar" style="height: 90%"></div>
+                  <div class="chart-bar" style="height: 70%"></div>
+                  <div class="chart-bar" style="height: 95%"></div>
+                  <div class="chart-bar" style="height: 75%"></div>
                 </div>
               </div>
-              <div class="chart-placeholder">
-                <div class="chart-bar" style="height: 60%"></div>
-                <div class="chart-bar" style="height: 80%"></div>
-                <div class="chart-bar" style="height: 45%"></div>
-                <div class="chart-bar" style="height: 90%"></div>
-                <div class="chart-bar" style="height: 70%"></div>
-                <div class="chart-bar" style="height: 95%"></div>
-                <div class="chart-bar" style="height: 75%"></div>
+
+              <!-- Leveling Tab -->
+              <div class="preview-tab-content" id="tab-leveling">
+                <div class="demo-view">
+                  <div class="demo-header">
+                    <h4>Leveling Configuration</h4>
+                    <p>Customize XP rates and role rewards</p>
+                  </div>
+                  <div class="demo-controls">
+                    <div class="control-item"><span>XP per message</span><strong>15 - 25</strong></div>
+                    <div class="control-item"><span>Role Reward (Lvl 5)</span><strong
+                        class="text-indigo-400">@Supporter</strong></div>
+                    <div class="control-item"><span>Leaderboard</span><strong class="text-green-400">Enabled</strong>
+                    </div>
+                  </div>
+                  <div class="mini-leaderboard">
+                    <div class="player"><span>1. AgenticAI</span><strong>Lvl 42</strong></div>
+                    <div class="player"><span>2. Shadow</span><strong>Lvl 38</strong></div>
+                    <div class="player"><span>3. Nova</span><strong>Lvl 35</strong></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Time/Clock Tab -->
+              <div class="preview-tab-content" id="tab-time">
+                <div class="demo-view">
+                  <div class="demo-header">
+                    <h4>Time & Timezone</h4>
+                    <p>Manage server timezone and world clocks</p>
+                  </div>
+                  <div class="time-grid">
+                    <div class="time-card">
+                      <span class="location">London</span>
+                      <strong class="current-time">17:03</strong>
+                      <span class="offset">GMT +0</span>
+                    </div>
+                    <div class="time-card highlighted">
+                      <span class="location">Server (UTC)</span>
+                      <strong class="current-time">17:03</strong>
+                      <span class="offset">Primary</span>
+                    </div>
+                    <div class="time-card">
+                      <span class="location">New York</span>
+                      <strong class="current-time">12:03</strong>
+                      <span class="offset">EST -5</span>
+                    </div>
+                  </div>
+                  <div class="timezone-setting">
+                    <span>Default Timezone</span>
+                    <div class="mock-select">UTC (Universal Coordinated Time)</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- YouTube Tab -->
+              <div class="preview-tab-content" id="tab-youtube">
+                <div class="demo-view">
+                  <div class="demo-header">
+                    <h4>YouTube Notifications</h4>
+                    <p>Alert your server when you go live</p>
+                  </div>
+                  <div class="yt-list">
+                    <div class="yt-item">
+                      <div class="yt-icon bg-red-600"><i class="fab fa-youtube"></i></div>
+                      <div class="yt-info">
+                        <strong>Supporter Bot Gaming</strong>
+                        <span>#announcements • Active</span>
+                      </div>
+                      <i class="fas fa-toggle-on text-green-500"></i>
+                    </div>
+                    <div class="yt-item">
+                      <div class="yt-icon bg-red-600"><i class="fab fa-youtube"></i></div>
+                      <div class="yt-info">
+                        <strong>Developer Streams</strong>
+                        <span>#dev-logs • Active</span>
+                      </div>
+                      <i class="fas fa-toggle-on text-green-500"></i>
+                    </div>
+                  </div>
+                  <div class="yt-template">
+                    <span>Message Template</span>
+                    <div class="mock-input">🚀 {channel} just uploaded! Watch here: {url}</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Reminders Tab -->
+              <div class="preview-tab-content" id="tab-reminders">
+                <div class="demo-view">
+                  <div class="demo-header">
+                    <h4>Active Reminders</h4>
+                    <p>Set up scheduled messages and alerts</p>
+                  </div>
+                  <div class="reminder-list">
+                    <div class="rem-item">
+                      <i class="fas fa-bell text-yellow-400"></i>
+                      <div class="rem-info">
+                        <strong>Daily Community Check-in</strong>
+                        <span>Every Day at 09:00 AM</span>
+                      </div>
+                    </div>
+                    <div class="rem-item">
+                      <i class="fas fa-calendar-check text-indigo-400"></i>
+                      <div class="rem-info">
+                        <strong>Weekly Event Reminder</strong>
+                        <span>Every Sunday at 6:00 PM</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Restrictions Tab -->
+              <div class="preview-tab-content" id="tab-restrictions">
+                <div class="demo-view">
+                  <div class="demo-header">
+                    <h4>Channel Restrictions</h4>
+                    <p>Lock down media or text in specific channels</p>
+                  </div>
+                  <div class="restr-grid">
+                    <div class="restr-item">
+                      <div class="flex justify-between mb-2">
+                        <strong>#images-only</strong>
+                        <span class="status-badge red">Locked</span>
+                      </div>
+                      <p class="text-xs text-slate-500">Only attachments allowed. Text will be deleted.</p>
+                    </div>
+                    <div class="restr-item">
+                      <div class="flex justify-between mb-2">
+                        <strong>#general-chat</strong>
+                        <span class="status-badge green">Free</span>
+                      </div>
+                      <p class="text-xs text-slate-500">No active restrictions for this channel.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Tickets Tab -->
+              <div class="preview-tab-content" id="tab-tickets">
+                <div class="demo-view">
+                  <div class="demo-header">
+                    <h4>Ticket Transcripts</h4>
+                    <p>Review support history and logs</p>
+                  </div>
+                  <div class="ticket-logs">
+                    <div class="t-log">
+                      <div class="flex justify-between">
+                        <strong>ticket-0012</strong>
+                        <span class="text-xs text-slate-500">2h ago</span>
+                      </div>
+                      <span class="text-xs text-indigo-400">Closed by @Moderator</span>
+                    </div>
+                    <div class="t-log">
+                      <div class="flex justify-between">
+                        <strong>ticket-0011</strong>
+                        <span class="text-xs text-slate-500">5h ago</span>
+                      </div>
+                      <span class="text-xs text-indigo-400">Closed by @Admin</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Voice Channel Tab -->
+              <div class="preview-tab-content" id="tab-voice">
+                <div class="demo-view">
+                  <div class="demo-header">
+                    <h4>Voice Analytics</h4>
+                    <p>Track engagement across voice channels</p>
+                  </div>
+                  <div class="voice-stats">
+                    <div class="v-card">
+                      <i class="fas fa-microphone-alt"></i>
+                      <span>Active Now</span>
+                      <strong>12 Users</strong>
+                    </div>
+                    <div class="v-card">
+                      <i class="fas fa-clock"></i>
+                      <span>Total Time</span>
+                      <strong>1,240 hrs</strong>
+                    </div>
+                  </div>
+                  <div class="jtc-preview">
+                    <div class="jtc-item"><span>General VC</span>
+                      <div class="jtc-bar" style="width: 80%"></div>
+                    </div>
+                    <div class="jtc-item"><span>Gaming Zone</span>
+                      <div class="jtc-bar" style="width: 40%"></div>
+                    </div>
+                    <div class="jtc-item"><span>Study Room</span>
+                      <div class="jtc-bar" style="width: 60%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Analytics Tab -->
+              <div class="preview-tab-content" id="tab-analytics">
+                <div class="demo-view">
+                  <div class="demo-header">
+                    <h4>Full Analytics</h4>
+                    <p>Deep dive into server performance</p>
+                  </div>
+                  <div class="analytics-preview">
+                    <div class="a-row">
+                      <span>Message Volume</span>
+                      <div class="a-trend up">+24%</div>
+                    </div>
+                    <div class="a-row">
+                      <span>New Members</span>
+                      <div class="a-trend up">+12%</div>
+                    </div>
+                    <div class="a-row">
+                      <span>VC Minutes</span>
+                      <div class="a-trend down">-5%</div>
+                    </div>
+                  </div>
+                  <div class="chart-mini">
+                    <div class="c-bar" style="height: 40%"></div>
+                    <div class="c-bar" style="height: 60%"></div>
+                    <div class="c-bar" style="height: 80%"></div>
+                    <div class="c-bar" style="height: 100%"></div>
+                    <div class="c-bar" style="height: 70%"></div>
+                  </div>
+                </div>
+              </div>
+              <!-- Other tabs will be handled in JS or expanded later if needed -->
+              <div class="preview-tab-content empty-demo" id="tab-generic">
+                <div class="flex flex-col items-center justify-center h-full text-center p-10">
+                  <i class="fas fa-tools text-4xl mb-4 text-slate-600"></i>
+                  <h4 class="text-xl font-bold mb-2">Detailed Demo View</h4>
+                  <p class="text-slate-500">Select a module to see how it looks in the real dashboard!</p>
+                </div>
               </div>
             </div>
           </div>

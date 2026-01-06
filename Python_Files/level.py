@@ -1,3 +1,4 @@
+# v5.0.0
 # v4.0.0
 import discord
 from discord import app_commands
@@ -458,8 +459,21 @@ class LevelManager:
         key = (member.guild.id, member.id)
         now = datetime.now(IST)
 
-        is_active_before = before.channel and not before.afk and not before.self_deaf
-        is_active_after = after.channel and not after.afk and not after.self_deaf
+        is_active_before = before.channel and not before.afk and not before.self_deaf and not before.deaf
+        
+        # Check speak permission for 'before' state if channel exists
+        if before.channel:
+            perms_before = before.channel.permissions_for(member)
+            if not perms_before.speak:
+                is_active_before = False
+
+        is_active_after = after.channel and not after.afk and not after.self_deaf and not after.deaf
+        
+        # Check speak permission for 'after' state if channel exists
+        if after.channel:
+            perms_after = after.channel.permissions_for(member)
+            if not perms_after.speak:
+                is_active_after = False
 
         if is_active_before and not is_active_after:
             if session_data := self.voice_sessions.pop(key, None):
@@ -505,18 +519,15 @@ class LevelManager:
         channel_id : int
             The ID of the voice channel they were in.
         """
-        # NEW: Check channel type if Join-to-Create is enabled
-        if self.jtc_manager:
-            # Check if it's a trigger channel (no XP)
-            if await self.jtc_manager.is_trigger_channel(channel_id):
-                log.info(f"⏭️ Skipping XP for {member.name} - was in trigger channel")
-                return
+        # Verify user still meets criteria (not deafened, has speak permission)
+        # This prevents awarding XP if they muted/deafened themselves and stayed in channel
+        if not member.voice or member.voice.afk or member.voice.self_deaf or member.voice.deaf:
+            return
             
-            # Check if it's a temp channel (award XP)
-            if not await self.jtc_manager.is_temp_channel(channel_id):
-                log.info(f"⏭️ Skipping XP for {member.name} - not in temp channel")
-                return
-        
+        perms = member.voice.channel.permissions_for(member)
+        if not perms.speak:
+            return
+
         # Existing XP calculation logic
         settings = await self.get_guild_settings(member.guild.id)
         voice_xp_limit = settings.get("voice_xp_limit", 1500)

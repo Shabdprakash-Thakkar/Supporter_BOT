@@ -1,3 +1,4 @@
+// v5.0.0
 // v4.0.0
 /**
  * @file Timezone Clocks Configuration Script
@@ -401,30 +402,33 @@ async function loadClocks(guildId) {
 
     data.clocks.forEach((clock) => {
       const div = document.createElement("div");
-      div.className = "clock-card";
+      div.className = "config-card";
 
       let dateInfo = "";
       if (clock.date_channel_id) {
-        dateInfo = `<div class="text-xs text-slate-400 mt-1"><i class="fas fa-calendar-day mr-1"></i>Date Channel Set</div>`;
+        dateInfo = `
+          <div class="config-badge bg-blue-500/10 text-blue-400 mt-1 w-fit">
+            <i class="fas fa-calendar-day mr-1"></i>Date Active
+          </div>`;
       }
 
       div.innerHTML = `
-                <div>
-                    <div class="font-bold text-lg flex items-center gap-2">
-                        <i class="fas fa-globe-americas text-blue-400"></i> ${clock.timezone
-        }
-                    </div>
-                    <div class="text-sm text-slate-500 font-mono bg-slate-100 dark:bg-slate-900 px-2 py-0.5 rounded w-fit mt-1">
-                        Time Channel ID: ${clock.channel_id || clock.time_channel_id
-        }
+                <div class="config-icon-wrapper bg-gradient-to-br from-blue-500 to-indigo-600">
+                    <i class="fas fa-globe-americas text-white"></i>
+                </div>
+                <div class="config-info">
+                    <div class="config-title">${clock.timezone}</div>
+                    <div class="config-subtitle">
+                        <i class="fas fa-hashtag"></i>
+                        ${clock.channel_id || clock.time_channel_id}
                     </div>
                     ${dateInfo}
                 </div>
-                <div class="flex gap-2">
-                    <button class="edit-clock-btn w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-blue-500 hover:bg-blue-500/10 transition-colors" title="Edit Clock">
+                <div class="config-actions">
+                    <button class="action-btn edit edit-clock-btn" title="Edit Clock">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button class="delete-clock-btn w-8 h-8 flex items-center justify-center rounded-full text-slate-400 hover:text-red-500 hover:bg-red-500/10 transition-colors" title="Delete Clock">
+                    <button class="action-btn delete delete-clock-btn" title="Delete Clock">
                         <i class="fas fa-trash"></i>
                     </button>
                 </div>

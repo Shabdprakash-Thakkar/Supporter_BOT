@@ -1,3 +1,4 @@
+// v5.0.0
 // v4.0.0
 /**
  * @file Server Configuration Manager
@@ -214,6 +215,12 @@ function loadTabData(tabName, force = false) {
     case "tickets":
       if (typeof initTicketTab === "function") {
         initTicketTab();
+      }
+      break;
+
+    case "voice_channels":
+      if (typeof loadVoiceChannelData === "function") {
+        loadVoiceChannelData();
       }
       break;
   }

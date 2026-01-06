@@ -1,3 +1,4 @@
+/* v5.0.0 */
 /* v4.0.0 */
 /* ==========================================================================
    Supporter Bot - Analytics Dashboard Styles
@@ -65,13 +66,18 @@
 }
 
 .health-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(
+    145deg,
+    rgba(30, 41, 59, 0.6) 0%,
+    rgba(15, 23, 42, 0.8) 100%
+  );
+  backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
+  border-top: 1px solid var(--glass-highlight);
   border-radius: 20px;
   padding: 2rem;
   text-align: center;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--glass-shadow);
 }
 
 .health-score-circle {
@@ -136,16 +142,45 @@
 }
 
 .metric-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(
+    145deg,
+    rgba(30, 41, 59, 0.6) 0%,
+    rgba(15, 23, 42, 0.8) 100%
+  );
+  backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
-  border-radius: 15px;
+  border-top: 1px solid var(--glass-highlight);
+  border-radius: 1.25rem;
   padding: 1.5rem;
   display: flex;
   gap: 1rem;
   align-items: center;
   transition: all 0.3s ease;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.metric-card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.05),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: left 0.75s ease;
+  pointer-events: none;
+}
+
+.metric-card:hover::after {
+  left: 150%;
 }
 
 .metric-card:hover {
@@ -213,13 +248,18 @@
    ========================================================================== */
 
 .section-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(10px);
+  background: linear-gradient(
+    145deg,
+    rgba(30, 41, 59, 0.6) 0%,
+    rgba(15, 23, 42, 0.8) 100%
+  );
+  backdrop-filter: blur(20px);
   border: 1px solid var(--glass-border);
-  border-radius: 15px;
+  border-top: 1px solid var(--glass-highlight);
+  border-radius: 1.25rem;
   padding: 2rem;
   margin-bottom: 2rem;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--glass-shadow);
 }
 
 .section-card h3 {
@@ -332,14 +372,17 @@
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: var(--bg-secondary);
+  background: rgba(30, 41, 59, 0.4);
+  border: 1px solid transparent;
   border-radius: 10px;
   transition: all 0.3s ease;
 }
 
 .contributor-item:hover {
   background: var(--glass-bg);
+  border-color: var(--glass-border);
   transform: translateX(5px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .contributor-rank {

@@ -1,3 +1,4 @@
+// v5.0.0
 // v4.0.0
 /**
  * @file Channel Restrictions Configuration Script
@@ -99,48 +100,59 @@ window.loadRestrictions = async function (guildId) {
     }
 
     data.restrictions.forEach((r) => {
-      let badgeClass = "badge-block";
+      let iconColor = "from-slate-500 to-slate-700";
       let icon = "fas fa-ban";
+
       if (r.restriction_type === "media_only") {
-        badgeClass = "badge-media";
+        iconColor = "from-emerald-400 to-teal-600";
         icon = "fas fa-image";
-      }
-      if (r.restriction_type === "text_only") {
-        badgeClass = "badge-text";
+      } else if (r.restriction_type === "text_only") {
+        iconColor = "from-sky-400 to-blue-600";
         icon = "fas fa-comment-alt";
+      } else if (r.restriction_type === "block_invites") {
+        iconColor = "from-rose-400 to-red-600";
+        icon = "fas fa-user-slash";
       }
 
       const div = document.createElement("div");
-      div.className = "res-card";
+      div.className = "config-card";
       div.innerHTML = `
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-700 flex items-center justify-center text-lg text-slate-500">
-                        <i class="${icon}"></i>
+                <div class="config-icon-wrapper bg-gradient-to-br ${iconColor}">
+                    <i class="${icon} text-white"></i>
+                </div>
+                <div class="config-info">
+                    <div class="config-title">
+                        #${r.channel_name}
+                        <span class="config-badge bg-white/5 text-slate-300 ml-2">
+                            ${r.restriction_type.replace(/_/g, " ")}
+                        </span>
                     </div>
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <h4 class="font-bold text-lg">#${r.channel_name
-        }</h4>
-                            <span class="res-badge ${badgeClass}">${r.restriction_type.replace(
-          /_/g,
-          " "
-        )}</span>
-                        </div>
-                        <div class="text-xs text-slate-500 mt-1">
-                            ${r.redirect_channel_name
-          ? `Redirects to: <span class="font-bold">#${r.redirect_channel_name}</span>`
-          : "No Redirect"
-        }
-                            <span class="mx-1">•</span>
-                            ${r.immune_roles.length} Immune Roles
-                        </div>
+                    <div class="config-subtitle">
+                        <i class="fas fa-redo"></i>
+                        ${r.redirect_channel_name ? `Redirect: #${r.redirect_channel_name}` : "No Redirect"}
+                        <span class="mx-1">•</span>
+                        <i class="fas fa-shield-alt"></i>
+                        ${r.immune_roles.length} Immune Roles
                     </div>
                 </div>
-                <div class="flex gap-2">
-                    <button onclick="editRes('${r.id
-        }')" class="px-3 py-1.5 rounded bg-slate-100 dark:bg-slate-700 hover:bg-indigo-500 hover:text-white transition-colors text-sm font-bold">Edit</button>
-                    <button onclick="deleteRes('${r.id
-        }')" class="px-3 py-1.5 rounded bg-slate-100 dark:bg-slate-700 hover:bg-red-500 hover:text-white transition-colors text-sm"><i class="fas fa-trash"></i></button>
+                <div class="config-actions">
+                    <button onclick="editRes('${r.id}')" class="action-btn edit" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteRes('${r.id}')" class="action-btn delete" title="Delete">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                <!-- Added Details Section -->
+                <div style="grid-column: 1 / -1; margin-top: 0.75rem; display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; font-size: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.75rem;">
+                    <div style="color: #10b981; line-height: 1.4;">
+                        <span style="font-weight: 700; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em; opacity: 0.8;">Allowed:</span><br>
+                        ${decodeContentFlags(r.allowed_content_types).join(", ") || "None"}
+                    </div>
+                    <div style="color: #ef4444; line-height: 1.4;">
+                        <span style="font-weight: 700; text-transform: uppercase; font-size: 0.65rem; letter-spacing: 0.05em; opacity: 0.8;">Blocked:</span><br>
+                        ${decodeContentFlags(r.blocked_content_types).join(", ") || "None"}
+                    </div>
                 </div>
             `;
       div.dataset.json = JSON.stringify(r);
@@ -151,6 +163,26 @@ window.loadRestrictions = async function (guildId) {
     container.innerHTML = `<div class="text-red-500">Error loading restrictions.</div>`;
   }
 };
+
+
+
+/**
+ * Helper to decode bitmask into readable labels
+ * @param {number} mask - Bitmask value
+ * @returns {string[]} Array of readable content type names
+ */
+function decodeContentFlags(mask) {
+  const labels = [];
+  if ((mask & FLAGS.TEXT) === FLAGS.TEXT) labels.push("Text");
+  if ((mask & FLAGS.DISCORD) === FLAGS.DISCORD) labels.push("Invites");
+  if ((mask & FLAGS.MEDIA_LINK) === FLAGS.MEDIA_LINK) labels.push("Media Links");
+  if ((mask & FLAGS.ALL_LINKS) === FLAGS.ALL_LINKS) labels.push("Links");
+  if ((mask & FLAGS.MEDIA_FILES) === FLAGS.MEDIA_FILES) labels.push("Images/Video");
+  if ((mask & FLAGS.FILE) === FLAGS.FILE) labels.push("Files");
+  if ((mask & FLAGS.EMBED) === FLAGS.EMBED) labels.push("Embeds");
+  if ((mask & FLAGS.SOCIAL_MEDIA) === FLAGS.SOCIAL_MEDIA) labels.push("Social");
+  return labels;
+}
 
 /**
  * Load Discord channels and roles for restriction configuration.

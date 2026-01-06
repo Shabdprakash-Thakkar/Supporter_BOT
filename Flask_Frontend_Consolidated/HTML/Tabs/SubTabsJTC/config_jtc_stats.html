@@ -1,0 +1,75 @@
+<!-- v5.0.0 -->
+<!-- v4.0.0 -->
+<div class="vc-summary-cards">
+    <div class="vc-card">
+        <div class="vc-card-icon">📊</div>
+        <div class="vc-card-content">
+            <h3>Total Channels</h3>
+            <p class="vc-stat" id="total-channels">-</p>
+            <span class="vc-label">All time</span>
+        </div>
+    </div>
+    <div class="vc-card">
+        <div class="vc-card-icon">🎙️</div>
+        <div class="vc-card-content">
+            <h3>Active Channels</h3>
+            <p class="vc-stat" id="active-channels">-</p>
+            <span class="vc-label">Currently active</span>
+        </div>
+    </div>
+    <div class="vc-card">
+        <div class="vc-card-icon">⏱️</div>
+        <div class="vc-card-content">
+            <h3>Total Voice Time</h3>
+            <p class="vc-stat" id="total-voice-time">-</p>
+            <span class="vc-label">All channels</span>
+        </div>
+    </div>
+    <div class="vc-card">
+        <div class="vc-card-icon">📈</div>
+        <div class="vc-card-content">
+            <h3>Avg Lifetime</h3>
+            <p class="vc-stat" id="avg-lifetime">-</p>
+            <span class="vc-label">Per channel</span>
+        </div>
+    </div>
+</div>
+
+<div class="vc-table-section">
+    <div class="vc-table-header">
+        <div class="flex items-center gap-2">
+            <h2 class="text-xl font-bold">📜 Channel History</h2>
+        </div>
+        <div class="vc-filters">
+            <input type="text" id="filter-creator" placeholder="Filter by Creator ID" class="vc-filter-input">
+            <input type="date" id="filter-start-date" class="vc-filter-input">
+            <input type="date" id="filter-end-date" class="vc-filter-input">
+            <button onclick="applyFilters()" class="vc-filter-btn">Apply Filters</button>
+            <button onclick="clearFilters()" class="vc-filter-btn vc-clear-btn">Clear</button>
+        </div>
+    </div>
+
+    <div class="vc-table-wrapper">
+        <table class="vc-table" id="channels-table">
+            <thead>
+                <tr>
+                    <th>Channel ID</th>
+                    <th>Creator</th>
+                    <th>Created At</th>
+                    <th>Deleted At</th>
+                    <th>Lifetime</th>
+                    <th>Max Users</th>
+                </tr>
+            </thead>
+            <tbody id="channels-tbody">
+                <tr>
+                    <td colspan="6" class="vc-loading">Loading channel history...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="vc-pagination" id="pagination">
+        <!-- Pagination will be inserted here -->
+    </div>
+</div>

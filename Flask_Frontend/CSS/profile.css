@@ -1,3 +1,4 @@
+/* v5.0.0 */
 /* v4.0.0 */
 /* ==========================================================================
    Supporter Bot - Profile & Server Overview Styles
@@ -23,14 +24,16 @@
 .profile-header {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  background: rgba(30, 41, 59, 0.5);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 1.5rem;
-  padding: 2rem;
+  gap: 2rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--glass-border);
+  border-radius: 2rem;
+  padding: 3rem;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 12px 40px var(--shadow-color);
 }
 
 .profile-header::before {
@@ -40,15 +43,15 @@
   left: 0;
   right: 0;
   height: 4px;
-  background: linear-gradient(90deg, #6366f1, #a855f7, #ec4899);
+  background: var(--gradient-primary);
 }
 
 .profile-avatar {
-  width: 6rem;
-  height: 6rem;
+  width: 7rem;
+  height: 7rem;
   border-radius: 50%;
-  border: 4px solid rgba(99, 102, 241, 0.3);
-  box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+  border: 4px solid var(--bg-primary);
+  box-shadow: 0 0 0 4px var(--brand-purple), 0 20px 40px rgba(124, 58, 237, 0.4);
 }
 
 /* ==========================================================================
@@ -56,10 +59,10 @@
    ========================================================================== */
 
 .owner-panel {
-  background: rgba(239, 68, 68, 0.05);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 1.25rem;
-  padding: 1.5rem;
+  background: rgba(124, 58, 237, 0.05);
+  border: 1px solid rgba(124, 58, 237, 0.2);
+  border-radius: 1.5rem;
+  padding: 2rem;
 }
 
 /* ==========================================================================
@@ -67,19 +70,20 @@
    ========================================================================== */
 
 .stat-card {
-  background: rgba(30, 41, 59, 0.6);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 1rem;
-  padding: 1.5rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.25rem;
+  padding: 2rem;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .stat-card:hover {
-  background: rgba(30, 41, 59, 0.8);
-  border-color: rgba(99, 102, 241, 0.3);
-  transform: translateY(-4px);
+  background: var(--bg-card-hover);
+  border-color: var(--brand-purple-light);
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(124, 58, 237, 0.15);
 }
 
 /* ==========================================================================
@@ -88,26 +92,27 @@
 
 .server-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
 }
 
 .server-card {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  background: rgba(30, 41, 59, 0.5);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 1rem;
-  padding: 1rem;
-  transition: all 0.3s ease;
+  gap: 1.25rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .server-card:hover {
-  background: rgba(30, 41, 59, 0.8);
-  border-color: rgba(99, 102, 241, 0.3);
-  transform: translateX(4px);
+  background: var(--bg-card-hover);
+  border-color: var(--brand-purple-light);
+  transform: translateX(8px);
+  box-shadow: 0 10px 20px rgba(124, 58, 237, 0.1);
 }
 
 /* ==========================================================================
@@ -115,25 +120,25 @@
    ========================================================================== */
 
 .server-icon {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.75rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
   object-fit: cover;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
 }
 
 .server-icon-placeholder {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.75rem;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
+  background: var(--gradient-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 0.875rem;
+  font-weight: 800;
+  font-size: 1rem;
   color: white;
-  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 8px 16px rgba(124, 58, 237, 0.3);
 }
 
 /* ==========================================================================
@@ -141,43 +146,40 @@
    ========================================================================== */
 
 .btn-manage {
-  padding: 0.5rem 1rem;
-  background: rgba(99, 102, 241, 0.1);
-  border: 1px solid rgba(99, 102, 241, 0.2);
-  color: #a5b4fc;
-  font-size: 0.75rem;
-  font-weight: 700;
-  border-radius: 0.5rem;
+  padding: 0.625rem 1.25rem;
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  border-radius: 0.75rem;
   text-decoration: none;
   transition: all 0.3s ease;
   white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(124, 58, 237, 0.2);
 }
 
 .btn-manage:hover {
-  background: #6366f1;
-  border-color: #6366f1;
-  color: white;
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 8px 20px rgba(124, 58, 237, 0.4);
 }
 
 .btn-invite {
-  padding: 0.5rem 1rem;
+  padding: 0.625rem 1.25rem;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
-  font-size: 0.75rem;
-  font-weight: 700;
-  border-radius: 0.5rem;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-weight: 800;
+  border-radius: 0.75rem;
   text-decoration: none;
   transition: all 0.3s ease;
   white-space: nowrap;
 }
 
 .btn-invite:hover {
-  background: rgba(99, 102, 241, 0.1);
-  border-color: rgba(99, 102, 241, 0.3);
-  color: #a5b4fc;
+  background: rgba(124, 58, 237, 0.1);
+  border-color: var(--brand-purple-light);
+  color: var(--brand-purple-light);
 }
 
 /* ==========================================================================

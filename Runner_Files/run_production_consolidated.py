@@ -1,3 +1,4 @@
+# v5.0.0
 # v4.0.0
 """
 Runner to start the Flask frontend (CONSOLIDATED VERSION) and Discord bot within a single process.
@@ -43,6 +44,8 @@ logging.basicConfig(
     level=LOG_LEVEL,
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
+# Silence Werkzeug request logs
+logging.getLogger("werkzeug").setLevel(logging.WARNING)
 logger = logging.getLogger("run_production_consolidated")
 
 

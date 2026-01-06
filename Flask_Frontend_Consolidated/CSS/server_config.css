@@ -1,3 +1,4 @@
+/* v5.0.0 */
 /* v4.0.0 */
 /* ==========================================================================
    Supporter Bot Dashboard Styles
@@ -17,50 +18,46 @@
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   width: 100%;
-  padding: 0.875rem 1rem;
+  padding: 1rem 1.25rem;
   background: transparent;
   border: none;
-  border-radius: 0.75rem;
-  color: #94a3b8;
-  font-size: 0.875rem;
-  font-weight: 500;
+  border-radius: 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   text-align: left;
 }
 
 .nav-item:hover {
-  background: rgba(99, 102, 241, 0.1);
-  color: #a5b4fc;
+  background: rgba(124, 58, 237, 0.1);
+  color: var(--brand-purple-light);
+  transform: translateX(4px);
 }
 
 .nav-item.active {
-  background: linear-gradient(
-    135deg,
-    rgba(99, 102, 241, 0.2) 0%,
-    rgba(139, 92, 246, 0.1) 100%
-  );
+  background: var(--gradient-primary);
   color: white;
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  box-shadow: 0 4px 15px rgba(99, 102, 241, 0.15);
+  border: none;
+  box-shadow: 0 10px 20px rgba(124, 58, 237, 0.3);
 }
 
 .nav-item i {
-  font-size: 1rem;
-  width: 1.25rem;
+  font-size: 1.125rem;
+  width: 1.5rem;
   text-align: center;
 }
 
 .nav-divider {
-  font-size: 0.65rem;
-  font-weight: 700;
+  font-size: 0.7rem;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: #475569;
-  padding: 1.5rem 1rem 0.5rem;
-  margin-top: 0.5rem;
+  letter-spacing: 0.15em;
+  color: var(--text-muted);
+  padding: 2rem 1.25rem 0.75rem;
 }
 
 /* ==========================================================================
@@ -68,11 +65,7 @@
    ========================================================================== */
 
 .content-tab {
-  animation: fade-in-up 0.4s ease-out forwards;
-}
-
-.content-tab.hidden {
-  display: none;
+  animation: fade-in-up 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards;
 }
 
 /* ==========================================================================
@@ -82,59 +75,67 @@
 .setting-card {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  background: rgba(30, 41, 59, 0.5);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 1rem;
-  padding: 1.25rem;
-  transition: all 0.3s ease;
+  gap: 1.25rem;
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 1.25rem;
+  padding: 1.5rem;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  box-shadow: 0 4px 12px var(--shadow-color);
 }
 
 .setting-card:hover {
-  background: rgba(30, 41, 59, 0.7);
-  border-color: rgba(99, 102, 241, 0.2);
+  background: var(--bg-card-hover);
+  border-color: var(--brand-purple-light);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 24px rgba(124, 58, 237, 0.1);
 }
 
 .icon-bg {
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.75rem;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   flex-shrink: 0;
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: 0 8px 16px rgba(124, 58, 237, 0.2);
 }
 
 .setting-label {
-  font-weight: 700;
-  font-size: 0.9rem;
-  color: white;
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
 }
 
 .setting-desc {
-  font-size: 0.75rem;
-  color: #64748b;
-  margin-top: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  margin-top: 0.375rem;
+  line-height: 1.5;
 }
 
 .setting-input {
-  width: 5rem;
-  padding: 0.625rem 0.875rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
-  color: white;
-  font-size: 0.875rem;
-  font-weight: 600;
+  width: 6rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  color: var(--text-primary);
+  font-size: 0.9375rem;
+  font-weight: 700;
   text-align: center;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .setting-input:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 15px rgba(99, 102, 241, 0.2);
+  border-color: var(--brand-purple);
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.2);
   outline: none;
 }
 

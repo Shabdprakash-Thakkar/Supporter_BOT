@@ -1,3 +1,4 @@
+// v5.0.0
 // v4.0.0
 // ===== global_navbar.js =====
 (function () {

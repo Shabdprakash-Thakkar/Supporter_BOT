@@ -1,3 +1,4 @@
+# v5.0.0
 # v4.0.0
 """
 Flask Frontend for Supporter Discord Bot - OPTIMIZED HCJ VERSION
@@ -68,6 +69,9 @@ socket.setdefaulttimeout(30)
 logging.basicConfig(
     level=logging.INFO, format="[%(asctime)s] [%(name)s] [%(levelname)s] %(message)s"
 )
+# Silence Werkzeug request logs to prevent sensitive info leakage
+logging.getLogger("werkzeug").setLevel(logging.WARNING)
+
 log = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -1051,7 +1055,7 @@ def dashboard_voice_channels(guild_id):
             settings[key] = value
     
     return render_template(
-        'voice_channels.html',
+        'server_config.html',
         server=server,
         current_user=current_user,
         total_members=0,
@@ -1089,7 +1093,7 @@ def api_voice_stats(guild_id):
         })
     except Exception as e:
         log.error(f"Error fetching voice stats: {e}")
-        return jsonify({"error": "Failed to fetch stats"}), 500
+        return jsonify({"error": "Failed to fetch stats", "success": False}), 500
 
 
 @app.route("/api/voice-config/<guild_id>")
@@ -1106,7 +1110,7 @@ def api_voice_config(guild_id):
         config_res = supabase.table('join_to_create_config').select('*').eq('guild_id', guild_id).execute()
         
         if not config_res.data:
-            return jsonify({"success": False, "message": "Not configured"}), 200
+            return jsonify({"success": False, "error": "Not configured"}), 404
         
         config = config_res.data[0]
         
@@ -1126,10 +1130,70 @@ def api_voice_config(guild_id):
         except Exception as e:
             log.warning(f"Could not fetch Discord channel names for {guild_id}: {e}")
         
+        # Ensure force_private is returned as boolean
+        config['force_private'] = bool(config.get('force_private', False))
+        
         return jsonify(config)
     except Exception as e:
         log.error(f"Error fetching voice config for {guild_id}: {e}")
         return jsonify({"error": "Failed to fetch configuration"}), 500
+
+
+@app.route("/api/voice-config/<guild_id>", methods=["POST"])
+@login_required
+def api_update_voice_config(guild_id):
+    """
+    Update Join-to-Create configuration. Supports all configuration fields.
+    """
+    if not user_has_access(current_user.id, guild_id):
+        return jsonify({"error": "Unauthorized"}), 403
+
+    try:
+        data = request.get_json()
+        
+        updates = {
+            'guild_id': str(guild_id),
+            'updated_at': datetime.now().isoformat()
+        }
+
+        # Essential identification fields
+        if 'trigger_channel_id' in data:
+            updates['trigger_channel_id'] = str(data['trigger_channel_id'])
+        
+        if 'category_id' in data:
+            updates['category_id'] = str(data['category_id'])
+
+        # Optional settings fields
+        if 'private_vc_role_id' in data:
+            updates['private_vc_role_id'] = str(data['private_vc_role_id']) if data['private_vc_role_id'] else None
+        
+        if 'force_private' in data:
+            updates['force_private'] = bool(data['force_private'])
+        
+        if 'user_cooldown_seconds' in data:
+            try:
+                updates['user_cooldown_seconds'] = int(data['user_cooldown_seconds'])
+            except: pass
+            
+        if 'delete_delay_seconds' in data:
+            try:
+                updates['delete_delay_seconds'] = int(data['delete_delay_seconds'])
+            except: pass
+            
+        if 'min_session_minutes' in data:
+            try:
+                updates['min_session_minutes'] = int(data['min_session_minutes'])
+            except: pass
+
+        # Perform upsert so we can create the config if it doesn't exist
+        supabase.table('join_to_create_config').upsert(updates).execute()
+        
+        log_dashboard_activity(guild_id, "voice_config_update", f"Updated JTC settings: {list(updates.keys())}")
+        
+        return jsonify({"success": True, "message": "Configuration saved successfully"})
+    except Exception as e:
+        log.error(f"Error updating voice config for {guild_id}: {e}")
+        return jsonify({"error": f"Failed to save configuration: {str(e)}"}), 500
 
 
 @app.route("/api/voice-channels/<guild_id>")
@@ -1390,7 +1454,7 @@ def transcript_list(guild_id):
              pass
 
         return render_template(
-            "transcript_list.html",
+            "Tabs/config_transcript_list.html",
             guild_name=guild_name,
             guild_id=guild_id,
             tickets=tickets
@@ -1423,7 +1487,7 @@ def transcript_view(transcript_id):
              return "Access Denied", 403
 
         return render_template(
-            "transcript_view.html",
+            "Tabs/config_transcript_view.html",
             transcript=transcript
         )
 
@@ -2368,6 +2432,9 @@ def manage_clocks(guild_id):
             if not timezone or not channel_id:
                 return jsonify({"error": "Missing fields"}), 400
 
+            if not date_channel_id:
+                date_channel_id = None
+
             # Upsert clock
             supabase.table('server_time_configs').upsert({
                 'guild_id': guild_id,
@@ -2416,6 +2483,9 @@ def update_clock(guild_id, clock_id):
 
         if not new_timezone or not new_channel_id:
             return jsonify({"error": "Missing required fields"}), 400
+
+        if not new_date_channel_id:
+            new_date_channel_id = None
 
         # Update
         res = supabase.table('server_time_configs').update({
@@ -2568,7 +2638,7 @@ def manage_youtube(guild_id):
         if request.method == "GET":
             # Fetch existing config
             yt_res = supabase.table("youtube_notification_config").select(
-                "yt_channel_id, target_channel_id, custom_message, mention_role_id"
+                "yt_channel_id, target_channel_id, custom_message, mention_role_id, yt_channel_name"
             ).eq("guild_id", guild_id).execute()
 
             # FIXED: Changed from 'feeds' to 'configs' to match frontend expectation
@@ -2580,7 +2650,7 @@ def manage_youtube(guild_id):
                         "target_channel": row['target_channel_id'],
                         "message": row['custom_message'],
                         "role_id": row['mention_role_id'],
-                        "name": "Channel " + row['yt_channel_id'],  # Fallback name
+                        "name": row.get('yt_channel_name') or ("Channel " + row['yt_channel_id']),
                         "thumbnail": None  # Optional: fetch from cache if available
                     })
             
@@ -2951,7 +3021,7 @@ def toggle_reminder_status(guild_id, reminder_id):
         if not res.data:
             return jsonify({"error": "Not found"}), 404
         
-        current_status = res.data['status']
+        current_status = res.data[0]['status']
         new_status = "paused" if current_status == "active" else "active"
 
         supabase.table('reminders').update({'status': new_status}).eq('reminder_id', reminder_id).execute()
@@ -3474,7 +3544,11 @@ def analytics_settings(guild_id):
     # finally removed
 
 
+
+
 # ==================== RUNNER ====================
+
+
 
 
 # Schema migration removed as we use Supabase
